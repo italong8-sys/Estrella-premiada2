@@ -569,11 +569,53 @@
             document.getElementById('start-screen').classList.remove('hidden');
         }
         function requestPixPayout() {
-            const key = document.getElementById('pix-key').value;
-            if(!key) { alert("Insira uma chave Pix."); return; }
-            if(score < 1000) { alert("Pontuação mínima de 1000 pontos não atingida."); return; }
-            alert(`Processando saque!\nPontos: ${score}\nValor: R$ ${(score/1000).toFixed(2)}\nChave: ${key}\n\nConexão segura sendo estabelecida com o Firebase para chamar a API do Mercado Pago.`);
+    const key = document.getElementById('pix-key').value;
+    const pontosAtuais = score; // Usa a pontuação acumulada do jogador
+
+    if (!key) { 
+        alert("Por favor, insira uma chave PIX válida."); 
+        return; 
+    }
+    if (pontosAtuais < 1000) { 
+        alert("Você precisa de no mínimo 1000 pontos para realizar um saque."); 
+        return; 
+    }
+
+    // URL do seu backend seguro que você vai hospedar no Render ou Firebase
+    const URL_BACKEND = "https://seu-backend-pix.onrender.com/api/saque-pix";
+
+    alert("Processando seu saque via Pix... Por favor, aguarde.");
+
+    // Envia a solicitação para o servidor backend privado
+    fetch(URL_BACKEND, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            chavePix: key,
+            pontos: pontosAtuais
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`🎉 Saque realizado com sucesso!\n${data.message}`);
+            
+            // REGULAGEM DA PONTUAÇÃO: Zera os pontos convertidos e atualiza a tela
+            score = 0; 
+            updateHUD();
+            closeWithdraw();
+        } else {
+            alert(`❌ Erro no processamento: ${data.error}`);
         }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Houve um erro de comunicação com o servidor de pagamentos.");
+    });
+}
+
 
         // --- UTILITÁRIOS E CONFIGURAÇÕES ---
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
