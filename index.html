@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Arcade Ad-Shop Edition</title>
+    <title>Star Runner - Ultimate Live Pro</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -74,19 +74,20 @@
         .hud-accent { color: var(--accent); }
         .hud-secondary { color: var(--secondary); }
 
-        /* --- MENU DE CONFIGURAÇÕES --- */
+        /* --- MENU DE CONFIGURAÇÕES (Z-INDEX CORRIGIDO PARA TOPO ABSOLUTO) --- */
         .settings-gear {
             position: absolute; top: 12px; right: 15px;
-            font-size: 24px; cursor: pointer; z-index: 12;
+            font-size: 26px; cursor: pointer; z-index: 100;
             transition: transform 0.2s;
+            padding: 5px;
         }
         .settings-gear:hover { transform: rotate(45deg) scale(1.1); }
 
         .dropdown-menu {
-            position: absolute; top: 45px; right: 15px;
-            background: var(--surface); border: 1px solid rgba(128,128,128,0.3);
+            position: absolute; top: 50px; right: 15px;
+            background: var(--surface); border: 1px solid rgba(128,128,128,0.4);
             border-radius: 8px; padding: 10px; display: flex; flex-direction: column;
-            gap: 8px; z-index: 15; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            gap: 8px; z-index: 101; box-shadow: 0 4px 20px rgba(0,0,0,0.7);
         }
 
         /* --- TELAS DE INTERFACE --- */
@@ -131,24 +132,26 @@
         .data-list { width: 100%; max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 0; list-style: none; }
         .data-item { background: var(--surface-light); margin-bottom: 6px; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 
-        /* --- TEXTO NEON PISCANTE AVISO MASSA --- */
+        /* --- TEXTO NEON PISCANTE AVISO EM DESTAQUE --- */
         .neon-notice {
             position: absolute; bottom: 65px; left: 5%; width: 90%;
             text-align: center; font-size: 11px; font-weight: bold;
             color: #fff; text-transform: uppercase; letter-spacing: 1px;
-            animation: neonBlink 1.5s infinite alternate;
+            animation: neonBlink 1.2s infinite alternate;
             pointer-events: none;
+            z-index: 5;
         }
         @keyframes neonBlink {
             0% { text-shadow: 0 0 4px #fff, 0 0 10px var(--primary), 0 0 20px var(--primary); opacity: 1; }
-            100% { text-shadow: 0 0 1px #fff, 0 0 2px var(--primary); opacity: 0.5; }
+            100% { text-shadow: 0 0 2px #fff, 0 0 4px var(--primary); opacity: 0.6; }
         }
 
+        /* BANNER DE PROPAGANDA REAL LIVE COM IFRAME */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
-            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
-            font-size: 11px; color: var(--text-dim); border-top: 1px solid rgba(128,128,128,0.2);
-            z-index: 4; pointer-events: auto;
+            background: #000; display: flex; align-items: center; justify-content: center;
+            border-top: 1px solid rgba(128,128,128,0.3);
+            z-index: 99; overflow: hidden;
         }
     </style>
 </head>
@@ -165,30 +168,30 @@
             </div>
         </div>
 
-        <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
+        <div class="settings-gear" id="gear-trigger">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
-            <button class="btn btn-sm" onclick="toggleTheme()">☀️/🌙 Alternar Tema</button>
-            <button class="btn btn-sm" id="mute-btn" onclick="toggleMute()">🔇 Mutar Som</button>
-            <button class="btn btn-sm" onclick="toggleFullScreen()">📺 Tela Cheia</button>
-            <button class="btn btn-sm" onclick="openAdminLogin()" style="background:var(--primary); color:white;">🔒 Acesso Dev</button>
+            <button class="btn btn-sm" id="btn-theme-toggle">☀️/🌙 Alternar Tema</button>
+            <button class="btn btn-sm" id="mute-btn-toggle">🔇 Mutar Som</button>
+            <button class="btn btn-sm" id="btn-fullscreen-toggle">📺 Tela Cheia</button>
+            <button class="btn btn-sm" id="btn-admin-toggle" style="background:var(--primary); color:white;">🔒 Acesso Dev</button>
         </div>
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
         <div id="ad-banner-placement">
-            <span>Anúncio Publicitário Patrocinado</span>
+            <iframe src="https://omg10.com/4/11110940" width="100%" height="50" frameborder="0" scrolling="no" style="border:none; overflow:hidden; background:#000;"></iframe>
         </div>
 
         <div id="start-screen" class="screen">
-            <h1 style="font-size:46px; color:var(--accent); margin:0 0 15px 0; letter-spacing:4px;">STAR RUNNER</h1>
+            <h1 style="font-size:46px; color:var(--accent); margin:0 0 20px 0; letter-spacing:4px;">STAR RUNNER</h1>
 
-            <button class="btn btn-primary" onclick="startGame()" style="font-size: 16px; padding: 12px 40px;">Iniciar Corrida</button>
+            <button class="btn btn-primary" id="btn-start-run" style="font-size: 16px; padding: 12px 40px;">Iniciar Corrida</button>
             
             <div style="margin-top: 20px; display:flex; gap:8px;">
-                <button class="btn btn-sm" onclick="openShop()">Lojinha Ad-Shop</button>
-                <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
-                <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
-                <button class="btn btn-sm" onclick="triggerCoinReload()" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
+                <button class="btn btn-sm" id="btn-open-shop">Lojinha Ad-Shop</button>
+                <button class="btn btn-sm" id="btn-open-withdraw">Sacar Pix</button>
+                <button class="btn btn-sm" id="btn-open-history">Histórico</button>
+                <button class="btn btn-sm" id="btn-open-reload" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
             </div>
 
             <div class="neon-notice">
@@ -199,10 +202,10 @@
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
             <p style="color:#fff">Pontos obtidos: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
-            <button id="ad-life-btn" class="btn" style="background:#28a745; color:white; border:none;" onclick="watchAdForLife()">🎬 Obter 4ª Vida (Ver Anúncio)</button>
+            <button id="ad-life-btn" class="btn" style="background:#28a745; color:white; border:none;">🎬 Obter 4ª Vida (Ver Anúncio)</button>
             <div style="margin-top: 15px;">
-                <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
-                <button class="btn" onclick="backToMenu()">Menu Principal</button>
+                <button class="btn btn-primary" id="btn-retry-game">Tentar Novamente</button>
+                <button class="btn" id="btn-menu-back">Menu Principal</button>
             </div>
         </div>
 
@@ -213,12 +216,12 @@
                     <div style="font-weight:bold; color:var(--accent)">Carteira: <span id="shop-coins-txt">0</span> 🪙</div>
                 </div>
                 <div class="shop-tabs">
-                    <button class="btn btn-sm" onclick="changeShopTab('skins')">Skins/Objetos</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('themes')">Cenários Mundos</button>
+                    <button class="btn btn-sm" id="tab-skins-btn">Skins/Objetos</button>
+                    <button class="btn btn-sm" id="tab-themes-btn">Cenários Mundos</button>
                 </div>
                 <div class="shop-grid" id="shop-items-container"></div>
                 <div style="text-align: center; margin-top: 15px;">
-                    <button class="btn" onclick="closeShop()">Voltar ao Menu</button>
+                    <button class="btn" id="btn-close-shop">Voltar ao Menu</button>
                 </div>
             </div>
         </div>
@@ -228,16 +231,15 @@
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
             <div style="background: rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:10px;">Seu Saldo Pix: <span id="withdraw-balance">0</span></div>
             <input type="text" id="pix-key" placeholder="Digite sua Chave PIX (CPF/E-mail/Celular)">
-            <button class="btn btn-primary" onclick="requestPixPayout()">Solicitar Transferência</button>
-            <button class="btn" onclick="closeWithdraw()" style="background:#444; border:none;">Voltar</button>
+            <button class="btn btn-primary" id="btn-confirm-withdraw">Solicitar Transferência</button>
+            <button class="btn" id="btn-close-withdraw" style="background:#444; border:none;">Voltar</button>
         </div>
 
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3>Meu Histórico de Saques Pix</h3>
-                <ul class="data-list" id="history-list-container">
-                    </ul>
-                <div style="text-align:center;"><button class="btn btn-sm" onclick="closePixHistory()">Voltar</button></div>
+                <ul class="data-list" id="history-list-container"></ul>
+                <div style="text-align:center;"><button class="btn btn-sm" id="btn-close-history">Voltar</button></div>
             </div>
         </div>
 
@@ -245,16 +247,15 @@
             <h3>Painel do Desenvolvedor</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
             <input type="password" id="admin-pass-field" placeholder="Senha do Sistema">
-            <button class="btn btn-primary" onclick="verifyAdminLogin()">Entrar no Painel</button>
-            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:5px;">Cancelar</button>
+            <button class="btn btn-primary" id="btn-confirm-admin-login">Entrar no Painel</button>
+            <button class="btn btn-sm" id="btn-cancel-admin-login" style="background:#444; margin-top:5px;">Cancelar</button>
         </div>
 
         <div id="admin-dashboard-screen" class="screen hidden">
             <div class="panel-box" style="max-width:95%;">
                 <h3 style="margin:0 0 5px 0; color:var(--primary)">SAQUES PENDENTES (Faturamento Ads)</h3>
-                <ul class="data-list" id="admin-pending-list">
-                    </ul>
-                <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">Desconectar</button></div>
+                <ul class="data-list" id="admin-pending-list"></ul>
+                <div style="text-align:center;"><button class="btn btn-sm" id="btn-disconnect-admin">Desconectar</button></div>
             </div>
         </div>
     </div>
@@ -272,13 +273,11 @@
         let obstacleSpeed = 6.5, obstacleTimer = 0, currentSkinId = 'star', currentThemeId = 'cyber';
         let adLifeUsed = false, isMuted = false, currentShopTab = 'skins', frameCount = 0;
 
-        // CONTROLE DO SINTETIZADOR DE ÁUDIO CORRIGIDO (LAZY LOADING SAFE)
+        // Controle do Sintetizador de Áudio (Lazy Load Safe)
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch(e) { console.error("AudioContext não suportado."); }
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
             }
         }
 
@@ -287,7 +286,7 @@
         let coins = Number(localStorage.getItem('coins')) || 200;
         let pixHistoryData = JSON.parse(localStorage.getItem('pixHistoryData')) || [];
 
-        // Controle Permanente de Itens Desbloqueados pela Monetag
+        // Itens Desbloqueados pela Monetag
         let unlockedSkins = JSON.parse(localStorage.getItem('unlockedSkins')) || ['star'];
         let unlockedThemes = JSON.parse(localStorage.getItem('unlockedThemes')) || ['cyber'];
 
@@ -316,7 +315,7 @@
             else { document.exitFullscreen(); }
         }
 
-        // --- LOJA DE PRODUTOS SUPER EXPANDIDA E RECHEADA ---
+        // --- PRODUTOS COMPLETO DA LOJA ---
         const skinsDB = {
             'star': { name: '⭐ Estrela Guia', type: 'free', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, COLOR_ACCENT) },
             'diamond': { name: '💎 Diamante Ciano', type: 'ad', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, COLOR_SECONDARY) },
@@ -339,6 +338,9 @@
             'arctic': { name: '❄️ Glaciar Gelado', type: 'ad', skyTop: '#1a3c40', skyBottom: '#417d7a', groundColor: '#edeef7', obsColor: '#00d2c4' }
         };
 
+        const melody = [130, 147, 165, 196, 220, 196, 165, 147, 130, 165, 196, 220, 261, 220, 196, 165];
+        let bgmInterval = null, bgmStep = 0;
+
         function startBGM() {
             initAudio();
             if (!audioCtx) return;
@@ -355,8 +357,7 @@
 
         function playTone(freq, type, duration, volume = 0.05) {
             if (isMuted) return;
-            initAudio();
-            if (!audioCtx) return;
+            initAudio(); if (!audioCtx) return;
             try {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
@@ -385,12 +386,14 @@
             }
         }
 
-        // CONTROLES SEM TRAVA
+        // --- FILTRO DE COMANDOS DO TECLADO ---
         window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if(!gameActive && !document.getElementById('start-screen').classList.contains('hidden')) startGame(); else triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
         });
         window.addEventListener('keyup', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
         });
 
@@ -403,12 +406,44 @@
         });
         canvas.addEventListener('touchend', () => { triggerDuck(false); });
 
-        // --- LOOP DO MOTOR GRÁFICO ---
+        // --- CORREÇÃO DO MENU UNIFICADO (CLICK + TOUCHMOBILE) ---
+        function setInteractive(id, callback) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); callback(e); });
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); callback(e); });
+        }
+
+        setInteractive('gear-trigger', () => { document.getElementById('settings-dropdown').classList.toggle('hidden'); });
+        setInteractive('btn-theme-toggle', () => { document.documentElement.classList.toggle('light-theme'); });
+        setInteractive('mute-btn-toggle', () => { isMuted = !isMuted; document.getElementById('mute-btn-toggle').innerText = isMuted ? "🔊 Ativar Som" : "🔇 Mutar Som"; });
+        setInteractive('btn-fullscreen-toggle', () => { toggleFullScreen(); document.getElementById('settings-dropdown').classList.add('hidden'); });
+        setInteractive('btn-admin-toggle', () => { openAdminLogin(); });
+
+        setInteractive('btn-start-run', () => { startGame(); });
+        setInteractive('btn-open-shop', () => { openShop(); });
+        setInteractive('btn-open-withdraw', () => { openWithdraw(); });
+        setInteractive('btn-open-history', () => { openPixHistory(); });
+        setInteractive('btn-open-reload', () => { triggerCoinReload(); });
+
+        setInteractive('btn-retry-game', () => { resetGame(); });
+        setInteractive('btn-menu-back', () => { backToMenu(); });
+        setInteractive('btn-close-shop', () => { closeShop(); });
+        setInteractive('btn-close-withdraw', () => { closeWithdraw(); });
+        setInteractive('btn-close-history', () => { closePixHistory(); });
+        setInteractive('btn-cancel-admin-login', () => { closeAdminLogin(); });
+        setInteractive('btn-disconnect-admin', () => { closeAdminDashboard(); });
+        setInteractive('btn-confirm-admin-login', () => { verifyAdminLogin(); });
+        setInteractive('btn-confirm-withdraw', () => { requestPixPayout(); });
+        setInteractive('ad-life-btn', () => { watchAdForLife(); });
+
+        function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
+
+        // --- MOTOR LOOP GRÁFICO ---
         function gameUpdateAndRender() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
 
-            // VELOCIDADE E DIFICULDADE ATUALIZADOS DINAMICAMENTE A CADA 100 PONTOS
             let currentLevel = Math.min(6, Math.floor(score / 100) + 1);
             document.getElementById('hud-phase-txt').innerText = `Fase: ${currentLevel}`;
 
@@ -418,7 +453,6 @@
                 activeTheme = themesDB[cycle[currentLevel] || 'arctic'];
             }
 
-            // Renderizar Cenário Chão
             ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
             ctx.strokeStyle = activeTheme.groundColor; ctx.lineWidth = 4; ctx.stroke(); ctx.restore();
             document.getElementById('game-container').style.background = `radial-gradient(circle at center, ${activeTheme.skyTop} 0%, ${activeTheme.skyBottom} 100%)`;
@@ -429,7 +463,6 @@
                 if (player.y >= groundLimit) { player.y = groundLimit; player.velocity = 0; player.isJumping = false; }
 
                 obstacleTimer++;
-                // Quanto maior a fase, mais rápido brotam os obstáculos
                 let spawnRate = Math.max(28, 115 - (currentLevel * 12));
                 if (obstacleTimer > spawnRate) {
                     spawnObstacleByLevel(currentLevel, activeTheme.obsColor);
@@ -446,12 +479,10 @@
                     } else { ctx.fillRect(obs.x, obs.y, obs.width, obs.height); }
                     ctx.restore();
 
-                    // Colisão estruturada
                     if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
                         obstacles.splice(i, 1); handlePlayerHit(); continue;
                     }
 
-                    // Avanço de pontos e velocidade
                     if (!obs.passed && obs.x < player.x) {
                         obs.passed = true; score += 10; coins += 5;
                         saldoPixAcumulado += 10;
@@ -459,8 +490,6 @@
                         localStorage.setItem('coins', coins);
                         updateHUD();
                         playTone(480, 'sine', 0.04, 0.02);
-                        
-                        // Regulagem da velocidade multiplicada a cada passagem
                         if (score % 100 === 0) obstacleSpeed += 0.9;
                     }
                     if (obs.x < -40) obstacles.splice(i, 1);
@@ -475,9 +504,8 @@
 
         function spawnObstacleByLevel(level, defaultColor) {
             let rand = Math.random();
-            // Níveis maiores introduzem variações complexas de percurso voadores
             if (level >= 2 && rand > 0.45) {
-                let flyY = level >= 4 ? 260 : 282; // Pássaros mais altos exigem atenção
+                let flyY = level >= 4 ? 260 : 282;
                 obstacles.push({ x: 800, y: flyY, width: 32, height: 22, isFlying: true, color: '#ffaa00', passed: false });
             } else {
                 let obsH = (level >= 3 && rand > 0.75) ? 52 : 40;
@@ -496,15 +524,7 @@
             }
         }
 
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            gameActive = true;
-            startBGM();
-        }
-
         // --- SISTEMA DA HISTÓRICO DE PIX ---
-        function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); buildHistoryListDOM(); }
-        function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function buildHistoryListDOM() {
             const container = document.getElementById('history-list-container'); container.innerHTML = '';
             if(pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Nenhum saque registrado ainda.</li>"; return; }
@@ -516,7 +536,7 @@
             });
         }
 
-        // --- CONTROLE DE ACESSO DEV MANUAL BAAL ---
+        // --- CONTROLE DE ACESSO DEV MANUAL ---
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function verifyAdminLogin() {
@@ -572,10 +592,11 @@
                 } else {
                     btn.innerText = '🎬 Liberar com Ad';
                     btn.style.background = 'rgba(0, 242, 254, 0.15)';
-                    btn.style.borderColor = varColor('--secondary');
+                    btn.style.borderColor = '#00f2fe';
                 }
 
-                btn.onclick = () => {
+                btn.onclick = (e) => {
+                    e.preventDefault(); e.stopPropagation();
                     if (isUnlocked) {
                         if(currentShopTab === 'skins') currentSkinId = id; else currentThemeId = id;
                         buildShop();
@@ -587,30 +608,30 @@
             }
         }
 
+        // Criando mapeadores para as abas da loja responderem direto ao clique ou toque móvel
+        setInteractive('tab-skins-btn', () => { changeShopTab('skins'); });
+        setInteractive('tab-themes-btn', () => { changeShopTab('themes'); });
+
         function executeAdUnlock(id, type) {
-            // Abre o link do anúncio premiado Monetag
             window.open(MONETAG_SMARTLINK, "_blank");
-            
-            // Retorna concedendo e salvando o item permanentemente
             setTimeout(() => {
                 if (type === 'skins') {
                     if(!unlockedSkins.includes(id)) unlockedSkins.push(id);
-                    localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins));
-                    currentSkinId = id;
+                    localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id;
                 } else {
                     if(!unlockedThemes.includes(id)) unlockedThemes.push(id);
-                    localStorage.setItem('unlockedThemes', JSON.stringify(unlockedThemes));
-                    currentThemeId = id;
+                    localStorage.setItem('unlockedThemes', JSON.stringify(unlockedThemes)); currentThemeId = id;
                 }
                 alert("🎉 Incrível! O produto foi liberado e equipado permanentemente.");
-                buildShop();
-                updateHUD();
+                buildShop(); updateHUD();
             }, 1100);
         }
 
         // --- SOLICITAÇÃO SAQUE PIX ---
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('withdraw-balance').innerText = saldoPixAcumulado; document.getElementById('withdraw-screen').classList.remove('hidden'); }
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); buildHistoryListDOM(); }
+        
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
             if(!key) { alert("Digite uma chave Pix."); return; }
@@ -626,8 +647,6 @@
             updateHUD(); closeWithdraw();
         }
 
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
         function updateHUD() {
             document.getElementById('hud-score').innerText = score;
             document.getElementById('hud-total-pix').innerText = saldoPixAcumulado;
@@ -635,10 +654,10 @@
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; document.getElementById('hud-lives').innerText = h || '💀';
         }
 
-        function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; startBGM(); }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
+        function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.isDucking = false; player.height = player.baseHeight; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; startBGM(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.isDucking = false; player.height = player.baseHeight; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- RENDERIZADORES VETORIAIS DAS SKINS SUPREMAS ---
+        // --- RENDERIZADORES VETORIAIS DAS SKINS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
             g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius);
             for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; }
