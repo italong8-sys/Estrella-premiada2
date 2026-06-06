@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Pix Real Edition</title>
+    <title>Star Runner - Pix Real Otimizado</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -35,14 +35,11 @@
         }
 
         html, body {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             margin: 0; padding: 0;
             background-color: var(--bg);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         body {
@@ -51,7 +48,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Container do Jogo (Auto-Escala Responsiva) */
+        /* Container do Jogo Responsivo (Auto-Escala) */
         #game-container {
             position: relative;
             width: 800px; height: 400px;
@@ -69,10 +66,13 @@
         .hud {
             position: absolute; top: 15px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
-            font-size: 18px; font-weight: bold; pointer-events: none;
+            font-size: 16px; font-weight: bold; pointer-events: none;
             z-index: 5; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
+        .hud-group { display: flex; gap: 15px; }
         .hud-val { color: var(--primary); }
+        .hud-accent { color: var(--accent); }
+        .hud-secondary { color: var(--secondary); }
 
         /* --- MENU DE CONFIGURAÇÕES --- */
         .settings-gear {
@@ -89,7 +89,7 @@
             gap: 8px; z-index: 15; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        /* --- TELAS DO MENU/OVERLAYS --- */
+        /* --- TELAS DE INTERFACE --- */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85);
@@ -100,7 +100,7 @@
         }
         .hidden { display: none !important; }
 
-        /* --- BOTÕES CUSTOMIZADOS --- */
+        /* --- BOTÕES --- */
         .btn {
             background: var(--surface-light); color: var(--text);
             border: 1px solid rgba(128,128,128,0.2);
@@ -127,7 +127,6 @@
         }
         input[type="text"]:focus { border-color: var(--secondary); outline: none; }
 
-        /* --- BANNER PUBLICITÁRIO DE RODAPÉ --- */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
@@ -141,8 +140,11 @@
     <div id="game-container">
         <div class="hud">
             <div><span id="hud-lives">❤️❤️❤️</span></div>
-            <div>🏆 Partida: <span id="hud-score" class="hud-val">0</span></div>
-            <div>🪙 <span id="hud-coins" style="color:var(--accent)">200</span> moedas</div>
+            <div class="hud-group">
+                <div>Partida: <span id="hud-score" class="hud-val">0</span></div>
+                <div>Total Pix: <span id="hud-total-pix" class="hud-secondary">0</span> pts</div>
+                <div>Moedas: <span id="hud-coins" class="hud-accent">0</span></div>
+            </div>
         </div>
 
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
@@ -170,7 +172,7 @@
 
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
-            <p style="color:#fff">Pontuação obtida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
+            <p style="color:#fff">Pontuação da partida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
             <button id="ad-life-btn" class="btn" style="background:#28a745; color:white; border:none;" onclick="watchAdForLife()">🎬 Obter 4ª Vida (Ver Anúncio)</button>
             <div style="margin-top: 15px;">
                 <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
@@ -214,12 +216,16 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let gameActive = false, score = 0, lives = 3, coins = 200;
+        let gameActive = false, score = 0, lives = 3;
         let obstacleSpeed = 6.5, obstacleTimer = 0, currentSkinId = 'star', currentThemeId = 'cyber';
         let adLifeUsed = false, isMuted = false, currentShopTab = 'skins';
 
-        // REGULAGEM DO PIX ACUMULADO EM COOKIE/LOCALSTORAGE
-        let saldoPixAcumulado = parseInt(localStorage.getItem('saldoPixAcumulado')) || 0;
+        // --- CONTROLE DE PERSISTÊNCIA REFEITO (100% SEGURO) ---
+        let saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado'));
+        if (isNaN(saldoPixAcumulado)) { saldoPixAcumulado = 0; localStorage.setItem('saldoPixAcumulado', 0); }
+
+        let coins = Number(localStorage.getItem('coins'));
+        if (isNaN(coins)) { coins = 200; localStorage.setItem('coins', 200); }
 
         const COLOR_PRIMARY = '#ff007f';
         const COLOR_SECONDARY = '#00f2fe';
@@ -300,7 +306,7 @@
             } catch(e){}
         }
 
-        // --- CONTROLES INTELIGENTES ---
+        // --- CONTROLES ---
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
@@ -344,7 +350,6 @@
             }
         }
 
-        // --- MOTOR DE CORRIDA ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             gameActive = true;
@@ -411,9 +416,10 @@
                         score += 10; 
                         coins += 5;
                         
-                        // SALVA PONTUAÇÃO ADICIONADA AO HISTÓRICO PERMANENTE
+                        // ACUMULAÇÃO DO PIX FIXADA E SALVA NO STORAGE
                         saldoPixAcumulado += 10;
                         localStorage.setItem('saldoPixAcumulado', saldoPixAcumulado);
+                        localStorage.setItem('coins', coins);
 
                         updateHUD();
                         playTone(480, 'sine', 0.04, 0.02);
@@ -466,7 +472,7 @@
             }
         }
 
-        // --- MONETIZAÇÃO AD PREMIADO ---
+        // --- ANÚNCIOS PREMIADOS ---
         function watchAdForLife() {
             window.open(MONETAG_SMARTLINK, "_blank");
             setTimeout(() => {
@@ -480,9 +486,10 @@
             window.open(MONETAG_SMARTLINK, "_blank");
             setTimeout(() => {
                 coins += 1000;
+                localStorage.setItem('coins', coins);
                 updateHUD();
                 playTone(600, 'sine', 0.2, 0.05);
-                alert("⚡ Sucesso! +1000 moedas adicionadas em sua carteira.");
+                alert("⚡ +1000 moedas adicionadas com sucesso!");
             }, 1000);
         }
 
@@ -541,6 +548,7 @@
         function executePurchase(item, type, id) {
             if (item.cost > 0 && coins >= item.cost) {
                 coins -= item.cost; item.unlocked = true;
+                localStorage.setItem('coins', coins);
                 if(type === 'skin') currentSkinId = id; else currentThemeId = id;
                 alert("Item adquirido!"); buildShop(); updateHUD();
             } else if (item.type === 'ad') {
@@ -553,10 +561,9 @@
             } else { alert("Saldo insuficiente!"); }
         }
 
-        // --- SISTEMA DE SAQUE INTEGRADO E ACUMULATIVO ---
+        // --- SISTEMA DE SAQUE INTEGRADO ---
         function openWithdraw() {
             document.getElementById('start-screen').classList.add('hidden');
-            // ATUALIZA A TELA COM O VALOR SALVO E ACUMULADO NO ARQUIVO LOCAL
             document.getElementById('withdraw-balance').innerText = saldoPixAcumulado;
             document.getElementById('withdraw-screen').classList.remove('hidden');
         }
@@ -567,52 +574,47 @@
         
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value;
-            const pontosParaSacar = saldoPixAcumulado; // Lê a pontuação acumulada salva
+            const pontosParaSacar = saldoPixAcumulado;
 
             if(!key) { alert("Por favor, digite sua chave Pix."); return; }
-            if(pontosParaSacar < 1000) { alert("Você precisa de no mínimo 1000 pontos acumulados para sacar."); return; }
+            if(pontosParaSacar < 1000) { alert("Você precisa de no mínimo 1000 pontos para sacar."); return; }
 
-            alert("Processando transação com o Mercado Pago... Aguarde.");
+            alert("Conectando ao servidor seguro para processar seu Pix...");
 
-            // Dispara para o backend seguro no Render
             fetch(URL_BACKEND_PIX, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    chavePix: key,
-                    pontos: pontosParaSacar
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chavePix: key, pontos: pontosParaSacar })
             })
             .then(response => response.json())
             .then(data => {
                 if(data.success) {
-                    alert(`🎉 Sucesso total!\n${data.message}`);
+                    alert(`🎉 Transferência aprovada!\n${data.message}`);
                     
-                    // REGULAGEM DA PONTUAÇÃO: Zera apenas após o backend do Mercado Pago confirmar o envio
+                    // Sincroniza e zera os pontos reais após confirmação
                     saldoPixAcumulado = 0;
                     localStorage.setItem('saldoPixAcumulado', 0);
                     
                     updateHUD();
                     closeWithdraw();
                 } else {
-                    alert(`❌ Falha no processamento: ${data.error}`);
+                    alert(`❌ Erro no envio: ${data.error}`);
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert("Erro crítico ao tentar conectar ao seu servidor de pagamentos Pix.");
+                alert("Falha ao comunicar com o servidor de pagamentos.");
             });
         }
 
-        // --- EXTRA CONFIGS ---
+        // --- AUXILIARES ---
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
         function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔊 Ativar Som" : "🔇 Mutar Som"; }
         function toggleTheme() { document.documentElement.classList.toggle('light-theme'); }
 
         function updateHUD() {
             document.getElementById('hud-score').innerText = score;
+            document.getElementById('hud-total-pix').innerText = saldoPixAcumulado;
             document.getElementById('hud-coins').innerText = coins;
             let h = ''; for(let i=0; i<lives; i++) h += '❤️';
             document.getElementById('hud-lives').innerText = h || '💀';
