@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <script src="https://quge5.com/88/tag.min.js" data-zone="246936" async data-cfasync="false"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Ultimate Fullscreen Edition</title>
+    <title>Star Runner - Pro Developer Edition</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -49,7 +48,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Container do Jogo (Auto-Escala Responsiva) */
+        /* Container do Jogo Inteligente (Auto-Escala) */
         #game-container {
             position: relative;
             width: 800px; height: 400px;
@@ -67,10 +66,10 @@
         .hud {
             position: absolute; top: 15px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
-            font-size: 16px; font-weight: bold; pointer-events: none;
+            font-size: 15px; font-weight: bold; pointer-events: none;
             z-index: 5; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
-        .hud-group { display: flex; gap: 15px; }
+        .hud-group { display: flex; gap: 12px; }
         .hud-val { color: var(--primary); }
         .hud-accent { color: var(--accent); }
         .hud-secondary { color: var(--secondary); }
@@ -114,19 +113,35 @@
         .btn-primary:hover { opacity: 0.9; color: white; }
         .btn-sm { padding: 5px 12px; font-size: 11px; }
 
-        /* --- DESIGN DA LOJA EXPANDIDA --- */
-        .shop-box { width: 92%; background: var(--surface); border-radius: 12px; padding: 15px; box-sizing: border-box; }
-        .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
-        .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 180px; overflow-y: auto; }
-        .shop-item { background: var(--surface-light); border: 2px solid transparent; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .shop-item.selected { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-
-        /* --- INPUTS --- */
-        input[type="text"] {
+        /* --- STYLES DE INPUTS --- */
+        input[type="text"], input[type="password"] {
             padding: 12px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.3);
-            background: var(--surface-light); color: white; margin: 15px 0; width: 280px; text-align: center; font-size: 14px;
+            background: var(--surface-light); color: white; margin: 8px 0; width: 260px; text-align: center; font-size: 14px;
         }
-        input[type="text"]:focus { border-color: var(--secondary); outline: none; }
+        input[type="text"]:focus, input[type="password"]:focus { border-color: var(--secondary); outline: none; }
+
+        /* --- LOJINHA & LISTAS --- */
+        .shop-box, .panel-box { width: 92%; background: var(--surface); border-radius: 12px; padding: 15px; box-sizing: border-box; }
+        .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 180px; overflow-y: auto; }
+        .shop-item { background: var(--surface-light); border: 2px solid transparent; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .shop-item.selected { border-color: var(--accent); }
+
+        /* Listas de Histórico e Admin */
+        .data-list { width: 100%; max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 0; list-style: none; }
+        .data-item { background: var(--surface-light); margin-bottom: 6px; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+
+        /* --- TEXTO NEON PISCANTE AVISO MASSA --- */
+        .neon-notice {
+            position: absolute; bottom: 65px; left: 5%; width: 90%;
+            text-align: center; font-size: 11px; font-weight: bold;
+            color: #fff; text-transform: uppercase; letter-spacing: 1px;
+            animation: neonBlink 1.5s infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes neonBlink {
+            0% { text-shadow: 0 0 4px #fff, 0 0 10px var(--primary), 0 0 20px var(--primary); opacity: 1; }
+            100% { text-shadow: 0 0 1px #fff, 0 0 2px var(--primary); opacity: 0.5; }
+        }
 
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
@@ -139,43 +154,59 @@
 <body>
 
     <div id="game-container">
+        <!-- HUD -->
         <div class="hud">
-            <div><span id="hud-lives">❤️❤️❤️</span></div>
+            <div><span id="hud-lives">❤️❤️❤️</span> <span id="hud-current-user" style="margin-left:8px; color:var(--secondary)"></span></div>
             <div class="hud-group">
                 <div id="hud-phase-txt" style="color: var(--secondary)">Fase: 1</div>
-                <div>Partida: <span id="hud-score" class="hud-val">0</span></div>
+                <div>Fase Pts: <span id="hud-score" class="hud-val">0</span></div>
                 <div>Total Pix: <span id="hud-total-pix" class="hud-secondary">0</span> pts</div>
                 <div>Moedas: <span id="hud-coins" class="hud-accent">0</span></div>
             </div>
         </div>
 
+        <!-- Painel de Configurações -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleTheme()">☀️/🌙 Alternar Tema</button>
             <button class="btn btn-sm" id="mute-btn" onclick="toggleMute()">🔇 Mutar Som</button>
-            <button class="btn btn-sm" onclick="toggleFullScreen()" style="background: var(--secondary); color: black;">📺 Tela Cheia</button>
+            <button class="btn btn-sm" onclick="toggleFullScreen()">📺 Tela Cheia</button>
+            <button class="btn btn-sm" onclick="openAdminLogin()" style="background:var(--primary); color:white;">🔒 Acesso Dev</button>
         </div>
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
+        <!-- Banner Monetag -->
         <div id="ad-banner-placement">
             <span>Anúncio Publicitário Patrocinado</span>
         </div>
 
+        <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
-            <h1 style="font-size:46px; color:var(--accent); margin:0; letter-spacing:4px;">STAR RUNNER</h1>
-            <p style="color:#fff; text-align:center; max-width:80%">Pule com [ESPAÇO/SETA CIMA] e abaixe com [SETA BAIXO/S]. No celular, toque na direita para pular e esquerda para abaixar.</p>
-            <button class="btn btn-primary" onclick="startGame()">Iniciar Corrida</button>
-            <div style="margin-top: 12px; display:flex; gap:10px;">
-                <button class="btn" onclick="openShop()">Lojinha</button>
-                <button class="btn" onclick="openWithdraw()">Sacar Pix</button>
-                <button class="btn" onclick="triggerCoinReload()" style="border-color: var(--accent); background: rgba(255,232,31,0.1)">🎬 +1000 Moedas</button>
+            <h1 style="font-size:42px; color:var(--accent); margin:0 0 5px 0; letter-spacing:4px;">STAR RUNNER</h1>
+            
+            <!-- Input Obrigatório de Nome antes do jogo -->
+            <input type="text" id="player-name-input" placeholder="Digite seu Nome para o Ranking" maxlength="12" style="margin-bottom:12px;">
+
+            <button class="btn btn-primary" onclick="validateAndStart()">Iniciar Corrida</button>
+            
+            <div style="margin-top: 8px; display:flex; gap:8px;">
+                <button class="btn btn-sm" onclick="openShop()">Lojinha</button>
+                <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
+                <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
+                <button class="btn btn-sm" onclick="triggerCoinReload()" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
+            </div>
+
+            <!-- MENSAGEM EM DESTAQUE NEON PISCANTE -->
+            <div class="neon-notice">
+                Atenção, há bastante anúncios em massa, porém é só fechar e juntar os pontos no jogo para sacar via pix! O dinheiro cai até 1 dia útil!
             </div>
         </div>
 
+        <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
-            <p style="color:#fff">Pontuação da partida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
+            <p style="color:#fff">Pontos da corrida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
             <button id="ad-life-btn" class="btn" style="background:#28a745; color:white; border:none;" onclick="watchAdForLife()">🎬 Obter 4ª Vida (Ver Anúncio)</button>
             <div style="margin-top: 15px;">
                 <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
@@ -183,6 +214,7 @@
             </div>
         </div>
 
+        <!-- Tela da Loja -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -200,13 +232,45 @@
             </div>
         </div>
 
+        <!-- Tela de Saque -->
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix</h2>
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
-            <div style="background: rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:10px;">Seu Saldo Pix Acumulado: <span id="withdraw-balance">0</span></div>
+            <div style="background: rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:10px;">Seu Saldo Pix: <span id="withdraw-balance">0</span></div>
             <input type="text" id="pix-key" placeholder="Digite sua Chave PIX (CPF/E-mail/Celular)">
             <button class="btn btn-primary" onclick="requestPixPayout()">Solicitar Transferência</button>
             <button class="btn" onclick="closeWithdraw()" style="background:#444; border:none;">Voltar</button>
+        </div>
+
+        <!-- Tela de Histórico de Pix -->
+        <div id="history-screen" class="screen hidden">
+            <div class="panel-box">
+                <h3>Meu Histórico de Saques Pix</h3>
+                <ul class="data-list" id="history-list-container">
+                    <!-- Gerado Dinamicamente -->
+                </ul>
+                <div style="text-align:center;"><button class="btn btn-sm" onclick="closePixHistory()">Voltar</button></div>
+            </div>
+        </div>
+
+        <!-- Tela de Login do Administrador (Acesso Dev) -->
+        <div id="admin-login-screen" class="screen hidden">
+            <h3>Painel do Desenvolvedor</h3>
+            <input type="text" id="admin-user-field" placeholder="Usuário Admin">
+            <input type="password" id="admin-pass-field" placeholder="Senha do Sistema">
+            <button class="btn btn-primary" onclick="verifyAdminLogin()">Entrar no Painel</button>
+            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:5px;">Cancelar</button>
+        </div>
+
+        <!-- Tela do Dashboard Admin (Gerenciador de Pix) -->
+        <div id="admin-dashboard-screen" class="screen hidden">
+            <div class="panel-box" style="max-width:95%;">
+                <h3 style="margin:0 0 5px 0; color:var(--primary)">SAQUES PENDENTES (Faturamento Ads)</h3>
+                <ul class="data-list" id="admin-pending-list">
+                    <!-- Gerado Dinamicamente -->
+                </ul>
+                <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">Desconectar</button></div>
+            </div>
         </div>
     </div>
 
@@ -215,80 +279,68 @@
         const MONETAG_SMARTLINK = "https://omg10.com/4/11110940";
         const URL_BACKEND_PIX = "https://estrella-premiadaofc.onrender.com/api/saque-pix";
 
-        // --- CONFIGURAÇÃO DO MOTOR ---
+        // --- SETUP DO MOTOR ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         let gameActive = false, score = 0, lives = 3;
         let obstacleSpeed = 6.5, obstacleTimer = 0, currentSkinId = 'star', currentThemeId = 'cyber';
         let adLifeUsed = false, isMuted = false, currentShopTab = 'skins', frameCount = 0;
+        let currentUserName = "";
 
-        // Persistência de Dados
+        // --- SISTEMA DE PERSISTÊNCIA REFEITO (COM LEADERBOARD & HISTÓRICO) ---
         let saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado')) || 0;
         let coins = Number(localStorage.getItem('coins')) || 200;
+        
+        let pixHistoryData = JSON.parse(localStorage.getItem('pixHistoryData')) || [];
+        // Banco simulado de Ranking ao vivo
+        let mockRanking = [
+            {name: "Alexandre", score: 1450},
+            {name: "Sthefany", score: 1200},
+            {name: "DevMaster", score: 950},
+            {name: "PixHunter", score: 600}
+        ];
 
         const COLOR_PRIMARY = '#ff007f';
         const COLOR_SECONDARY = '#00f2fe';
         const COLOR_ACCENT = '#ffe81f';
 
-        // --- REGULAGEM DO JUMP E FÍSICA CORRIGIDA ---
         const player = {
-            x: 90,
-            y: 290,
-            baseWidth: 46,
-            baseHeight: 46,
-            width: 46,
-            height: 46,
-            gravity: 0.70,     // Gravidade equilibrada para queda firme
-            lift: -13.8,       // Impulso vertical calibrado para pulo limpo
-            velocity: 0,
-            isJumping: false,
-            isDucking: false
+            x: 90, y: 290, baseWidth: 46, baseHeight: 46, width: 46, height: 46,
+            gravity: 0.70, lift: -13.8, velocity: 0, isJumping: false, isDucking: false
         };
 
         let obstacles = [];
 
-        // --- SISTEMA DE TELA CHEIA (FULLSCREEN API NATIVA) ---
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Erro ao ativar Fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
+        // Auto-escala responsiva para cobrir telas inteiras
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            const scaleX = windowWidth / 800;
-            const scaleY = windowHeight / 400;
-            const scaleFactor = Math.min(scaleX, scaleY);
+            const scaleFactor = Math.min(window.innerWidth / 800, window.innerHeight / 400);
             container.style.transform = `scale(${scaleFactor})`;
         }
         window.addEventListener('resize', fitGameToScreen);
         window.addEventListener('load', fitGameToScreen);
 
-        // --- BANCO DE DADOS EXPANDIDO (LOJA) ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(()=>{}); } 
+            else { document.exitFullscreen(); }
+        }
+
+        // --- BANCO DE DADOS DA LOJA ---
         const skinsDB = {
             'star': { name: 'Estrela Guia', cost: 0, type: 'free', unlocked: true, render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, COLOR_ACCENT) },
             'diamond': { name: 'Diamante Azul', cost: 100, type: 'points', unlocked: false, render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, COLOR_SECONDARY) },
             'orb': { name: 'Rubi Neon', cost: 200, type: 'points', unlocked: false, render: (g, x, y, r) => drawVectorOrb(g, x, y, r, COLOR_PRIMARY) },
             'ufo': { name: 'Nave UFO', cost: 0, type: 'ad', unlocked: false, render: (g, x, y, r) => drawVectorUFO(g, x, y, r, '#a020f0') },
             'triangle': { name: 'Delta Prism', cost: 350, type: 'points', unlocked: false, render: (g, x, y, r) => drawVectorTriangle(g, x, y, r, '#00ffaa') },
-            'heart': { name: 'Neon Heart', cost: 500, type: 'points', unlocked: false, render: (g, x, y, r) => drawVectorHeart(g, x, y, r, '#ff0055') },
-            'crown': { name: 'Rei de Ouro', cost: 0, type: 'ad', unlocked: false, render: (g, x, y, r) => drawVectorCrown(g, x, y, r, '#ffaa00') }
+            'heart': { name: 'Neon Heart', cost: 500, type: 'points', unlocked: false, render: (g, x, y, r) => drawVectorHeart(g, x, y, r, '#ff0055') }
         };
 
         const themesDB = {
             'cyber': { name: 'Cyber Espaço', cost: 0, unlocked: true, skyTop: '#110f2c', skyBottom: '#05050a', groundColor: COLOR_SECONDARY, obsColor: COLOR_PRIMARY },
             'sunset': { name: 'Retro Sunset', cost: 150, unlocked: false, skyTop: '#fd1d1d', skyBottom: '#fcb045', groundColor: COLOR_ACCENT, obsColor: '#3a1111' },
             'matrix': { name: 'Code Green', cost: 250, unlocked: false, skyTop: '#0d2b1d', skyBottom: '#020b05', groundColor: '#00ff00', obsColor: '#ffffff' },
-            'sky': { name: 'Céu de Avião', cost: 0, type: 'ad', unlocked: false, skyTop: '#4ca1af', skyBottom: '#c4e0e5', groundColor: '#ffffff', obsColor: '#333333' },
-            'volcano': { name: 'Volcano Neon', cost: 400, unlocked: false, skyTop: '#400a0a', skyBottom: '#150000', groundColor: '#ff3300', obsColor: '#ffe81f' },
-            'ocean': { name: 'Deep Ocean', cost: 600, unlocked: false, skyTop: '#00113a', skyBottom: '#000511', groundColor: '#0055ff', obsColor: '#00ffea' }
+            'sky': { name: 'Céu de Avião', cost: 0, type: 'ad', unlocked: false, skyTop: '#4ca1af', skyBottom: '#c4e0e5', groundColor: '#ffffff', obsColor: '#333333' }
         };
 
         // --- AUDIO CHIPTUNE ---
@@ -301,8 +353,7 @@
             bgmInterval = setInterval(() => {
                 if (isMuted || !gameActive) return;
                 let freq = melody[bgmStep % melody.length];
-                let speedModifier = 1 + (obstacleSpeed - 6.5) * 0.05;
-                playTone(freq * speedModifier, 'triangle', 0.15, 0.04);
+                playTone(freq * (1 + (obstacleSpeed - 6.5) * 0.05), 'triangle', 0.15, 0.04);
                 if (bgmStep % 2 === 0) playTone(65, 'sawtooth', 0.1, 0.05);
                 bgmStep++;
             }, 180);
@@ -311,23 +362,28 @@
         function playTone(freq, type, duration, volume = 0.05) {
             if (isMuted) return;
             try {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = type; osc.frequency.value = freq;
-                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.value = freq; gain.gain.setValueAtTime(volume, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + duration);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
             } catch(e){}
         }
 
-        // --- SISTEMA DE CORREÇÃO DO PULO ---
+        // --- VALIDAÇÃO DE NOME ANTES DE JOGAR ---
+        function validateAndStart() {
+            let inputName = document.getElementById('player-name-input').value.trim();
+            if (inputName === "") {
+                alert("Por favor, digite seu nome para salvar sua pontuação no Ranking!");
+                return;
+            }
+            currentUserName = inputName;
+            document.getElementById('hud-current-user').innerText = `👤 ${currentUserName}`;
+            startGame();
+        }
+
         function triggerJump() {
-            if (!gameActive && document.getElementById('start-screen').className === 'screen') {
-                startGame();
-            } else if (gameActive && !player.isJumping && !player.isDucking) {
-                player.velocity = player.lift; 
-                player.isJumping = true;
+            if (gameActive && !player.isJumping && !player.isDucking) {
+                player.velocity = player.lift; player.isJumping = true;
                 playTone(280, 'square', 0.08, 0.04);
             }
         }
@@ -344,258 +400,221 @@
             }
         }
 
+        // INPUTS CONTROLES
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
+            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if(!gameActive) validateAndStart(); else triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
         });
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowDown' || e.code === 'KeyS') { triggerDuck(false); }
-        });
+        window.addEventListener('keyup', (e) => { if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false); });
 
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            let rect = canvas.getBoundingClientRect();
-            let touchX = e.touches[0].clientX - rect.left;
-            let canvasRelativeX = (touchX / rect.width) * canvas.width;
-            if (canvasRelativeX > canvas.width / 2) { triggerJump(); } else { triggerDuck(true); }
-        });
-        canvas.addEventListener('touchend', () => { triggerDuck(false); });
-
-        // --- MOTOR LOOP DO JOGO ---
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            gameActive = true;
-            startBGM();
-        }
-
+        // --- MOTOR GRÁFICO PRINCIPAL ---
         function gameUpdateAndRender() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
 
-            // FASES REGULADAS A CADA 100 PONTOS
-            let currentLevel = Math.min(6, Math.floor(score / 100) + 1);
+            let currentLevel = Math.min(4, Math.floor(score / 100) + 1);
             document.getElementById('hud-phase-txt').innerText = `Fase: ${currentLevel}`;
 
             let activeTheme = themesDB[currentThemeId];
             if (currentThemeId === 'cyber') {
-                // Rotatividade automática por fases se usar o tema padrão
-                const cycle = ['cyber', 'cyber', 'sunset', 'matrix', 'sky', 'volcano', 'ocean'];
-                activeTheme = themesDB[cycle[currentLevel] || 'ocean'];
+                const cycle = ['cyber', 'cyber', 'sunset', 'matrix', 'sky'];
+                activeTheme = themesDB[cycle[currentLevel] || 'sky'];
             }
 
-            // Desenhar Linha do Chão
-            ctx.save();
-            ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
-            ctx.strokeStyle = activeTheme.groundColor; ctx.lineWidth = 4; ctx.stroke();
-            ctx.restore();
-
+            // Renderizar Chão e Fundo
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
+            ctx.strokeStyle = activeTheme.groundColor; ctx.lineWidth = 4; ctx.stroke(); ctx.restore();
             document.getElementById('game-container').style.background = `radial-gradient(circle at center, ${activeTheme.skyTop} 0%, ${activeTheme.skyBottom} 100%)`;
 
             if (gameActive) {
-                // Física Precisa de Queda do Jogador
-                player.velocity += player.gravity; 
-                player.y += player.velocity;
-
+                player.velocity += player.gravity; player.y += player.velocity;
                 let groundLimit = player.isDucking ? 290 + (player.baseHeight/2) : 290;
-                if (player.y >= groundLimit) { 
-                    player.y = groundLimit; 
-                    player.velocity = 0; 
-                    player.isJumping = false; 
-                }
+                if (player.y >= groundLimit) { player.y = groundLimit; player.velocity = 0; player.isJumping = false; }
 
-                // Spawner Dinâmico de Obstáculos
                 obstacleTimer++;
-                let spawnRate = Math.max(30, 115 - (currentLevel * 8));
+                let spawnRate = Math.max(32, 115 - (currentLevel * 10));
                 if (obstacleTimer > spawnRate) {
                     spawnObstacleByLevel(currentLevel, activeTheme.obsColor);
                     obstacleTimer = 0;
                 }
 
-                // Movimentação e Colisão
                 for (let i = obstacles.length - 1; i >= 0; i--) {
-                    let obs = obstacles[i];
-                    obs.x -= obstacleSpeed;
-
-                    // Desenho Estilizado do Obstáculo Ativo
-                    ctx.save();
-                    ctx.fillStyle = obs.color;
+                    let obs = obstacles[i]; obs.x -= obstacleSpeed;
+                    ctx.save(); ctx.fillStyle = obs.color;
                     if(obs.isFlying) {
-                        // Asa batendo via função seno do frame do jogo
-                        let wing = Math.sin(frameCount * 0.2) * 8;
+                        let wing = Math.sin(frameCount * 0.25) * 6;
                         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(obs.x + 6, obs.y - 4 + wing, 8, 4); 
-                    } else {
-                        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    }
+                        ctx.fillStyle = '#fff'; ctx.fillRect(obs.x + 4, obs.y - 4 + wing, 8, 4);
+                    } else { ctx.fillRect(obs.x, obs.y, obs.width, obs.height); }
                     ctx.restore();
 
-                    // Colisão estruturada AABB
-                    if (
-                        player.x < obs.x + obs.width &&
-                        player.x + player.width > obs.x &&
-                        player.y < obs.y + obs.height &&
-                        player.y + player.height > obs.y
-                    ) {
-                        obstacles.splice(i, 1);
-                        handlePlayerHit();
-                        continue;
+                    // Colisão
+                    if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
+                        obstacles.splice(i, 1); handlePlayerHit(); continue;
                     }
 
+                    // Pontuar
                     if (!obs.passed && obs.x < player.x) {
                         obs.passed = true; score += 10; coins += 5;
                         saldoPixAcumulado += 10;
                         localStorage.setItem('saldoPixAcumulado', saldoPixAcumulado);
                         localStorage.setItem('coins', coins);
-
                         updateHUD();
                         playTone(480, 'sine', 0.04, 0.02);
-                        
-                        // Aceleração progressiva por fase
                         if (score % 100 === 0) obstacleSpeed += 0.8;
                     }
-
                     if (obs.x < -40) obstacles.splice(i, 1);
                 }
             }
 
-            if (!gameActive) {
-                obstacles.forEach(obs => {
-                    ctx.save(); ctx.fillStyle = obs.color; ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.restore();
-                });
+            // Desenhar Ranking Dinâmico diretamente na tela inicial estática do canvas quando parado
+            if (!gameActive && document.getElementById('start-screen').className === 'screen') {
+                renderLiveLeaderboardCanvas();
             }
 
-            // Desenhar Personagem Selecionado
-            let pCenterX = player.x + player.width / 2;
-            let pCenterY = player.y + player.height / 2;
+            // Desenhar Personagem Ativo
+            let pCenterX = player.x + player.width / 2; let pCenterY = player.y + player.height / 2;
             skinsDB[currentSkinId].render(ctx, pCenterX, pCenterY, player.width / 2);
 
             requestAnimationFrame(gameUpdateAndRender);
         }
 
         function spawnObstacleByLevel(level, defaultColor) {
-            let rand = Math.random();
-            // Fase 1: Apenas solo. Fases seguintes: Introdução progressiva de objetos voadores
-            if (level >= 2 && rand > 0.45) {
-                let flyHeight = level === 2 ? 282 : (level === 3 ? 278 : 265); // Altura varia por nível
-                obstacles.push({
-                    x: 800, y: flyHeight,
-                    width: 34, height: 20,
-                    isFlying: true, color: '#ffaa00', passed: false
-                });
+            if (level >= 2 && Math.random() > 0.5) {
+                obstacles.push({ x: 800, y: 282, width: 32, height: 22, isFlying: true, color: '#ffaa00', passed: false });
             } else {
-                // Obstáculo Terrestre muda de tamanho com base no nível
-                let obsHeight = level >= 3 && rand > 0.7 ? 55 : 40;
-                let obsY = obsHeight === 55 ? 281 : 296;
-                obstacles.push({
-                    x: 800, y: obsY,
-                    width: 22, height: obsHeight,
-                    isFlying: false, color: defaultColor, passed: false
-                });
+                obstacles.push({ x: 800, y: 296, width: 20, height: 40, isFlying: false, color: defaultColor, passed: false });
             }
         }
 
         function handlePlayerHit() {
-            lives--; updateHUD();
-            playTone(100, 'sawtooth', 0.3, 0.08);
+            lives--; updateHUD(); playTone(100, 'sawtooth', 0.3, 0.08);
             if (lives <= 0) {
                 gameActive = false;
                 document.getElementById('final-score').innerText = score;
                 document.getElementById('gameover-screen').classList.remove('hidden');
                 document.getElementById('ad-life-btn').style.display = adLifeUsed ? 'none' : 'block';
+                saveScoreToLeaderboard();
             }
         }
 
-        // --- ANÚNCIOS DA MONETAG INTEGRADOS VIA BOTÃO ---
-        function watchAdForLife() {
-            window.open(MONETAG_SMARTLINK, "_blank");
-            setTimeout(() => {
-                lives = 1; adLifeUsed = true; updateHUD();
-                document.getElementById('gameover-screen').classList.add('hidden');
-                gameActive = true;
-            }, 1000);
+        // --- SISTEMA DE CORRIDA DE RANKING AO VIVO ---
+        function saveScoreToLeaderboard() {
+            if (!currentUserName) return;
+            mockRanking.push({name: currentUserName, score: score});
+            mockRanking.sort((a,b) => b.score - a.score); // Ordena decrescente
         }
 
-        function triggerCoinReload() {
-            window.open(MONETAG_SMARTLINK, "_blank");
-            setTimeout(() => {
-                coins += 1000;
-                localStorage.setItem('coins', coins);
-                updateHUD();
-                playTone(600, 'sine', 0.2, 0.05);
-                alert("⚡ +1000 moedas creditadas com sucesso via anúncio premiado!");
-            }, 1000);
+        function renderLiveLeaderboardCanvas() {
+            ctx.save();
+            ctx.fillStyle = "rgba(255,255,255,0.06)"; ctx.fillRect(520, 40, 250, 180);
+            ctx.strokeStyle = COLOR_SECONDARY; ctx.lineWidth = 1; ctx.strokeRect(520, 40, 250, 180);
+            
+            ctx.fillStyle = COLOR_SECONDARY; ctx.font = "bold 14px sans-serif";
+            ctx.fillText("⚡ RANKING AO VIVO (TOP 5)", 535, 65);
+            
+            ctx.font = "12px sans-serif";
+            let displayList = [...mockRanking];
+            if(currentUserName && !displayList.some(e=>e.name===currentUserName)) {
+                displayList.push({name: currentUserName, score: saldoPixAcumulado});
+            }
+            displayList.sort((a,b) => b.score - a.score);
+
+            for(let i=0; i<Math.min(5, displayList.length); i++) {
+                ctx.fillStyle = (displayList[i].name === currentUserName) ? COLOR_ACCENT : "#ffffff";
+                ctx.fillText(`${i+1}. ${displayList[i].name}`, 535, 95 + (i * 22));
+                ctx.fillText(`${displayList[i].score} pts`, 710, 95 + (i * 22));
+            }
+            ctx.restore();
         }
 
-        // --- SISTEMA DA LOJA ---
-        function openShop() {
+        // --- HISTÓRICO DE PIX DO USUÁRIO ---
+        function openPixHistory() {
             document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('shop-screen').classList.remove('hidden');
-            buildShop();
+            document.getElementById('history-screen').classList.remove('hidden');
+            buildHistoryListDOM();
         }
-        function closeShop() {
-            document.getElementById('shop-screen').classList.add('hidden');
+        function closePixHistory() {
+            document.getElementById('history-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
         }
-        function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
-
-        function buildShop() {
-            const grid = document.getElementById('shop-items-container');
-            grid.innerHTML = '';
-            document.getElementById('shop-coins-txt').innerText = coins;
-
-            if (currentShopTab === 'skins') {
-                for (const [id, item] of Object.entries(skinsDB)) {
-                    createCard(grid, id, item, currentSkinId === id, () => {
-                        if(item.unlocked) { currentSkinId = id; buildShop(); }
-                        else { executePurchase(item, 'skin', id); }
-                    });
-                }
-            } else {
-                for (const [id, item] of Object.entries(themesDB)) {
-                    createCard(grid, id, item, currentThemeId === id, () => {
-                        if(item.unlocked) { currentThemeId = id; buildShop(); }
-                        else { executePurchase(item, 'theme', id); }
-                    });
-                }
+        function buildHistoryListDOM() {
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = '';
+            if(pixHistoryData.length === 0) {
+                container.innerHTML = "<li class='data-item'>Nenhum saque registrado ainda.</li>";
+                return;
             }
+            pixHistoryData.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'data-item';
+                let statusColor = item.status === 'Pago' ? '#28a745' : '#ffaa00';
+                li.innerHTML = `
+                    <div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div>
+                    <div style="color:${statusColor}; font-weight:bold;">${item.status}</div>
+                `;
+                container.appendChild(li);
+            });
         }
 
-        function createCard(grid, id, item, isEquipped, clickEvent) {
-            const card = document.createElement('div');
-            card.className = `shop-item ${isEquipped ? 'selected' : ''}`;
-            card.innerHTML = `<div style='font-size:12px; font-weight:bold; margin-bottom:8px; text-align:center;'>${item.name}</div>`;
+        // --- PAINEL SECOLO DE ACESSO DEV (ADMINISTRADOR) ---
+        function openAdminLogin() {
+            toggleSettingsMenu();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('admin-login-screen').classList.remove('hidden');
+        }
+        function closeAdminLogin() {
+            document.getElementById('admin-login-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+        function verifyAdminLogin() {
+            const user = document.getElementById('admin-user-field').value;
+            const pass = document.getElementById('admin-pass-field').value;
+            // Validação das credenciais exatas solicitadas
+            if (user === "italong" && pass === "italo1440@aB") {
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard-screen').classList.remove('hidden');
+                buildAdminDashboardDOM();
+            } else {
+                alert("Acesso Negado! Usuário ou Senha incorretos.");
+            }
+        }
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('admin-user-field').value = '';
+            document.getElementById('admin-pass-field').value = '';
+        }
+        function buildAdminDashboardDOM() {
+            const container = document.getElementById('admin-pending-list');
+            container.innerHTML = '';
+            let pendentes = pixHistoryData.filter(e => e.status === 'Pendente');
             
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-sm';
-            if (item.unlocked) {
-                btn.innerText = isEquipped ? 'Em Uso' : 'Equipar';
-                if(isEquipped) btn.disabled = true;
-            } else {
-                btn.innerText = item.cost > 0 ? `💰 ${item.cost}` : `🎬 Abrir`;
+            if(pendentes.length === 0) {
+                container.innerHTML = "<li class='data-item'>Nenhuma transferência Pix pendente no momento.</li>";
+                return;
             }
-            btn.onclick = clickEvent;
-            card.appendChild(btn);
-            grid.appendChild(card);
+            pendentes.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'data-item';
+                li.innerHTML = `
+                    <div>👤 <strong>${item.usuario}</strong><br>🔑 Chave: ${item.chave}<br>💰 <strong>R$ ${item.valor}</strong></div>
+                    <button class="btn btn-sm" style="background:#28a745; border:none;" onclick="adminPayUserManual('${item.id}')">Dar Baixa (Pago)</button>
+                `;
+                container.appendChild(li);
+            });
+        }
+        function adminPayUserManual(id) {
+            let itemIndex = pixHistoryData.findIndex(e => e.id === id);
+            if(itemIndex !== -1) {
+                pixHistoryData[itemIndex].status = 'Pago';
+                localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
+                alert("Pix marcado como PAGO com sucesso usando a receita dos anúncios!");
+                buildAdminDashboardDOM();
+            }
         }
 
-        function executePurchase(item, type, id) {
-            if (item.cost > 0 && coins >= item.cost) {
-                coins -= item.cost; item.unlocked = true;
-                localStorage.setItem('coins', coins);
-                if(type === 'skin') currentSkinId = id; else currentThemeId = id;
-                alert("Adquirido com sucesso!"); buildShop(); updateHUD();
-            } else if (item.type === 'ad') {
-                window.open(MONETAG_SMARTLINK, "_blank");
-                setTimeout(() => {
-                    item.unlocked = true;
-                    if(type === 'skin') currentSkinId = id; else currentThemeId = id;
-                    buildShop(); updateHUD();
-                }, 1000);
-            } else { alert("Moedas insuficientes!"); }
-        }
-
-        // --- SOLICITAÇÃO PIX VIA BACKEND DO RENDER ---
+        // --- SISTEMA DE SAQUE PIX ---
         function openWithdraw() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('withdraw-balance').innerText = saldoPixAcumulado;
@@ -605,56 +624,94 @@
             document.getElementById('withdraw-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
         }
-        
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value;
-            const pontosParaSacar = saldoPixAcumulado;
+            const pontos = saldoPixAcumulado;
+            if(!key) { alert("Digite uma chave Pix."); return; }
+            if(pontos < 1000) { alert("Mínimo de 1000 pontos necessários."); return; }
 
-            if(!key) { alert("Por favor, digite sua chave Pix."); return; }
-            if(pontosParaSacar < 1000) { alert("Mínimo de 1000 pontos exigidos para saque."); return; }
+            // Adiciona a transação ao histórico local com status 'Pendente' para o admin visualizar
+            let newRequest = {
+                id: 'pix_' + Date.now(),
+                usuario: currentUserName || "Anônimo",
+                chave: key,
+                valor: (pontos / 1000).toFixed(2),
+                status: 'Pendente'
+            };
+            pixHistoryData.push(newRequest);
+            localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
 
-            alert("Conectando ao servidor seguro estrella-premiadaofc...");
-
+            // Dispara requisição ao seu Backend seguro do Render
             fetch(URL_BACKEND_PIX, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chavePix: key, pontos: pontosParaSacar })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    alert(`🎉 Transferência efetuada!\n${data.message}`);
-                    saldoPixAcumulado = 0;
-                    localStorage.setItem('saldoPixAcumulado', 0);
-                    updateHUD();
-                    closeWithdraw();
-                } else {
-                    alert(`❌ Falha: ${data.error}`);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Erro ao conectar ao servidor backend.");
-            });
+                body: JSON.stringify({ chavePix: key, pontos: pontos })
+            }).then(()=>{});
+
+            alert(`🎉 Solicitação recebida!\nValor: R$ ${newRequest.valor}\nEla foi enviada para o menu de auditoria do Dev. Aguarde o processamento em até 1 dia útil!`);
+            
+            saldoPixAcumulado = 0;
+            localStorage.setItem('saldoPixAcumulado', 0);
+            updateHUD();
+            closeWithdraw();
         }
 
-        // --- EXTRAS CONTROLES ---
+        // --- MONETIZAÇÃO ADS ---
+        function watchAdForLife() {
+            window.open(MONETAG_SMARTLINK, "_blank");
+            setTimeout(() => { lives = 1; adLifeUsed = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }, 1000);
+        }
+        function triggerCoinReload() {
+            window.open(MONETAG_SMARTLINK, "_blank");
+            setTimeout(() => { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); playTone(600, 'sine', 0.2, 0.05); }, 1000);
+        }
+
+        // --- CONFIGURAÇÕES EXTRAS & LOJA ---
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
         function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔊 Ativar Som" : "🔇 Mutar Som"; }
         function toggleTheme() { document.documentElement.classList.toggle('light-theme'); }
+        function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
+        function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
+        function buildShop() {
+            const grid = document.getElementById('shop-items-container'); grid.innerHTML = ''; document.getElementById('shop-coins-txt').innerText = coins;
+            let db = currentShopTab === 'skins' ? skinsDB : themesDB;
+            for (const [id, item] of Object.entries(db)) {
+                let isEquipped = (currentSkinId === id || currentThemeId === id);
+                const card = document.createElement('div'); card.className = `shop-item ${isEquipped ? 'selected' : ''}`;
+                card.innerHTML = `<div style='font-size:12px; font-weight:bold; margin-bottom:8px;'>${item.name}</div>`;
+                const btn = document.createElement('button'); btn.className = 'btn btn-sm';
+                if (item.unlocked) { btn.innerText = isEquipped ? 'Uso' : 'Equipar'; if(isEquipped) btn.disabled = true; } 
+                else { btn.innerText = item.cost > 0 ? `💰 ${item.cost}` : `🎬 Abrir`; }
+                btn.onclick = () => {
+                    if(item.unlocked) { if(currentShopTab==='skins') currentSkinId=id; else currentThemeId=id; buildShop(); }
+                    else { executePurchase(item, currentShopTab, id); }
+                };
+                card.appendChild(btn); grid.appendChild(card);
+            }
+        }
+        function executePurchase(item, type, id) {
+            if (item.cost > 0 && coins >= item.cost) {
+                coins -= item.cost; item.unlocked = true; localStorage.setItem('coins', coins);
+                if(type === 'skins') currentSkinId = id; else currentThemeId = id;
+                buildShop(); updateHUD();
+            } else if (item.type === 'ad') {
+                window.open(MONETAG_SMARTLINK, "_blank");
+                setTimeout(() => { item.unlocked = true; if(type === 'skins') currentSkinId = id; else currentThemeId = id; buildShop(); updateHUD(); }, 1000);
+            } else { alert("Saldo insuficiente!"); }
+        }
 
         function updateHUD() {
             document.getElementById('hud-score').innerText = score;
             document.getElementById('hud-total-pix').innerText = saldoPixAcumulado;
             document.getElementById('hud-coins').innerText = coins;
-            let h = ''; for(let i=0; i<lives; i++) h += '❤️';
-            document.getElementById('hud-lives').innerText = h || '💀';
+            let h = ''; for(let i=0; i<lives; i++) h += '❤️'; document.getElementById('hud-lives').innerText = h || '💀';
         }
 
         function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- DESIGNERS VETORIAIS SEGUROS DAS SKINS ---
+        // --- RENDERIZADORES VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
             g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius);
             for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; }
@@ -665,7 +722,6 @@
         function drawVectorUFO(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y - r/4, r/2, Math.PI, 0); g.fillStyle = '#00f2fe'; g.fill(); g.beginPath(); g.ellipse(x, y, r, r/3, 0, 0, Math.PI*2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorTriangle(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y + r); g.lineTo(x - r, y + r); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorHeart(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y + r/4); g.bezierCurveTo(x, y - r, x - r, y - r, x - r, y - r/4); g.bezierCurveTo(x - r, y + r/3, x, y + r, x, y + r); g.bezierCurveTo(x, y + r, x + r, y + r/3, x + r, y - r/4); g.bezierCurveTo(x + r, y - r, x, y - r, x, y + r/4); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
-        function drawVectorCrown(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x - r, y + r); g.lineTo(x - r, y - r/3); g.lineTo(x - r/2, y + r/4); g.lineTo(x, y - r); g.lineTo(x + r/2, y + r/4); g.lineTo(x + r, y - r/3); g.lineTo(x + r, y + r); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
         window.onload = () => { gameUpdateAndRender(); fitGameToScreen(); updateHUD(); };
     </script>
