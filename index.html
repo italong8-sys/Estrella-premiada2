@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Live Edition</title>
+    <title>Star Runner - Pix Real Edition</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -51,7 +51,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Container do Jogo Inteligente (Auto-Escala Responsiva) */
+        /* Container do Jogo (Auto-Escala Responsiva) */
         #game-container {
             position: relative;
             width: 800px; height: 400px;
@@ -141,7 +141,7 @@
     <div id="game-container">
         <div class="hud">
             <div><span id="hud-lives">❤️❤️❤️</span></div>
-            <div>🏆 <span id="hud-score" class="hud-val">0</span></div>
+            <div>🏆 Partida: <span id="hud-score" class="hud-val">0</span></div>
             <div>🪙 <span id="hud-coins" style="color:var(--accent)">200</span> moedas</div>
         </div>
 
@@ -198,7 +198,7 @@
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix</h2>
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
-            <div style="background: rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:10px;">Seus Pontos: <span id="withdraw-balance">0</span></div>
+            <div style="background: rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:10px;">Seu Saldo Pix Acumulado: <span id="withdraw-balance">0</span></div>
             <input type="text" id="pix-key" placeholder="Digite sua Chave PIX (CPF/E-mail/Celular)">
             <button class="btn btn-primary" onclick="requestPixPayout()">Solicitar Transferência</button>
             <button class="btn" onclick="closeWithdraw()" style="background:#444; border:none;">Voltar</button>
@@ -217,6 +217,9 @@
         let gameActive = false, score = 0, lives = 3, coins = 200;
         let obstacleSpeed = 6.5, obstacleTimer = 0, currentSkinId = 'star', currentThemeId = 'cyber';
         let adLifeUsed = false, isMuted = false, currentShopTab = 'skins';
+
+        // REGULAGEM DO PIX ACUMULADO EM COOKIE/LOCALSTORAGE
+        let saldoPixAcumulado = parseInt(localStorage.getItem('saldoPixAcumulado')) || 0;
 
         const COLOR_PRIMARY = '#ff007f';
         const COLOR_SECONDARY = '#00f2fe';
@@ -241,7 +244,6 @@
             const scaleX = windowWidth / 800;
             const scaleY = windowHeight / 400;
             
-            // Mantém proporções perfeitas sem distorcer e centraliza
             const scaleFactor = Math.min(scaleX, scaleY);
             container.style.transform = `scale(${scaleFactor})`;
         }
@@ -264,7 +266,7 @@
             'sky': { name: 'Céu de Avião', cost: 0, type: 'ad', unlocked: false, skyTop: '#4ca1af', skyBottom: '#c4e0e5', groundColor: '#ffffff' }
         };
 
-        // --- SISTEMA DE ÁUDIO CHIPTUNE (SINTETIZADOR NATIVO) ---
+        // --- SISTEMA DE ÁUDIO CHIPTUNE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let bgmInterval = null;
         let bgmStep = 0;
@@ -298,7 +300,7 @@
             } catch(e){}
         }
 
-        // --- CONTROLES ADAPTADOS PARA TOUCH EM TELA CHEIA ---
+        // --- CONTROLES INTELIGENTES ---
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
@@ -342,7 +344,7 @@
             }
         }
 
-        // --- LOOP DE ATUALIZAÇÃO DO JOGO ---
+        // --- MOTOR DE CORRIDA ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             gameActive = true;
@@ -405,7 +407,14 @@
                     }
 
                     if (!obs.passed && obs.x < player.x) {
-                        obs.passed = true; score += 10; coins += 5;
+                        obs.passed = true; 
+                        score += 10; 
+                        coins += 5;
+                        
+                        // SALVA PONTUAÇÃO ADICIONADA AO HISTÓRICO PERMANENTE
+                        saldoPixAcumulado += 10;
+                        localStorage.setItem('saldoPixAcumulado', saldoPixAcumulado);
+
                         updateHUD();
                         playTone(480, 'sine', 0.04, 0.02);
                         if (score % 100 === 0) obstacleSpeed += 0.7;
@@ -433,7 +442,7 @@
             if (level >= 2 && rand > 0.45) {
                 let flyColor = level === 2 ? '#ffaa00' : (level === 3 ? '#ffffff' : '#00ffaa');
                 obstacles.push({
-                    x: 800, y: 282, // Altura exata desfiada pelo agachamento
+                    x: 800, y: 282,
                     width: 32, height: 22,
                     isFlying: true, color: flyColor, passed: false
                 });
@@ -457,7 +466,7 @@
             }
         }
 
-        // --- MONETIZAÇÃO AD PREMIADO (4ª VIDA) ---
+        // --- MONETIZAÇÃO AD PREMIADO ---
         function watchAdForLife() {
             window.open(MONETAG_SMARTLINK, "_blank");
             setTimeout(() => {
@@ -467,7 +476,6 @@
             }, 1000);
         }
 
-        // --- MONETIZAÇÃO AD PREMIADO (+1000 MOEDAS) ---
         function triggerCoinReload() {
             window.open(MONETAG_SMARTLINK, "_blank");
             setTimeout(() => {
@@ -478,7 +486,7 @@
             }, 1000);
         }
 
-        // --- LOJINHA POR ABAS ---
+        // --- LOJINHA ---
         function openShop() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('shop-screen').classList.remove('hidden');
@@ -545,10 +553,11 @@
             } else { alert("Saldo insuficiente!"); }
         }
 
-        // --- SISTEMA DE SAQUE REGULADO VIA MERCADO PAGO ---
+        // --- SISTEMA DE SAQUE INTEGRADO E ACUMULATIVO ---
         function openWithdraw() {
             document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('withdraw-balance').innerText = score;
+            // ATUALIZA A TELA COM O VALOR SALVO E ACUMULADO NO ARQUIVO LOCAL
+            document.getElementById('withdraw-balance').innerText = saldoPixAcumulado;
             document.getElementById('withdraw-screen').classList.remove('hidden');
         }
         function closeWithdraw() {
@@ -558,14 +567,14 @@
         
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value;
-            const pontosAtuais = score;
+            const pontosParaSacar = saldoPixAcumulado; // Lê a pontuação acumulada salva
 
             if(!key) { alert("Por favor, digite sua chave Pix."); return; }
-            if(pontosAtuais < 1000) { alert("Você precisa de no mínimo 1000 pontos acumulados para sacar."); return; }
+            if(pontosParaSacar < 1000) { alert("Você precisa de no mínimo 1000 pontos acumulados para sacar."); return; }
 
             alert("Processando transação com o Mercado Pago... Aguarde.");
 
-            // Requisição estruturada apontando direto para o seu Web Service do Render
+            // Dispara para o backend seguro no Render
             fetch(URL_BACKEND_PIX, {
                 method: "POST",
                 headers: {
@@ -573,7 +582,7 @@
                 },
                 body: JSON.stringify({
                     chavePix: key,
-                    pontos: pontosAtuais
+                    pontos: pontosParaSacar
                 })
             })
             .then(response => response.json())
@@ -581,8 +590,10 @@
                 if(data.success) {
                     alert(`🎉 Sucesso total!\n${data.message}`);
                     
-                    // REGULAGEM DA PONTUAÇÃO: Reseta os pontos convertidos após o Pix bater na conta
-                    score = 0;
+                    // REGULAGEM DA PONTUAÇÃO: Zera apenas após o backend do Mercado Pago confirmar o envio
+                    saldoPixAcumulado = 0;
+                    localStorage.setItem('saldoPixAcumulado', 0);
+                    
                     updateHUD();
                     closeWithdraw();
                 } else {
@@ -620,7 +631,7 @@
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorUFO(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y - r/4, r/2, Math.PI, 0); g.fillStyle = '#00f2fe'; g.fill(); g.beginPath(); g.ellipse(x, y, r, r/3, 0, 0, Math.PI*2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
-        window.onload = () => { gameUpdateAndRender(); fitGameToScreen(); };
+        window.onload = () => { gameUpdateAndRender(); fitGameToScreen(); updateHUD(); };
     </script>
 </body>
 </html>
