@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta name="monetag" content="858912ca85d40691370711c528cadc4c">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Star Runner - Monetag & Render Edition</title>
+    <title>Star Runner - Monetag Official Live</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -129,24 +128,28 @@
 <body>
 
     <div id="game-container">
+        <!-- HUD -->
         <div class="hud">
             <div><span id="hud-lives">❤️❤️❤️</span></div>
             <div>🏆 <span id="hud-score" class="hud-val">0</span></div>
             <div>🪙 <span id="hud-coins" style="color:var(--accent)">200</span> moedas</div>
         </div>
 
+        <!-- Painel de Configurações -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleTheme()">☀️/🌙 Alternar Tema</button>
-            <button class="btn btn-sm" id="mute-btn" onclick="toggleMute()">Explicit: 🔇 Mutar Som</button>
+            <button class="btn btn-sm" id="mute-btn" onclick="toggleMute()">🔇 Mutar Som</button>
         </div>
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
+        <!-- Espaço do Banner Inferior -->
         <div id="ad-banner-placement">
             <span>Anúncio Publicitário Patrocinado</span>
         </div>
 
+        <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:46px; color:var(--accent); margin:0; letter-spacing:4px;">STAR RUNNER</h1>
             <p style="color:#fff; text-align:center; max-width:80%">Pule com [ESPAÇO/SETA CIMA] e abaixe com [SETA BAIXO/S]. No celular, toque na direita para pular e esquerda para abaixar.</p>
@@ -158,6 +161,7 @@
             </div>
         </div>
 
+        <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
             <p style="color:#fff">Pontuação obtida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
@@ -168,6 +172,7 @@
             </div>
         </div>
 
+        <!-- Tela da Loja -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -185,6 +190,7 @@
             </div>
         </div>
 
+        <!-- Tela de Saque -->
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix</h2>
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
@@ -196,6 +202,9 @@
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO DO SEU LINK OFICIAL DA MONETAG ---
+        const MONETAG_SMARTLINK = "https://omg10.com/4/11110940";
+
         // --- CONFIGURAÇÃO DO MOTOR ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -408,7 +417,7 @@
             if (level >= 2 && rand > 0.45) {
                 let flyColor = level === 2 ? '#ffaa00' : (level === 3 ? '#ffffff' : '#00ffaa'); // Pássaro, Avião, Helicóptero
                 obstacles.push({
-                    x: 800, y: 282, // Altura perfeita para colidir no em pé e passar raspando no agachado
+                    x: 800, y: 282, // Altura perfeita para colidir em pé e passar raspando agachado
                     width: 32, height: 22,
                     isFlying: true, color: flyColor, passed: false
                 });
@@ -433,12 +442,12 @@
             }
         }
 
-        // --- INTEGRAÇÃO DE MONETIZAÇÃO (MONETAG SMARTLINK) ---
+        // --- IMPLANTAÇÃO COMPLETA DO ANÚNCIO PREMIADO MONETAG ---
         function watchAdForLife() {
-            // MONETAG: Substitua a URL abaixo pelo seu "Direct Link / SmartLink" do painel da Monetag
-            window.open("https://omg10.com/4/11110940", "_blank");
+            // Abre o seu link de anúncio real em uma nova guia do navegador
+            window.open(MONETAG_SMARTLINK, "_blank");
 
-            // Concede a recompensa de retorno imediatamente após o clique
+            // Concede a recompensa de retorno na aba do jogo
             setTimeout(() => {
                 lives = 1; adLifeUsed = true; updateHUD();
                 document.getElementById('gameover-screen').classList.add('hidden');
@@ -504,8 +513,8 @@
                 if(type === 'skin') currentSkinId = id; else currentThemeId = id;
                 alert("Item adquirido!"); buildShop(); updateHUD();
             } else if (item.type === 'ad') {
-                // Abre o anúncio Direct Link da Monetag ao tentar abrir item grátis
-                window.open("https://omg10.com/4/11110940", "_blank");
+                // Abre o anúncio Direct Link da Monetag ao tentar abrir item gratuito por ad
+                window.open(MONETAG_SMARTLINK, "_blank");
                 setTimeout(() => {
                     item.unlocked = true;
                     if(type === 'skin') currentSkinId = id; else currentThemeId = id;
