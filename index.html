@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Fullscreen Edition</title>
+    <title>Star Runner - Live Edition</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -51,13 +51,13 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Container Principal do Jogo (Garante Aspect Ratio e Auto-Escala) */
+        /* Container do Jogo Inteligente (Auto-Escala Responsiva) */
         #game-container {
             position: relative;
             width: 800px; height: 400px;
             background: radial-gradient(circle at center, var(--sky-top) 0%, var(--sky-bottom) 100%);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             overflow: hidden;
             transform-origin: center;
             flex-shrink: 0;
@@ -65,12 +65,12 @@
 
         canvas { display: block; }
 
-        /* --- INTERFACE E HUD --- */
+        /* --- INTERFACE DE USUÁRIO (HUD) --- */
         .hud {
             position: absolute; top: 15px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
             font-size: 18px; font-weight: bold; pointer-events: none;
-            z-index: 5; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 5; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
         .hud-val { color: var(--primary); }
 
@@ -89,10 +89,10 @@
             gap: 8px; z-index: 15; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        /* --- TELAS SOBREPOSTAS --- */
+        /* --- TELAS DO MENU/OVERLAYS --- */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             border-radius: 12px; z-index: 10;
@@ -100,7 +100,7 @@
         }
         .hidden { display: none !important; }
 
-        /* --- BOTÕES --- */
+        /* --- BOTÕES CUSTOMIZADOS --- */
         .btn {
             background: var(--surface-light); color: var(--text);
             border: 1px solid rgba(128,128,128,0.2);
@@ -113,23 +113,24 @@
         .btn-primary:hover { opacity: 0.9; color: white; }
         .btn-sm { padding: 5px 12px; font-size: 11px; }
 
-        /* --- LOJINHA EXPANDIDA --- */
+        /* --- DESIGN DA LOJA --- */
         .shop-box { width: 92%; background: var(--surface); border-radius: 12px; padding: 15px; box-sizing: border-box; }
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
         .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 180px; overflow-y: auto; }
         .shop-item { background: var(--surface-light); border: 2px solid transparent; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; position: relative; }
         .shop-item.selected { border-color: var(--accent); background: rgba(255,255,255,0.05); }
 
-        /* --- TELA DE SAQUE --- */
+        /* --- INPUTS --- */
         input[type="text"] {
             padding: 12px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.3);
             background: var(--surface-light); color: white; margin: 15px 0; width: 280px; text-align: center; font-size: 14px;
         }
+        input[type="text"]:focus { border-color: var(--secondary); outline: none; }
 
-        /* --- CONTAINER DE ANÚNCIOS (MONETAG BANNER) --- */
+        /* --- BANNER PUBLICITÁRIO DE RODAPÉ --- */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
-            background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
             font-size: 11px; color: var(--text-dim); border-top: 1px solid rgba(128,128,128,0.2);
             z-index: 4; pointer-events: auto;
         }
@@ -138,14 +139,12 @@
 <body>
 
     <div id="game-container">
-        <!-- HUD -->
         <div class="hud">
             <div><span id="hud-lives">❤️❤️❤️</span></div>
             <div>🏆 <span id="hud-score" class="hud-val">0</span></div>
             <div>🪙 <span id="hud-coins" style="color:var(--accent)">200</span> moedas</div>
         </div>
 
-        <!-- Painel de Configurações -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleTheme()">☀️/🌙 Alternar Tema</button>
@@ -154,12 +153,10 @@
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- Espaço do Banner Inferior -->
         <div id="ad-banner-placement">
             <span>Anúncio Publicitário Patrocinado</span>
         </div>
 
-        <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:46px; color:var(--accent); margin:0; letter-spacing:4px;">STAR RUNNER</h1>
             <p style="color:#fff; text-align:center; max-width:80%">Pule com [ESPAÇO/SETA CIMA] e abaixe com [SETA BAIXO/S]. No celular, toque na direita para pular e esquerda para abaixar.</p>
@@ -171,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
             <p style="color:#fff">Pontuação obtida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
@@ -182,7 +178,6 @@
             </div>
         </div>
 
-        <!-- Tela da Loja -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -200,7 +195,6 @@
             </div>
         </div>
 
-        <!-- Tela de Saque -->
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix</h2>
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
@@ -212,8 +206,9 @@
     </div>
 
     <script>
-        // --- SEU LINK OFICIAL DA MONETAG ---
+        // --- LINKS CONFIGURADOS ---
         const MONETAG_SMARTLINK = "https://omg10.com/4/11110940";
+        const URL_BACKEND_PIX = "https://estrella-premiadaofc.onrender.com/api/saque-pix";
 
         // --- CONFIGURAÇÃO DO MOTOR ---
         const canvas = document.getElementById('gameCanvas');
@@ -237,20 +232,17 @@
 
         let obstacles = [];
 
-        // --- SISTEMA DE RESOLUÇÃO RESPONSIVA / TELA CHEIA AUTOMÁTICA ---
+        // --- FUNÇÃO DE AUTO-RESIZING TELA CHEIA AUTOMÁTICA ---
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
             
-            // Calcula as proporções para cobrir/ajustar a tela mantendo a proporção 2:1
             const scaleX = windowWidth / 800;
             const scaleY = windowHeight / 400;
             
-            // Usa 'Math.min' para conter perfeitamente ou 'Math.max' se quisesse cortar as bordas.
-            // Para jogos, conter mantendo barras pretas nas sobras é o padrão ideal para não perder a HUD.
+            // Mantém proporções perfeitas sem distorcer e centraliza
             const scaleFactor = Math.min(scaleX, scaleY);
-            
             container.style.transform = `scale(${scaleFactor})`;
         }
         
@@ -306,7 +298,7 @@
             } catch(e){}
         }
 
-        // --- CONTROLES INTELIGENTES ADAPTADOS PARA TELA CHEIA ---
+        // --- CONTROLES ADAPTADOS PARA TOUCH EM TELA CHEIA ---
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
@@ -319,8 +311,6 @@
             e.preventDefault();
             let rect = canvas.getBoundingClientRect();
             let touchX = e.touches[0].clientX - rect.left;
-            
-            // Calcula a posição do toque relativa ao tamanho real escalado do canvas
             let canvasRelativeX = (touchX / rect.width) * canvas.width;
             
             if (canvasRelativeX > canvas.width / 2) { 
@@ -352,7 +342,7 @@
             }
         }
 
-        // --- MOTOR DO LOOP PRINCIPAL ---
+        // --- LOOP DE ATUALIZAÇÃO DO JOGO ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             gameActive = true;
@@ -443,7 +433,7 @@
             if (level >= 2 && rand > 0.45) {
                 let flyColor = level === 2 ? '#ffaa00' : (level === 3 ? '#ffffff' : '#00ffaa');
                 obstacles.push({
-                    x: 800, y: 282,
+                    x: 800, y: 282, // Altura exata desfiada pelo agachamento
                     width: 32, height: 22,
                     isFlying: true, color: flyColor, passed: false
                 });
@@ -467,7 +457,7 @@
             }
         }
 
-        // --- ANÚNCIO PREMIADO DA 4ª VIDA ---
+        // --- MONETIZAÇÃO AD PREMIADO (4ª VIDA) ---
         function watchAdForLife() {
             window.open(MONETAG_SMARTLINK, "_blank");
             setTimeout(() => {
@@ -477,21 +467,18 @@
             }, 1000);
         }
 
-        // --- NOVO RECARREGADOR DE MOEDAS VIA ANÚNCIO PREMIADO MONETAG ---
+        // --- MONETIZAÇÃO AD PREMIADO (+1000 MOEDAS) ---
         function triggerCoinReload() {
-            // Redireciona o jogador para o seu link premiado da Monetag
             window.open(MONETAG_SMARTLINK, "_blank");
-            
-            // Entrega as 1000 moedas após 1 segundo na aba principal
             setTimeout(() => {
                 coins += 1000;
                 updateHUD();
                 playTone(600, 'sine', 0.2, 0.05);
-                alert("⚡ Parabéns! +1000 moedas creditadas em sua conta por assistir ao anúncio patrocinado.");
+                alert("⚡ Sucesso! +1000 moedas adicionadas em sua carteira.");
             }, 1000);
         }
 
-        // --- SISTEMA DA LOJA DE ABAS ---
+        // --- LOJINHA POR ABAS ---
         function openShop() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('shop-screen').classList.remove('hidden');
@@ -558,7 +545,7 @@
             } else { alert("Saldo insuficiente!"); }
         }
 
-        // --- SISTEMA DE SAQUE (PIX) ---
+        // --- SISTEMA DE SAQUE REGULADO VIA MERCADO PAGO ---
         function openWithdraw() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('withdraw-balance').innerText = score;
@@ -568,56 +555,47 @@
             document.getElementById('withdraw-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
         }
+        
         function requestPixPayout() {
-    const key = document.getElementById('pix-key').value;
-    const pontosAtuais = score; // Usa a pontuação acumulada do jogador
+            const key = document.getElementById('pix-key').value;
+            const pontosAtuais = score;
 
-    if (!key) { 
-        alert("Por favor, insira uma chave PIX válida."); 
-        return; 
-    }
-    if (pontosAtuais < 1000) { 
-        alert("Você precisa de no mínimo 1000 pontos para realizar um saque."); 
-        return; 
-    }
+            if(!key) { alert("Por favor, digite sua chave Pix."); return; }
+            if(pontosAtuais < 1000) { alert("Você precisa de no mínimo 1000 pontos acumulados para sacar."); return; }
 
-    // URL do seu backend seguro que você vai hospedar no Render ou Firebase
-    const URL_BACKEND = "https://seu-backend-pix.onrender.com/api/saque-pix";
+            alert("Processando transação com o Mercado Pago... Aguarde.");
 
-    alert("Processando seu saque via Pix... Por favor, aguarde.");
-
-    // Envia a solicitação para o servidor backend privado
-    fetch(URL_BACKEND, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            chavePix: key,
-            pontos: pontosAtuais
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(`🎉 Saque realizado com sucesso!\n${data.message}`);
-            
-            // REGULAGEM DA PONTUAÇÃO: Zera os pontos convertidos e atualiza a tela
-            score = 0; 
-            updateHUD();
-            closeWithdraw();
-        } else {
-            alert(`❌ Erro no processamento: ${data.error}`);
+            // Requisição estruturada apontando direto para o seu Web Service do Render
+            fetch(URL_BACKEND_PIX, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chavePix: key,
+                    pontos: pontosAtuais
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert(`🎉 Sucesso total!\n${data.message}`);
+                    
+                    // REGULAGEM DA PONTUAÇÃO: Reseta os pontos convertidos após o Pix bater na conta
+                    score = 0;
+                    updateHUD();
+                    closeWithdraw();
+                } else {
+                    alert(`❌ Falha no processamento: ${data.error}`);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro crítico ao tentar conectar ao seu servidor de pagamentos Pix.");
+            });
         }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Houve um erro de comunicação com o servidor de pagamentos.");
-    });
-}
 
-
-        // --- UTILITÁRIOS E CONFIGURAÇÕES ---
+        // --- EXTRA CONFIGS ---
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
         function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔊 Ativar Som" : "🔇 Mutar Som"; }
         function toggleTheme() { document.documentElement.classList.toggle('light-theme'); }
@@ -632,7 +610,7 @@
         function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- RENDERIZADORES VETORIAIS ISOLADOS ---
+        // --- RENDERIZADORES VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
             g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius);
             for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; }
@@ -646,5 +624,3 @@
     </script>
 </body>
 </html>
-
-```
