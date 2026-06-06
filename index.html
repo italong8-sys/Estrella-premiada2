@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Pro Developer Edition</title>
+    <title>Star Runner - Ultimate Live Pro</title>
     <style>
         /* --- SISTEMA DE TEMAS (VARIÁVEIS CSS) --- */
         :root, :root.dark-theme {
@@ -154,7 +154,6 @@
 <body>
 
     <div id="game-container">
-        <!-- HUD -->
         <div class="hud">
             <div><span id="hud-lives">❤️❤️❤️</span> <span id="hud-current-user" style="margin-left:8px; color:var(--secondary)"></span></div>
             <div class="hud-group">
@@ -165,7 +164,6 @@
             </div>
         </div>
 
-        <!-- Painel de Configurações -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleTheme()">☀️/🌙 Alternar Tema</button>
@@ -176,34 +174,29 @@
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- Banner Monetag -->
         <div id="ad-banner-placement">
             <span>Anúncio Publicitário Patrocinado</span>
         </div>
 
-        <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:42px; color:var(--accent); margin:0 0 5px 0; letter-spacing:4px;">STAR RUNNER</h1>
             
-            <!-- Input Obrigatório de Nome antes do jogo -->
             <input type="text" id="player-name-input" placeholder="Digite seu Nome para o Ranking" maxlength="12" style="margin-bottom:12px;">
 
             <button class="btn btn-primary" onclick="validateAndStart()">Iniciar Corrida</button>
             
             <div style="margin-top: 8px; display:flex; gap:8px;">
-                <button class="btn btn-sm" onclick="openShop()">Lojinha</button>
-                <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
-                <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
-                <button class="btn btn-sm" onclick="triggerCoinReload()" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
+                <button class="btn" onclick="openShop()">Lojinha</button>
+                <button class="btn" onclick="openWithdraw()">Sacar Pix</button>
+                <button class="btn" onclick="openPixHistory()">Histórico</button>
+                <button class="btn" onclick="triggerCoinReload()" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
             </div>
 
-            <!-- MENSAGEM EM DESTAQUE NEON PISCANTE -->
             <div class="neon-notice">
                 Atenção, há bastante anúncios em massa, porém é só fechar e juntar os pontos no jogo para sacar via pix! O dinheiro cai até 1 dia útil!
             </div>
         </div>
 
-        <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
             <h2>Fim de Jogo!</h2>
             <p style="color:#fff">Pontos da corrida: <span id="final-score" style="color:var(--accent); font-size:20px;">0</span></p>
@@ -214,7 +207,6 @@
             </div>
         </div>
 
-        <!-- Tela da Loja -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -232,7 +224,6 @@
             </div>
         </div>
 
-        <!-- Tela de Saque -->
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix</h2>
             <p>Mínimo exigido para transferência: <strong style="color:var(--secondary)">1000 pontos</strong></p>
@@ -242,33 +233,28 @@
             <button class="btn" onclick="closeWithdraw()" style="background:#444; border:none;">Voltar</button>
         </div>
 
-        <!-- Tela de Histórico de Pix -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3>Meu Histórico de Saques Pix</h3>
                 <ul class="data-list" id="history-list-container">
-                    <!-- Gerado Dinamicamente -->
-                </ul>
+                    </ul>
                 <div style="text-align:center;"><button class="btn btn-sm" onclick="closePixHistory()">Voltar</button></div>
             </div>
         </div>
 
-        <!-- Tela de Login do Administrador (Acesso Dev) -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>Painel do Desenvolvedor</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
             <input type="password" id="admin-pass-field" placeholder="Senha do Sistema">
-            <button class="btn btn-primary" onclick="verifyAdminLogin()">Entrar no Painel</button>
+            <button class="btn btn-primary" onclick="verifyAdminLogin()">Entrar no Panel</button>
             <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:5px;">Cancelar</button>
         </div>
 
-        <!-- Tela do Dashboard Admin (Gerenciador de Pix) -->
         <div id="admin-dashboard-screen" class="screen hidden">
             <div class="panel-box" style="max-width:95%;">
                 <h3 style="margin:0 0 5px 0; color:var(--primary)">SAQUES PENDENTES (Faturamento Ads)</h3>
                 <ul class="data-list" id="admin-pending-list">
-                    <!-- Gerado Dinamicamente -->
-                </ul>
+                    </ul>
                 <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">Desconectar</button></div>
             </div>
         </div>
@@ -288,12 +274,21 @@
         let adLifeUsed = false, isMuted = false, currentShopTab = 'skins', frameCount = 0;
         let currentUserName = "";
 
-        // --- SISTEMA DE PERSISTÊNCIA REFEITO (COM LEADERBOARD & HISTÓRICO) ---
+        // CONTROLE DO SINTETIZADOR DE ÁUDIO CORRIGIDO (LAZY LOADING SAFE)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) { console.error("AudioContext não suportado."); }
+            }
+        }
+
+        // Persistência de Dados Estável
         let saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado')) || 0;
         let coins = Number(localStorage.getItem('coins')) || 200;
-        
         let pixHistoryData = JSON.parse(localStorage.getItem('pixHistoryData')) || [];
-        // Banco simulado de Ranking ao vivo
+
         let mockRanking = [
             {name: "Alexandre", score: 1450},
             {name: "Sthefany", score: 1200},
@@ -343,15 +338,13 @@
             'sky': { name: 'Céu de Avião', cost: 0, type: 'ad', unlocked: false, skyTop: '#4ca1af', skyBottom: '#c4e0e5', groundColor: '#ffffff', obsColor: '#333333' }
         };
 
-        // --- AUDIO CHIPTUNE ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let bgmInterval = null, bgmStep = 0;
-        const melody = [130, 147, 165, 196, 220, 196, 165, 147, 130, 165, 196, 220, 261, 220, 196, 165];
-
         function startBGM() {
+            initAudio();
+            if (!audioCtx) return;
             if (bgmInterval) clearInterval(bgmInterval);
             bgmInterval = setInterval(() => {
                 if (isMuted || !gameActive) return;
+                if (audioCtx.state === 'suspended') audioCtx.resume();
                 let freq = melody[bgmStep % melody.length];
                 playTone(freq * (1 + (obstacleSpeed - 6.5) * 0.05), 'triangle', 0.15, 0.04);
                 if (bgmStep % 2 === 0) playTone(65, 'sawtooth', 0.1, 0.05);
@@ -361,7 +354,10 @@
 
         function playTone(freq, type, duration, volume = 0.05) {
             if (isMuted) return;
+            initAudio();
+            if (!audioCtx) return;
             try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
                 let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
                 osc.type = type; osc.frequency.value = freq; gain.gain.setValueAtTime(volume, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
@@ -369,7 +365,7 @@
             } catch(e){}
         }
 
-        // --- VALIDAÇÃO DE NOME ANTES DE JOGAR ---
+        // --- VALIDAÇÃO SEGURO DE INICIALIZAÇÃO ---
         function validateAndStart() {
             let inputName = document.getElementById('player-name-input').value.trim();
             if (inputName === "") {
@@ -400,14 +396,28 @@
             }
         }
 
-        // INPUTS CONTROLES
+        // FILTRO DE TECLADO INTELIGENTE (NÃO TRAVA AO DIGITAR O NOME)
         window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return; // Ignora se o jogador estiver digitando
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if(!gameActive) validateAndStart(); else triggerJump(); }
             if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
         });
-        window.addEventListener('keyup', (e) => { if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false); });
+        window.addEventListener('keyup', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
+        });
 
-        // --- MOTOR GRÁFICO PRINCIPAL ---
+        // TOQUE MOBILE
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            let rect = canvas.getBoundingClientRect();
+            let touchX = e.touches[0].clientX - rect.left;
+            let canvasRelativeX = (touchX / rect.width) * canvas.width;
+            if (canvasRelativeX > canvas.width / 2) { triggerJump(); } else { triggerDuck(true); }
+        });
+        canvas.addEventListener('touchend', () => { triggerDuck(false); });
+
+        // --- LOOP GRÁFICO DO MOTOR ---
         function gameUpdateAndRender() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
@@ -421,7 +431,7 @@
                 activeTheme = themesDB[cycle[currentLevel] || 'sky'];
             }
 
-            // Renderizar Chão e Fundo
+            // Renderizar Cenário
             ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
             ctx.strokeStyle = activeTheme.groundColor; ctx.lineWidth = 4; ctx.stroke(); ctx.restore();
             document.getElementById('game-container').style.background = `radial-gradient(circle at center, ${activeTheme.skyTop} 0%, ${activeTheme.skyBottom} 100%)`;
@@ -448,12 +458,10 @@
                     } else { ctx.fillRect(obs.x, obs.y, obs.width, obs.height); }
                     ctx.restore();
 
-                    // Colisão
                     if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
                         obstacles.splice(i, 1); handlePlayerHit(); continue;
                     }
 
-                    // Pontuar
                     if (!obs.passed && obs.x < player.x) {
                         obs.passed = true; score += 10; coins += 5;
                         saldoPixAcumulado += 10;
@@ -467,12 +475,11 @@
                 }
             }
 
-            // Desenhar Ranking Dinâmico diretamente na tela inicial estática do canvas quando parado
-            if (!gameActive && document.getElementById('start-screen').className === 'screen') {
+            // Exibe o ranking na tela inicial estática via Canvas
+            if (!gameActive && !document.getElementById('start-screen').classList.contains('hidden')) {
                 renderLiveLeaderboardCanvas();
             }
 
-            // Desenhar Personagem Ativo
             let pCenterX = player.x + player.width / 2; let pCenterY = player.y + player.height / 2;
             skinsDB[currentSkinId].render(ctx, pCenterX, pCenterY, player.width / 2);
 
@@ -498,28 +505,31 @@
             }
         }
 
-        // --- SISTEMA DE CORRIDA DE RANKING AO VIVO ---
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            gameActive = true;
+            startBGM();
+        }
+
+        // --- SISTEMA DE RANKING AO VIVO ---
         function saveScoreToLeaderboard() {
             if (!currentUserName) return;
             mockRanking.push({name: currentUserName, score: score});
-            mockRanking.sort((a,b) => b.score - a.score); // Ordena decrescente
+            mockRanking.sort((a,b) => b.score - a.score);
         }
 
         function renderLiveLeaderboardCanvas() {
             ctx.save();
             ctx.fillStyle = "rgba(255,255,255,0.06)"; ctx.fillRect(520, 40, 250, 180);
             ctx.strokeStyle = COLOR_SECONDARY; ctx.lineWidth = 1; ctx.strokeRect(520, 40, 250, 180);
-            
             ctx.fillStyle = COLOR_SECONDARY; ctx.font = "bold 14px sans-serif";
             ctx.fillText("⚡ RANKING AO VIVO (TOP 5)", 535, 65);
-            
             ctx.font = "12px sans-serif";
             let displayList = [...mockRanking];
             if(currentUserName && !displayList.some(e=>e.name===currentUserName)) {
                 displayList.push({name: currentUserName, score: saldoPixAcumulado});
             }
             displayList.sort((a,b) => b.score - a.score);
-
             for(let i=0; i<Math.min(5, displayList.length); i++) {
                 ctx.fillStyle = (displayList[i].name === currentUserName) ? COLOR_ACCENT : "#ffffff";
                 ctx.fillText(`${i+1}. ${displayList[i].name}`, 535, 95 + (i * 22));
@@ -528,7 +538,7 @@
             ctx.restore();
         }
 
-        // --- HISTÓRICO DE PIX DO USUÁRIO ---
+        // --- HISTÓRICO DE PIX ---
         function openPixHistory() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('history-screen').classList.remove('hidden');
@@ -539,68 +549,34 @@
             document.getElementById('start-screen').classList.remove('hidden');
         }
         function buildHistoryListDOM() {
-            const container = document.getElementById('history-list-container');
-            container.innerHTML = '';
-            if(pixHistoryData.length === 0) {
-                container.innerHTML = "<li class='data-item'>Nenhum saque registrado ainda.</li>";
-                return;
-            }
+            const container = document.getElementById('history-list-container'); container.innerHTML = '';
+            if(pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Nenhum saque registrado ainda.</li>"; return; }
             pixHistoryData.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'data-item';
+                const li = document.createElement('li'); li.className = 'data-item';
                 let statusColor = item.status === 'Pago' ? '#28a745' : '#ffaa00';
-                li.innerHTML = `
-                    <div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div>
-                    <div style="color:${statusColor}; font-weight:bold;">${item.status}</div>
-                `;
+                li.innerHTML = `<div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${statusColor}; font-weight:bold;">${item.status}</div>`;
                 container.appendChild(li);
             });
         }
 
-        // --- PAINEL SECOLO DE ACESSO DEV (ADMINISTRADOR) ---
-        function openAdminLogin() {
-            toggleSettingsMenu();
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('admin-login-screen').classList.remove('hidden');
-        }
-        function closeAdminLogin() {
-            document.getElementById('admin-login-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-        }
+        // --- PAINEL DEV ADMINISTRATIVO CONTROLE ---
+        function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
+        function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function verifyAdminLogin() {
-            const user = document.getElementById('admin-user-field').value;
-            const pass = document.getElementById('admin-pass-field').value;
-            // Validação das credenciais exatas solicitadas
+            const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value;
             if (user === "italong" && pass === "italo1440@aB") {
-                document.getElementById('admin-login-screen').classList.add('hidden');
-                document.getElementById('admin-dashboard-screen').classList.remove('hidden');
+                document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden');
                 buildAdminDashboardDOM();
-            } else {
-                alert("Acesso Negado! Usuário ou Senha incorretos.");
-            }
+            } else { alert("Acesso Negado! Credenciais incorretas."); }
         }
-        function closeAdminDashboard() {
-            document.getElementById('admin-dashboard-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-            document.getElementById('admin-user-field').value = '';
-            document.getElementById('admin-pass-field').value = '';
-        }
+        function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function buildAdminDashboardDOM() {
-            const container = document.getElementById('admin-pending-list');
-            container.innerHTML = '';
+            const container = document.getElementById('admin-pending-list'); container.innerHTML = '';
             let pendentes = pixHistoryData.filter(e => e.status === 'Pendente');
-            
-            if(pendentes.length === 0) {
-                container.innerHTML = "<li class='data-item'>Nenhuma transferência Pix pendente no momento.</li>";
-                return;
-            }
+            if(pendentes.length === 0) { container.innerHTML = "<li class='data-item'>Nenhuma transferência Pix pendente no momento.</li>"; return; }
             pendentes.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'data-item';
-                li.innerHTML = `
-                    <div>👤 <strong>${item.usuario}</strong><br>🔑 Chave: ${item.chave}<br>💰 <strong>R$ ${item.valor}</strong></div>
-                    <button class="btn btn-sm" style="background:#28a745; border:none;" onclick="adminPayUserManual('${item.id}')">Dar Baixa (Pago)</button>
-                `;
+                const li = document.createElement('li'); li.className = 'data-item';
+                li.innerHTML = `<div>👤 <strong>${item.usuario}</strong><br>🔑 Chave: ${item.chave}<br>💰 <strong>R$ ${item.valor}</strong></div><button class="btn btn-sm" style="background:#28a745; border:none; color:white;" onclick="adminPayUserManual('${item.id}')">Dar Baixa (Pago)</button>`;
                 container.appendChild(li);
             });
         }
@@ -609,67 +585,35 @@
             if(itemIndex !== -1) {
                 pixHistoryData[itemIndex].status = 'Pago';
                 localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
-                alert("Pix marcado como PAGO com sucesso usando a receita dos anúncios!");
+                alert("Pix marcado como PAGO usando os fundos de anúncios!");
                 buildAdminDashboardDOM();
             }
         }
 
-        // --- SISTEMA DE SAQUE PIX ---
-        function openWithdraw() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('withdraw-balance').innerText = saldoPixAcumulado;
-            document.getElementById('withdraw-screen').classList.remove('hidden');
-        }
-        function closeWithdraw() {
-            document.getElementById('withdraw-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-        }
+        // --- SOLICITAÇÃO DE SAQUE PIX ---
+        function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('withdraw-balance').innerText = saldoPixAcumulado; document.getElementById('withdraw-screen').classList.remove('hidden'); }
+        function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function requestPixPayout() {
-            const key = document.getElementById('pix-key').value;
-            const pontos = saldoPixAcumulado;
+            const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
             if(!key) { alert("Digite uma chave Pix."); return; }
             if(pontos < 1000) { alert("Mínimo de 1000 pontos necessários."); return; }
 
-            // Adiciona a transação ao histórico local com status 'Pendente' para o admin visualizar
-            let newRequest = {
-                id: 'pix_' + Date.now(),
-                usuario: currentUserName || "Anônimo",
-                chave: key,
-                valor: (pontos / 1000).toFixed(2),
-                status: 'Pendente'
-            };
+            let newRequest = { id: 'pix_' + Date.now(), usuario: currentUserName || "Anônimo", chave: key, valor: (pontos / 1000).toFixed(2), status: 'Pendente' };
             pixHistoryData.push(newRequest);
             localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
 
-            // Dispara requisição ao seu Backend seguro do Render
-            fetch(URL_BACKEND_PIX, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chavePix: key, pontos: pontos })
-            }).then(()=>{});
-
-            alert(`🎉 Solicitação recebida!\nValor: R$ ${newRequest.valor}\nEla foi enviada para o menu de auditoria do Dev. Aguarde o processamento em até 1 dia útil!`);
+            fetch(URL_BACKEND_PIX, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chavePix: key, pontos: pontos }) }).catch(()=>{});
+            alert(`🎉 Solicitação recebida!\nValor: R$ ${newRequest.valor}\nEnviado para auditoria do Administrador.`);
             
-            saldoPixAcumulado = 0;
-            localStorage.setItem('saldoPixAcumulado', 0);
-            updateHUD();
-            closeWithdraw();
+            saldoPixAcumulado = 0; localStorage.setItem('saldoPixAcumulado', 0);
+            updateHUD(); closeWithdraw();
         }
 
-        // --- MONETIZAÇÃO ADS ---
-        function watchAdForLife() {
-            window.open(MONETAG_SMARTLINK, "_blank");
-            setTimeout(() => { lives = 1; adLifeUsed = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }, 1000);
-        }
-        function triggerCoinReload() {
-            window.open(MONETAG_SMARTLINK, "_blank");
-            setTimeout(() => { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); playTone(600, 'sine', 0.2, 0.05); }, 1000);
-        }
+        // --- MONETIZAÇÃO SMARTLINKS ---
+        function watchAdForLife() { window.open(MONETAG_SMARTLINK, "_blank"); setTimeout(() => { lives = 1; adLifeUsed = true; player.isJumping = false; player.isDucking = false; player.height = player.baseHeight; player.y = 290; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }, 1000); }
+        function triggerCoinReload() { window.open(MONETAG_SMARTLINK, "_blank"); setTimeout(() => { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); playTone(600, 'sine', 0.2, 0.05); }, 1000); }
 
-        // --- CONFIGURAÇÕES EXTRAS & LOJA ---
-        function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
-        function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔊 Ativar Som" : "🔇 Mutar Som"; }
-        function toggleTheme() { document.documentElement.classList.toggle('light-theme'); }
+        // --- CONFIGURAÇÕES DA LOJA ---
         function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
@@ -708,8 +652,8 @@
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; document.getElementById('hud-lives').innerText = h || '💀';
         }
 
-        function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
+        function resetGame() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.isDucking = false; player.height = player.baseHeight; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; startBGM(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.isDucking = false; player.height = player.baseHeight; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
         // --- RENDERIZADORES VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
