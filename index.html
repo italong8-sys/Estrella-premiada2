@@ -123,6 +123,18 @@
         .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
+        /* OVERLAY GLOBAL DE EXIBIÇÃO DE ANÚNCIO (REWARDED/INTERSTITIAL MOCK) */
+        #ad-processing-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95); z-index: 500; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; color: #ffffff;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #151530; border-top: 5px solid #ff007f;
+            border-radius: 50%; animation: spinEngine 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spinEngine { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         /* BALÃO TOAST NOTIFICAÇÃO DE PIX SUCESSO */
         #payout-toast {
             position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
@@ -134,6 +146,7 @@
         }
         #payout-toast.active { bottom: 80px; }
 
+        /* ÁREA DE ANÚNCIO BANNER DEBAIXO DA TELA - OTIMIZADA PARA NÃO SURGIR EM CIMA DA JOGATINA */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
@@ -149,10 +162,20 @@
 <body>
 
     <div id="game-container">
+        <!-- TELA DE PROCESSAMENTO FORÇADO DE PROPAGANDAS -->
+        <div id="ad-processing-overlay" class="hidden">
+            <div class="spinner"></div>
+            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 22px; letter-spacing: 1px;">CARREGANDO ANÚNCIO PREMIADO</h2>
+            <p style="color: #00f2fe; font-size: 13px; margin: 0 0 5px 0;">Por favor, aguarde a reprodução completa do patrocinador...</p>
+            <p id="ad-countdown-txt" style="color: #ffe81f; font-weight: bold; font-size: 18px;">3s</p>
+        </div>
+
+        <!-- BALÃO CONFIRMAÇÃO DE CONTA PIX -->
         <div id="payout-toast">
             <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
         </div>
 
+        <!-- CONTROLADORES DA VIEWPORT SUPERIOR -->
         <div class="pause-btn" onclick="togglePauseGame()">⏸️</div>
 
         <div class="hud">
@@ -177,21 +200,26 @@
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
+        <!-- INTERFACE GRÁFICA DO MOTOR -->
         <canvas id="gameCanvas"></canvas>
 
+        <!-- BOTÃO ACIONADOR DO RAIO LASER -->
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
+        <!-- FIXED BANNER MONETAG CONTEXTUALIZADO -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
             </a>
         </div>
 
+        <!-- LOBBY INICIAL -->
         <div id="start-screen" class="screen">
             <div class="ad-warning-banner">
                 Quando abrir o anúncio em outra guia do seu navegador apenas deixe carregar e feche! Não clique em baixar nada da propaganda! Nós não nos responsabilizamos pelas propagandas dentro do jogo!
             </div>
 
+            <!-- EXPLICATIVO COMPLETO DO JOGO -->
             <div class="tutorial-card">
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
@@ -215,12 +243,14 @@
             </div>
         </div>
 
+        <!-- PAUSA OVERLAY SCREEN -->
         <div id="pause-screen" class="screen hidden" style="background:rgba(5,5,15,0.85);">
             <h2 style="color:#00f2fe; letter-spacing:3px; font-size:28px;">JOGO PAUSADO</h2>
             <p style="color:#8a8ab0; font-size:12px; margin-bottom:20px;">Sua corrida está congelada de forma segura.</p>
             <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">Retornar</button>
         </div>
 
+        <!-- GAME OVER COMUM -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 26px;">Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 12px;">Metros percorridos: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span></p>
@@ -231,6 +261,7 @@
             </div>
         </div>
 
+        <!-- GAME OVER FERROVIA -->
         <div id="train-gameover-screen" class="screen hidden">
             <h2 style="color: #ffaa00; font-size: 24px;">💥 Colisão de Trem Ferroviário!</h2>
             <p style="color:#fff; font-size: 12px; margin-bottom: 15px; text-align: center; max-width: 260px;">
@@ -240,6 +271,7 @@
             <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">Voltar ao Menu</button>
         </div>
 
+        <!-- MENU RANKING -->
         <div id="ranking-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="color:#00f2fe; margin-top:0; text-transform: uppercase; font-size: 14px;">🏆 RECORDES MUNDIAIS STAR RUNNER</h3>
@@ -248,11 +280,12 @@
             </div>
         </div>
 
+        <!-- CENTRAL DE SUPORTE -->
         <div id="support-screen" class="screen hidden">
             <div class="panel-box" style="justify-content: center; align-items: center; text-align: center;">
                 <h3 style="color: #00f2fe; margin-bottom: 10px; text-transform: uppercase; font-size: 14px;">Central de Suporte</h3>
                 <p style="font-size: 12px; color: #ffffff; max-width: 260px; line-height: 1.5; margin-bottom: 12px;">
-                    Para suporte, dúvidas, críticas, sugestões ou bugs, mande um email para:<br>
+                    Para suporte, dúvidas, críticas, sugestões or bugs, mande um email para:<br>
                     <strong style="color: #ffe81f; font-size: 13px; word-break: break-all;">anjositalo200@gmail.com</strong>
                 </p>
                 <p style="font-size: 12px; color: #ff007f; font-weight: bold; margin-bottom: 15px;">
@@ -262,6 +295,7 @@
             </div>
         </div>
 
+        <!-- LOJA AVANÇADA COMPLETA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap: wrap; gap:4px;">
@@ -281,6 +315,7 @@
             </div>
         </div>
 
+        <!-- FINANCEIRO SAQUES PIX -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">Resgatar Recompensa Pix</h3>
             <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
@@ -290,6 +325,7 @@
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">Voltar</button>
         </div>
 
+        <!-- EXTRATO HISTÓRICO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 12px; text-transform: uppercase;">Extrato Pix</h3>
@@ -298,6 +334,7 @@
             </div>
         </div>
 
+        <!-- PAINEL DEV -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>Acesso Restrito Developer</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
@@ -340,7 +377,7 @@
 
         // LÓGICA DO CANO PORTAL BONUS (MÁRIO STYLE)
         let isBonusStageMode = false;
-        let bonusStageTimer = 0; // Controlado em frames (600 frames = 10 segundos reais)
+        let bonusStageTimer = 0; 
         let preBonusPhaseConfig = null;
         let pipeWarningActive = false;
 
@@ -398,45 +435,70 @@
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
-        // --- ENGENHARIA PROCEDURAL: GERADOR DOS 100 PERSONAGENS (50+50) ---
+        // --- ENGENHARIA PROCEDURAL: GERADOR DOS 100 PERSONAGENS COM NOMES 100% ÚNICOS ---
         const skinsDB = {};
+
+        const normalNamesArray = [
+            "Estrela Guia", "Velocidade Luz", "Sombra Neon", "Espectro Cyber", "Nômade Espacial", 
+            "Lâmina Quântica", "Sentinela Alpha", "Eco Cósmico", "Vórtice Roxo", "Faísca Solar", 
+            "Andarilho Estelar", "Alfa Nexus", "Zênite Prata", "Pulsar Blue", "Giro Digital", 
+            "Giga Hacker", "Aero Cromo", "Zero Absoluto", "Guardião Orbit", "Fóton Veloz", 
+            "Cosmos Driver", "Raio Laser", "Duna Cósmica", "Infinito One", "Gênese Core", 
+            "Titã Cyber", "Sonda Voyager", "Meteoro Red", "Cometa Gelo", "Nebulosa Pink", 
+            "Astro Rei", "Orion Stark", "Sirius Grid", "Andrômeda Run", "Pegasus Fly", 
+            "Fênix Flame", "Nebula Geist", "Cyborg X1", "Matrix Runner", "Glitch Hunter", 
+            "Byte Master", "Pixel Art", "Vetor Core", "Bit Racer", "Kernel Shell", 
+            "Proxy Node", "Firewall Block", "Cyber Punker", "Synth Wave", "Retro Grid"
+        ];
+
+        const bizarreNamesArray = [
+            "Geleia Mutante", "Olho Cthulhu", "Tentáculo Dark", "Amálgama Corp", "Xenomorfo Slim", 
+            "Gosma Urânio", "Devorador Almas", "Anomalia C137", "Parasita Void", "Cérebro Pulsar", 
+            "Aberração Bio", "Quimera Laser", "Fantasma Void", "Infectado Core", "Cascudo Mecha", 
+            "Dente de Sabre", "Craca Espacial", "Nuvem Sanguínea", "Orbe Sombrio", "Cicatriz Code", 
+            "Esporo Fungo", "Carmim Mutante", "Gloop Humano", "Bestial Beast", "Gárgula Cyber", 
+            "Leviatã Micro", "Insetoide Hive", "Aracne Neon", "Mutação 99", "Resíduo Tóxico", 
+            "Flesh Shifter", "Dark Matter", "Anti Estrela", "Buraco Negro", "Singularidade", 
+            "Plasma Vivo", "Necromante", "Esqueleto Bit", "Zumbi Glitch", "Ghoul Cosmic", 
+            "Sanguessuga", "Verme de Areia", "Monólito Dark", "Polvo Mutado", "Hydra Code", 
+            "Cérbero Red", "Medusa Matrix", "Minotauro Cyber", "Quimera Glitch", "Gorgona Bit"
+        ];
         
+        // Inserção das 50 Skins de Anúncios
         for (let i = 1; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
+            let skinUniqueName = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
             skinsDB[`skin_${i}`] = {
-                name: `Runner Alpha ${i}`,
+                name: skinUniqueName,
                 type: 'ad',
                 tab: 'skins',
                 render: (g, x, y, r) => {
-                    g.save();
-                    g.beginPath(); g.arc(x, y, r, 0, Math.PI*2);
-                    g.fillStyle = colorHex; g.fill();
-                    g.strokeStyle = "#ffffff"; g.lineWidth = 1.5; g.stroke();
-                    g.fillStyle = "#fff"; g.fillRect(x - r/3, y - r/3, (r*2)/3, (r*2)/3);
-                    g.restore();
+                    g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI*2);
+                    g.fillStyle = colorHex; g.fill(); g.strokeStyle = "#ffffff"; g.lineWidth = 1.5; g.stroke();
+                    g.fillStyle = "#fff"; g.fillRect(x - r/3, y - r/3, (r*2)/3, (r*2)/3); g.restore();
                 }
             };
         }
+        // Sobrescreve a skin inicial padrão mantendo a estrela geométrica vetorizada original
         skinsDB['skin_1'] = {
             name: '⭐ Estrela Guia', type: 'ad', tab: 'skins',
             render: (g, cx, cy, r) => { drawVectorGeometricShape(g, cx, cy, 5, r, r/2, '#ffe81f'); }
         };
 
+        // Inserção das 50 Skins Bizarras de Moedas
         for (let i = 1; i <= 50; i++) {
             let bizarroColor = `hsl(${(i * 13) % 360}, 90%, 40%)`;
             let costScale = 100 + (i * 12);
+            let bizarroUniqueName = bizarreNamesArray[i - 1] || `Mutante Alien ${i}`;
             skinsDB[`bizarro_${i}`] = {
-                name: `Mutante Alien ${i}`,
+                name: bizarroUniqueName,
                 type: 'coins',
                 cost: costScale,
                 tab: 'bizarre',
                 render: (g, x, y, r) => {
-                    g.save();
-                    g.fillStyle = bizarroColor;
-                    g.fillRect(x - r, y - r, r*2, r*2);
+                    g.save(); g.fillStyle = bizarroColor; g.fillRect(x - r, y - r, r*2, r*2);
                     g.fillStyle = "#fff"; g.beginPath(); g.arc(x - r/2, y - r/4, 4, 0, Math.PI*2); g.fill();
-                    g.beginPath(); g.arc(x + r/2, y - r/4, 4, 0, Math.PI*2); g.fill();
-                    g.restore();
+                    g.beginPath(); g.arc(x + r/2, y - r/4, 4, 0, Math.PI*2); g.fill(); g.restore();
                 }
             };
         }
@@ -448,7 +510,7 @@
             'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' }
         };
 
-        // CONTROLES GLOBAIS (ATIVOS EM TODAS AS FASES E NO BÔNUS)
+        // CONTROLES DE ENTRADA DO USUÁRIO
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -465,13 +527,50 @@
             e.preventDefault();
             let touchX = e.touches[0].clientX;
             if (touchX > window.innerWidth / 2) triggerJump(); else triggerDuck(true);
-        }, { mapassive: false });
+        }, { passive: false });
         document.addEventListener('touchend', () => { if (gameActive) triggerDuck(false); }, { passive: true });
 
         function togglePauseGame() {
             if (!gameActive) return;
             isPaused = !isPaused;
             document.getElementById('pause-screen').classList.toggle('hidden', !isPaused);
+        }
+
+        // --- SISTEMA REVOLUCIONÁRIO DE ANÚNCIOS PREMIADOS E AUTO-INTERSTITIALS ---
+        function triggerRewardedAdCall(onCompleteCallback, isInterstitial = false) {
+            // Congela o motor gráfico do jogo temporariamente se ele estiver rodando
+            let prePauseState = isPaused;
+            isPaused = true;
+
+            const overlay = document.getElementById('ad-processing-overlay');
+            const title = document.getElementById('ad-overlay-title');
+            const txtCounter = document.getElementById('ad-countdown-txt');
+            
+            if (isInterstitial) {
+                title.innerText = "EXIBINDO ANÚNCIO DE FIM DE PARTIDA";
+            } else {
+                title.innerText = "CARREGANDO ANÚNCIO PREMIADO";
+            }
+
+            txtCounter.innerText = "3s";
+            overlay.classList.remove('hidden');
+
+            // Dispara o redirecionamento imediato em aba independente da Monetag para monetizar o clique
+            window.open(MONETAG_SMARTLINK, '_blank');
+
+            let timerSeconds = 3;
+            let adCounterInterval = setInterval(() => {
+                timerSeconds--;
+                txtCounter.innerText = timerSeconds + "s";
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(adCounterInterval);
+                    overlay.classList.add('hidden');
+                    // Descongela o estado do jogo e roda a recompensa/continuação
+                    isPaused = prePauseState;
+                    if (onCompleteCallback) onCompleteCallback();
+                }
+            }, 1000);
         }
 
         // ELEMENTOS DE ÁUDIO PROCEDURAL
@@ -505,23 +604,15 @@
             obstacleTimer = 0;
         }
 
-        // CONVERSOR DA SALA BÔNUS (ESTILO MARIO EXTRA ROOM)
         function triggerBonusStageActivation() {
             preBonusPhaseConfig = currentPhaseConfig;
             isBonusStageMode = true;
-            bonusStageTimer = 600; // 600 frames = 10 Segundos cravados a 60FPS
+            bonusStageTimer = 600; 
             pipeWarningActive = false;
-            
-            // Limpa o mapa atual de perigos imediatamente
-            obstacles = [];
-            platforms = [];
-            itemsInGame = [];
+            obstacles = []; platforms = []; itemsInGame = [];
 
-            // Geração da estrutura de pistas aéreas iniciais do bônus
             platforms.push({ x: player.x + 80, y: BASE_GROUND_Y - 50, width: 140, isTrain: false, isPipe: false });
             platforms.push({ x: player.x + 290, y: BASE_GROUND_Y - 110, width: 140, isTrain: false, isPipe: false });
-            
-            // Preenche as plataformas com estrelas/moedas
             itemsInGame.push({ x: player.x + 150, y: BASE_GROUND_Y - 80, type: 'coin' });
             itemsInGame.push({ x: player.x + 360, y: BASE_GROUND_Y - 140, type: 'coin' });
         }
@@ -577,7 +668,6 @@
             }
         }
 
-        // --- LOOP PRINCIPAL DO MOTOR CANVAS ---
         function runGameLoop() {
             try {
                 if (ctx) {
@@ -586,7 +676,6 @@
                     if (!isPaused && gameActive) {
                         frameCount++; 
                         
-                        // Sistema de Mana das fases difíceis
                         if (!isBonusStageMode && currentPhase >= 4 && playerMana < 100 && frameCount % 6 === 0) {
                             playerMana = Math.min(100, playerMana + 1);
                             safeSetText('hud-mana', `⚡ Laser: ${playerMana}%`);
@@ -602,12 +691,11 @@
 
                             if (score % 20 === 0) { saldoPixAcumulado += 2; updateHUD(); }
 
-                            // Alerta Inteligente de aproximação do Túnel Verde
                             pipeWarningActive = false;
                             for (let p of platforms) {
                                 if (p.isPipe && p.x > player.x && p.x - player.x < 480) {
                                     pipeWarningActive = true;
-                                    currentFrameSpeed = obstacleSpeed * 0.45; // Desacelera para 45% do normal
+                                    currentFrameSpeed = obstacleSpeed * 0.45; 
                                     break;
                                 }
                             }
@@ -615,32 +703,24 @@
                             updateAndGenerateTerrain(currentFrameSpeed);
                             updateSpawningEngine();
                         } else {
-                            // EXECUÇÃO INTERNA DO TEMPO DA SALA BÔNUS (10 SEGUNDOS CRUCIAL)
                             bonusStageTimer--;
-                            
-                            // Se o tempo acabar (0s), retorna imediatamente à fase normal
                             if (bonusStageTimer <= 0) {
                                 isBonusStageMode = false;
                                 currentPhaseConfig = preBonusPhaseConfig;
                                 initTerrain();
                             }
 
-                            // Geração contínua de plataformas flutuantes e moedas na sala bônus
                             if (frameCount % 45 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 90);
                                 platforms.push({ x: canvas.width + 10, y: hY, width: 130, isTrain: false, isPipe: false });
-                                
-                                // Fileira de moedas sobre a plataforma flutuante
                                 itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
                                 itemsInGame.push({ x: canvas.width + 80, y: hY - 30, type: 'coin' });
                             }
-
                             updateAndGenerateTerrain(currentFrameSpeed);
                         }
 
                         updateEntitiesAndCollisions(currentFrameSpeed);
 
-                        // Gravidade e Física Geral
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
                         let floorY = getGroundYAt(player.x + player.width/2);
@@ -650,40 +730,25 @@
                             player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
                         } else { player.y = nextY; }
 
-                        // Proteção contra quedas no abismo durante o Bônus (Não morre)
                         if (isBonusStageMode && player.y > canvas.height) {
-                            player.y = BASE_GROUND_Y - player.height;
-                            player.velocity = 0;
+                            player.y = BASE_GROUND_Y - player.height; player.velocity = 0;
                         }
                     }
 
-                    // Renderização de Bioma do fundo
                     renderBackgroundScenariosLayer();
 
-                    // RENDER DO MARCADOR CRONÔMETRO DE 10 SEGUNDOS (SALA BÔNUS)
                     if (isBonusStageMode && gameActive && !isPaused) {
-                        ctx.save();
-                        ctx.fillStyle = "#ffe81f";
-                        ctx.strokeStyle = "#000000";
-                        ctx.lineWidth = 4;
-                        ctx.font = "bold 22px 'Segoe UI', sans-serif";
-                        ctx.textAlign = "center";
+                        ctx.save(); ctx.fillStyle = "#ffe81f"; ctx.strokeStyle = "#000000"; ctx.lineWidth = 4;
+                        ctx.font = "bold 22px 'Segoe UI', sans-serif"; ctx.textAlign = "center";
                         let timeLeft = (bonusStageTimer / 60).toFixed(1);
                         ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110);
-                        ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110);
-                        ctx.restore();
+                        ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.restore();
                     }
 
-                    // AVISO DO TÚNEL VERDE CHEGANDO
                     if (pipeWarningActive && gameActive && !isPaused) {
-                        ctx.save();
-                        ctx.fillStyle = "rgba(40, 167, 69, 0.95)";
-                        ctx.strokeStyle = "#00ffaa";
-                        ctx.lineWidth = 2;
+                        ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
                         ctx.shadowBlur = 10; ctx.shadowColor = "#00ffaa";
-                        let boxW = Math.min(canvas.width - 30, 440);
-                        let boxX = (canvas.width - boxW) / 2;
-                        let boxY = 70;
+                        let boxW = Math.min(canvas.width - 30, 440); let boxX = (canvas.width - boxW) / 2; let boxY = 70;
                         ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 70, 10); ctx.fill(); ctx.stroke();
                         ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
                         ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
@@ -693,7 +758,6 @@
                         ctx.restore();
                     }
 
-                    // RAIO LASER
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
                         activeLaserFrame--;
                         ctx.save(); ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 6;
@@ -703,7 +767,6 @@
                         ctx.restore();
                     }
 
-                    // BLOCOS SÓLIDOS DO CHÃO
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
@@ -712,8 +775,7 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe");
                                 groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad;
-                                ctx.beginPath();
-                                ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height);
                                 ctx.closePath(); ctx.fill();
                                 ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
@@ -723,7 +785,6 @@
                         ctx.restore();
                     }
 
-                    // RENDER ELEMENTOS DO MAPA (PLATAFORMAS, TRENS E CANOS)
                     platforms.forEach(p => {
                         ctx.save();
                         if (p.isPipe) {
@@ -734,20 +795,15 @@
                             ctx.fillStyle = "#5c0622"; ctx.fillRect(p.x, p.y, p.width, p.height);
                             ctx.fillStyle = "#ffe81f"; for(let j=10; j<p.width-15; j+=35) ctx.fillRect(p.x+j, p.y+12, 12, 12);
                         } else {
-                            // Plataformas flutuantes normais e da sala bônus
-                            ctx.fillStyle = isBonusStageMode ? "#0b0b26" : "#111126";
-                            ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.strokeStyle = isBonusStageMode ? "#ffe81f" : "#00f2fe";
-                            ctx.lineWidth = 2;
-                            ctx.strokeRect(p.x, p.y, p.width, p.height);
+                            ctx.fillStyle = isBonusStageMode ? "#0b0b26" : "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height);
+                            ctx.strokeStyle = isBonusStageMode ? "#ffe81f" : "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.width, p.height);
                         }
                         ctx.restore();
                     });
 
                     itemsInGame.forEach(it => {
                         ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
-                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill();
-                        ctx.restore();
+                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
                     });
 
                     obstacles.forEach(o => {
@@ -772,7 +828,6 @@
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             if (isBonusStageMode) {
-                // Fundo Galáctico da Sala Bônus de Recompensa
                 grad.addColorStop(0, "#010005"); grad.addColorStop(1, "#070014");
             } else if (type === 'forest') {
                 grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
@@ -788,7 +843,7 @@
 
             ctx.save();
             if (isBonusStageMode) {
-                ctx.fillStyle = "rgba(255, 232, 31, 0.4)"; // Estrelas douradas brilhantes fixas e móveis
+                ctx.fillStyle = "rgba(255, 232, 31, 0.4)";
                 for(let i=0; i<30; i++) ctx.fillRect((canvas.width*0.04*i + frameCount*1.5)%canvas.width, 30 + (i*17)%260, 2.5, 2.5);
             } else if (type === 'city') {
                 ctx.fillStyle = "rgba(0, 242, 254, 0.05)";
@@ -805,7 +860,6 @@
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
                 
-                // Sorteador de Túneis Verdes (Canos)
                 if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
                     platforms.push({ x: sX, y: BASE_GROUND_Y - 45, width: 45, height: 45, isPipe: true, isTrain: false });
                     return;
@@ -840,11 +894,8 @@
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) {
                         player.onPlatform = true; player.platformTop = p.y;
                     } else if (platOverlapsPlayer(p)) {
-                        // DETECÇÃO EXCLUSIVA DO TÚNEL VERDE (DIRECIONAMENTO CORRIGIDO)
                         if (p.isPipe) {
-                            platforms.splice(i, 1);
-                            triggerBonusStageActivation();
-                            return;
+                            platforms.splice(i, 1); triggerBonusStageActivation(); return;
                         }
                         if (p.isTrain && !isBonusStageMode) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                     }
@@ -875,8 +926,25 @@
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
-        function handleTrainCrashFatal() { gameActive = false; document.getElementById('train-gameover-screen').classList.remove('hidden'); }
-        function handleLifeLoss() { lives--; updateHUD(); if (lives <= 0) { gameActive = false; safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden'); } }
+        
+        // --- AD COMPULSÓRIO EXECUTADO AUTOMATICAMENTE NAS DUAS OPERAÇÕES DE MORTE ---
+        function handleTrainCrashFatal() { 
+            gameActive = false; 
+            triggerRewardedAdCall(() => {
+                document.getElementById('train-gameover-screen').classList.remove('hidden');
+            }, true);
+        }
+        
+        function handleLifeLoss() { 
+            lives--; updateHUD(); 
+            if (lives <= 0) { 
+                gameActive = false; 
+                safeSetText('final-score', score); 
+                triggerRewardedAdCall(() => {
+                    document.getElementById('gameover-screen').classList.remove('hidden');
+                }, true);
+            } 
+        }
 
         function watchAdForTrainContinue() { triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.add('hidden'); initTerrain(); player.y = BASE_GROUND_Y - 100; player.velocity = 0; gameActive = true; }); }
         function backToMenuFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); backToMenu(); }
@@ -931,7 +999,7 @@
         function openSupportScreen() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
         function closeSupportScreen() { document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
-        function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function closeShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
         function buildShop() {
@@ -962,7 +1030,7 @@
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
-        function closePixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${item.status==='Pago'?'#28a745':'#ffaa00'}; font-weight:bold;">${item.status}</div></li>`; }); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
