@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Ultimate Responsive Edition</title>
+    <title>Star Runner - Infinite Endless Evolution</title>
     <style>
         /* --- SISTEMA DE VARIÁVEIS VISUAIS NEON E DINÂMICAS --- */
         :root {
@@ -33,7 +33,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* CONTAINER COM CORREÇÃO DE RESOLUÇÃO ABSOLUTA UNIVERSAL */
+        /* CONTAINER COM AUTO-ESCALA UNIVERSAL ABSOLUTA */
         #game-container {
             position: absolute;
             top: 50%;
@@ -51,7 +51,7 @@
 
         canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
 
-        /* --- HEADS UP DISPLAY (HUD) INTERATIVO --- */
+        /* --- HUD DE RUNTIME --- */
         .hud {
             position: absolute; top: 15px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
@@ -64,7 +64,7 @@
         .hud-accent { color: var(--accent); }
         .hud-secondary { color: var(--secondary); }
 
-        /* --- MENUS E INTERFACES --- */
+        /* --- PAINÉIS DE MENUS --- */
         .settings-gear {
             position: absolute; top: 12px; right: 15px;
             font-size: 26px; cursor: pointer; z-index: 100;
@@ -136,10 +136,11 @@
             100% { text-shadow: 0 0 2px #fff, 0 0 5px var(--primary); opacity: 0.5; }
         }
 
+        /* BANNER DE ANÚNCIOS REMANEJADO: FIXO ABSOLUTO SEM INTERFERIR NA INTERFACE */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: #000; display: flex; align-items: center; justify-content: center;
-            border-top: 1px solid rgba(128,128,128,0.3);
+            border-top: 1px solid rgba(0, 242, 254, 0.2);
             z-index: 99; overflow: hidden;
         }
     </style>
@@ -147,7 +148,7 @@
 <body>
 
     <div id="game-container">
-        <!-- HUD DE RUNTIME -->
+        <!-- HUD PRINCIPAL -->
         <div class="hud">
             <div>
                 <span id="hud-lives">❤️❤️❤️</span>
@@ -164,14 +165,14 @@
         <!-- Painel de Configurações -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
-            <button class="btn btn-sm" onclick="toggleMute()">🔇 Mutar Efeitos</button>
+            <button class="btn btn-sm" onclick="toggleMute()">🔇 Mutar Áudio</button>
             <button class="btn btn-sm" onclick="triggerFullscreenNative()">📺 Tela Cheia</button>
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:var(--primary); color:white;">🔒 Acesso Dev</button>
         </div>
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- BANNER MONETAG DIRECT INJECT -->
+        <!-- BANNER MONETAG FIXO (Sem atrapalhar botões ou HUD) -->
         <div id="ad-banner-placement">
             <iframe src="https://omg10.com/4/11110940" width="100%" height="50" frameborder="0" scrolling="no" style="border:none; overflow:hidden; background:#000;"></iframe>
         </div>
@@ -179,11 +180,11 @@
         <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:48px; color:var(--accent); margin:0 0 5px 0; letter-spacing:6px; text-shadow: 0 0 15px rgba(255,232,31,0.3);">STAR RUNNER</h1>
-            <p style="color: var(--secondary); font-size: 13px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 2px;">Evolution Edition</p>
+            <p style="color: var(--secondary); font-size: 13px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
 
             <button class="btn btn-primary" onclick="startGame()" style="font-size: 16px; padding: 14px 50px; letter-spacing: 1px;">Iniciar Corrida</button>
             
-            <div style="margin-top: 25px; display:flex; gap:10px;">
+            <div style="margin-top: 25px; display:flex; gap:10px; z-index: 20;">
                 <button class="btn btn-sm" onclick="openShop()">Lojinha Ad-Shop</button>
                 <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
                 <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
@@ -191,7 +192,7 @@
             </div>
 
             <div class="neon-notice">
-                Atenção, há bastante anúncios em massa, porém é só fechar e juntar os pontos no jogo para sacar via pix! O dinheiro cai até 1 dia útil!
+                Atenção, os saques automáticos via Pix exigem o mínimo de R$ 5,00 (5.000 pontos acumulados). Pagamento imediato!
             </div>
         </div>
 
@@ -199,7 +200,7 @@
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: var(--primary); font-size: 32px; margin-bottom: 5px;">Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 20px;">Distância percorrida: <span id="final-score" style="color:var(--accent); font-size:22px; font-weight: bold;">0</span> metros</p>
-            <button class="btn" style="background:#28a745; color:white; border:none; padding: 12px 35px; margin-bottom: 15px;" onclick="watchAdForLife()">🎬 Obter Resgatar Vida (Ver Anúncio)</button>
+            <button class="btn" style="background:#28a745; color:white; border:none; padding: 12px 35px; margin-bottom: 15px;" onclick="watchAdForLife()">🎬 Resgatar Vida (Ver Anúncio)</button>
             <div>
                 <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
                 <button class="btn" onclick="backToMenu()">Menu Principal</button>
@@ -270,21 +271,16 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
+        // VARIÁVEIS DE OPERAÇÃO DO ENGINE
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'star', currentShopTab = 'skins';
         let adLifeUsed = false, isMuted = false;
 
+        // ENGENHARIA DE FASES ENDLESS (A cada 500 metros uma nova fase)
         let currentPhase = 1;
-        const phaseNames = {
-            1: "Fase 1 - Metrópole (Dia)",
-            2: "Fase 2 - Torres Neon (Entardecer)",
-            3: "Fase 3 - Montanhas Tecnológicas (Noite)",
-            4: "Fase 4 - Linhas de Trem (Madrugada)",
-            5: "Fase 5 - Suburbia (Amanhecer)",
-            6: "Fase 6 - Overdrive Final (Tormenta)"
-        };
-
+        
+        // POWER-UPS E LOJA
         let shieldActive = false;
         let doubleJumpUnlocked = false;
         let lifeBonusQueued = 0;
@@ -304,42 +300,29 @@
         let obstacles = [];
         let platforms = [];
 
-        let skyGradientTop = "#110f2c", skyGradientBottom = "#05050a";
-        let groundStrokeColor = "#00f2fe";
+        // ESTILO PROCEDURAL DA FASE ATUAL
+        let currentPhaseConfig = { name: "Metrópole", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
 
         let parallaxScrollFar = 0;
         let parallaxScrollMid = 0;
         let parallaxScrollNear = 0;
 
-        // FUNÇÃO DE AUTO-ESCALA MATEMÁTICA CORRIGIDA PARA TELA CHEIA INTEGRAL
+        // AUTO-ESCALA SEGURO DO CONTAINER PARA QUALQUER DISPOSITIVO/APLICATIVO
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            
-            // Calcula qual o melhor fator de escala para preencher a tela sem distorcer o layout do canvas
-            const scaleX = windowWidth / 800;
-            const scaleY = windowHeight / 400;
-            const scaleFactor = Math.min(scaleX, scaleY);
-            
-            // Aplica a escala combinada com a centralização absoluta perfeita
+            const scaleFactor = Math.min(window.innerWidth / 800, window.innerHeight / 400);
             container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
         }
-        
-        // Escuta os eventos de redimensionamento e rotação de tela do celular
         window.addEventListener('resize', fitGameToScreen);
         window.addEventListener('orientationchange', () => { setTimeout(fitGameToScreen, 200); });
 
-        // SISTEMA NATIVO SEGURO DE DISPARO DE TELA CHEIA VIA TOQUE
         function triggerFullscreenNative() {
             toggleSettingsMenu();
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else {
-                document.exitFullscreen().catch(() => {});
-            }
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); } 
+            else { document.exitFullscreen().catch(() => {}); }
         }
 
+        // MOTOR DE SINTETIZADOR DE ÁUDIO RESTRITO
         let audioCtx = null;
         function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
         function playTone(freq, type, duration, volume = 0.04) {
@@ -370,6 +353,7 @@
             'heart': { name: '💖 Coração Vital', cost: 180, desc: 'Inicia a corrida com +1 Vida Extra.' }
         };
 
+        // CONTROLE DE INPUTS E MOVIMENTOS DA ENGINE
         function triggerJump() {
             if (!gameActive) return;
             if (player.isJumping && !doubleJumpUnlocked) return;
@@ -415,34 +399,56 @@
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
 
-        function updateEnvironmentAesthetic() {
-            currentPhase = Math.min(6, Math.floor(score / 200) + 1);
-            document.getElementById('hud-phase-txt').innerText = phaseNames[currentPhase];
-            switch(currentPhase) {
-                case 1: skyGradientTop = "#1a0b36"; skyGradientBottom = "#0b0518"; groundStrokeColor = "#00f2fe"; break;
-                case 2: skyGradientTop = "#cf3d6c"; skyGradientBottom = "#300b20"; groundStrokeColor = "#ffe81f"; break;
-                case 3: skyGradientTop = "#020210"; skyGradientBottom = "#080826"; groundStrokeColor = "#ff007f"; break;
-                case 4: skyGradientTop = "#010814"; skyGradientBottom = "#000105"; groundStrokeColor = "#ffffff"; break;
-                case 5: skyGradientTop = "#1f3c6d"; skyGradientBottom = "#ff7e5f"; groundStrokeColor = "#00ffaa"; break;
-                case 6: skyGradientTop = "#0d020d"; skyGradientBottom = "#260526"; groundStrokeColor = "#ff0055"; break;
+        // --- SISTEMA MATEMÁTICO DE FASES INFINITAS (CRIATIVIDADE PROCEDURAL) ---
+        function calculateInfinitePhaseStyle(phase) {
+            const baseBiomes = [
+                { name: "Metrópole Cyber", top: "#1a0b36", bottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" },
+                { name: "Retro Sunset", top: "#cf3d6c", bottom: "#300b20", ground: "#ffe81f", obs: "#fd1d1d", type: "mountains" },
+                { name: "Matrix Digital", top: "#011204", bottom: "#000200", ground: "#00ff33", obs: "#ffffff", type: "matrix" },
+                { name: "Deserto de Cristal", top: "#2c1654", bottom: "#120524", ground: "#ef4444", obs: "#ffe81f", type: "desert" },
+                { name: "Linhas Ferroviárias", top: "#010814", bottom: "#000105", ground: "#ffffff", obs: "#e2e8f0", type: "trains" },
+                { name: "Nuvem Cibernética", top: "#1f3c6d", bottom: "#ff7e5f", ground: "#00ffaa", obs: "#ff0055", type: "clouds" },
+                { name: "Vale Vulcânico", top: "#3a0000", bottom: "#100000", ground: "#ff3300", obs: "#ffe81f", type: "volcano" },
+                { name: "Órbita Espacial Alpha", top: "#0b001a", bottom: "#020005", ground: "#a020f0", obs: "#00f2fe", type: "space" }
+            ];
+
+            let index = (phase - 1) % baseBiomes.length;
+            let cycle = Math.floor((phase - 1) / baseBiomes.length);
+            let biome = Object.assign({}, baseBiomes[index]);
+
+            if (cycle > 0) {
+                biome.name += ` [Hyper X${cycle + 1}]`;
             }
+
+            // AJUSTE CRÍTICO DE ESCALA DE DIFICULDADE CONFORME O METRO AVANÇA
+            obstacleSpeed = 6.5 + (phase * 0.45);
+            if (obstacleSpeed > 16) obstacleSpeed = 16; // Trava máxima de jogabilidade estável
+
+            return biome;
         }
 
+        // --- LAÇO DE ATUALIZAÇÃO DO JOGO GRÁFICO (RENDER ENGINE) ---
         function runGameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
 
             if (gameActive) {
                 score++;
+                
+                // Métrica exata exigida: 500 metros por fase
+                currentPhase = Math.floor(score / 500) + 1;
+                currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
+                document.getElementById('hud-phase-txt').innerText = `Fase: ${currentPhase} - ${currentPhaseConfig.name}`;
+
                 if (score % 20 === 0) {
                     saldoPixAcumulado += 2;
                     localStorage.setItem('saldoPixAcumulado', saldoPixAcumulado);
                     updateHUD();
                 }
-                updateEnvironmentAesthetic();
 
-                parallaxScrollFar -= (obstacleSpeed * 0.15);
-                parallaxScrollMid -= (obstacleSpeed * 0.4);
+                // Deslocamento Parallax adaptável à velocidade atual da fase
+                parallaxScrollFar -= (obstacleSpeed * 0.12);
+                parallaxScrollMid -= (obstacleSpeed * 0.35);
                 parallaxScrollNear -= obstacleSpeed;
 
                 if (parallaxScrollFar <= -800) parallaxScrollFar = 0;
@@ -450,7 +456,8 @@
                 if (parallaxScrollNear <= -800) parallaxScrollNear = 0;
             }
 
-            drawParallaxBackground();
+            // Renderizar as camadas procedurais baseadas no bioma ativo
+            drawProceduralParallaxBackground();
 
             if (gameActive) {
                 updatePlatformsAndCollisions();
@@ -467,12 +474,14 @@
                 }
             }
 
+            // Renderizar Estruturas suspensas
             platforms.forEach(plat => {
-                ctx.save(); ctx.fillStyle = "rgba(20, 20, 50, 0.9)"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                ctx.strokeStyle = groundStrokeColor; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.save(); ctx.fillStyle = "rgba(12, 12, 36, 0.9)"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.strokeStyle = currentPhaseConfig.ground; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
                 ctx.beginPath(); ctx.moveTo(plat.x, plat.y); ctx.lineTo(plat.x + plat.width, plat.y); ctx.strokeStyle = "#fff"; ctx.stroke(); ctx.restore();
             });
 
+            // Renderizar Barreiras e Trens Fixos
             obstacles.forEach(obs => {
                 ctx.save(); ctx.fillStyle = obs.color;
                 if (obs.type === 'train') {
@@ -482,7 +491,9 @@
                 } else if (obs.isFlying) {
                     let wingAnimation = Math.sin(frameCount * 0.3) * 6; ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                     ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 2, obs.y - 3 + wingAnimation, 6, 3);
-                } else { ctx.fillRect(obs.x, obs.y, obs.width, obs.height); }
+                } else {
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                }
                 ctx.restore();
             });
 
@@ -497,53 +508,77 @@
             requestAnimationFrame(runGameLoop);
         }
 
-        function drawParallaxBackground() {
+        // --- SISTEMA GRÁFICO PARALLAX BASEADO NO BIOMA DA FASE ATUAL ---
+        function drawProceduralParallaxBackground() {
             let bgGrad = ctx.createRadialGradient(400, 200, 50, 400, 200, 500);
-            bgGrad.addColorStop(0, skyGradientTop); bgGrad.addColorStop(1, skyGradientBottom);
+            bgGrad.addColorStop(0, currentPhaseConfig.skyTop); bgGrad.addColorStop(1, currentPhaseConfig.skyBottom);
             ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Camada Far
-            ctx.save(); ctx.fillStyle = "rgba(15, 10, 35, 0.4)";
+            let type = currentPhaseConfig.type;
+
+            // Camada 1: Estruturas de Fundo Distantes
+            ctx.save(); ctx.fillStyle = "rgba(20, 20, 45, 0.35)";
             for (let offset of [parallaxScrollFar, parallaxScrollFar + 800]) {
-                ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 150, 180); ctx.lineTo(offset + 300, 240);
-                ctx.lineTo(offset + 500, 150); ctx.lineTo(offset + 650, 260); ctx.lineTo(offset + 800, 336); ctx.fill();
-            } ctx.restore();
-
-            // Camada Mid
-            ctx.save(); ctx.fillStyle = "rgba(8, 8, 22, 0.7)";
-            for (let offset of [parallaxScrollMid, parallaxScrollMid + 800]) {
-                ctx.fillRect(offset + 20, 120, 60, 216); ctx.fillRect(offset + 110, 90, 70, 246);
-                ctx.beginPath(); ctx.moveTo(offset + 240, 336); ctx.lineTo(offset + 250, 80); ctx.lineTo(offset + 260, 336); ctx.fill();
-                ctx.fillRect(offset + 320, 160, 55, 176); ctx.fillRect(offset + 420, 110, 80, 226);
-                ctx.fillRect(offset + 560, 140, 65, 196); ctx.fillRect(offset + 680, 70, 50, 266);
-            } ctx.restore();
-
-            // Camada Near
-            ctx.save(); ctx.fillStyle = "rgba(4, 4, 10, 0.95)";
-            for (let offset of [parallaxScrollNear, parallaxScrollNear + 800]) {
-                for (let hx = 0; hx < 800; hx += 160) {
-                    ctx.beginPath(); ctx.moveTo(offset + hx, 336); ctx.lineTo(offset + hx + 25, 300); ctx.lineTo(offset + hx + 50, 336); ctx.fill();
-                    ctx.fillRect(offset + hx + 90, 220, 4, 116); ctx.save(); ctx.fillStyle = groundStrokeColor; ctx.fillRect(offset + hx + 86, 220, 12, 3); ctx.restore();
+                if (type === "city" || type === "matrix") {
+                    ctx.fillRect(offset + 40, 160, 80, 176); ctx.fillRect(offset + 300, 120, 110, 216);
+                } else if (type === "space") {
+                    ctx.beginPath(); ctx.arc(offset + 200, 120, 40, 0, Math.PI*2); ctx.fill();
+                } else {
+                    ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 180, 160); ctx.lineTo(offset + 360, 260); ctx.lineTo(offset + 600, 120); ctx.lineTo(offset + 800, 336); ctx.fill();
                 }
             } ctx.restore();
 
-            // Chão fixo
-            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336); ctx.strokeStyle = groundStrokeColor; ctx.lineWidth = 4; ctx.stroke();
-            if (currentPhase === 4) {
-                ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2;
-                for (let tx = (parallaxScrollNear % 30); tx < 800; tx += 30) { ctx.beginPath(); ctx.moveTo(tx, 336); ctx.lineTo(tx - 5, 350); ctx.stroke(); }
+            // Camada 2: Estruturas Intermediárias Média
+            ctx.save(); ctx.fillStyle = "rgba(10, 10, 28, 0.65)";
+            for (let offset of [parallaxScrollMid, parallaxScrollMid + 800]) {
+                if (type === "city" || type === "trains") {
+                    ctx.fillRect(offset + 10, 100, 60, 236); ctx.fillRect(offset + 150, 150, 85, 186); ctx.fillRect(offset + 500, 80, 70, 256);
+                } else if (type === "matrix") {
+                    ctx.fillStyle = "#00ff33"; ctx.globalAlpha = 0.15;
+                    ctx.fillRect(offset + 50, 0, 2, 336); ctx.fillRect(offset + 250, 0, 4, 336); ctx.fillRect(offset + 600, 0, 1, 336);
+                    ctx.fillStyle = "rgba(10,10,28,0.65)"; ctx.globalAlpha = 1.0;
+                } else if (type === "desert") {
+                    ctx.beginPath(); ctx.moveTo(offset + 50, 336); ctx.lineTo(offset + 150, 180); ctx.lineTo(offset + 250, 336); ctx.moveTo(offset + 450, 336); ctx.lineTo(offset + 600, 140); ctx.lineTo(offset + 750, 336); ctx.fill();
+                } else if (type === "space") {
+                    ctx.fillStyle = "#fff"; ctx.fillRect(offset + 100, 40, 2, 2); ctx.fillRect(offset + 450, 190, 3, 3); ctx.fillRect(offset + 700, 80, 2, 2);
+                    ctx.fillStyle = "rgba(10,10,28,0.65)";
+                } else {
+                    ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 120, 220); ctx.lineTo(offset + 280, 336); ctx.lineTo(offset + 480, 200); ctx.lineTo(offset + 800, 336); ctx.fill();
+                }
+            } ctx.restore();
+
+            // Camada 3: Detalhes Urbanos / Postes Próximos
+            ctx.save(); ctx.fillStyle = "rgba(5, 5, 15, 0.92)";
+            for (let offset of [parallaxScrollNear, parallaxScrollNear + 800]) {
+                for (let hx = 0; hx < 800; hx += 200) {
+                    if (type === "trains" || type === "city") {
+                        ctx.fillRect(offset + hx + 40, 210, 4, 126); ctx.save(); ctx.fillStyle = currentPhaseConfig.ground; ctx.fillRect(offset + hx + 36, 210, 12, 3); ctx.restore();
+                    } else {
+                        ctx.beginPath(); ctx.moveTo(offset + hx, 336); ctx.lineTo(offset + hx + 20, 310); ctx.lineTo(offset + hx + 40, 336); ctx.fill();
+                    }
+                }
+            } ctx.restore();
+
+            // LINHA SÓLIDA DO CHÃO DO GAMEPLAY
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
+            ctx.strokeStyle = currentPhaseConfig.ground; ctx.lineWidth = 4; ctx.stroke();
+            
+            if (type === "trains") {
+                ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 2;
+                for (let tx = (parallaxScrollNear % 32); tx < 800; tx += 32) { ctx.beginPath(); ctx.moveTo(tx, 336); ctx.lineTo(tx - 6, 352); ctx.stroke(); }
             }
             ctx.restore();
         }
 
         function updatePlatformsAndCollisions() {
             obstacleTimer++;
-            let spawnInterval = Math.max(45, 130 - (currentPhase * 10));
+            // Escalabilidade adaptada da taxa de surgimento baseada na fase infinita
+            let spawnInterval = Math.max(22, 125 - (currentPhase * 6));
 
             if (obstacleTimer > spawnInterval) {
                 obstacleTimer = 0; let randomSelector = Math.random();
-                if (randomSelector > 0.55) {
-                    let platH = 20; let platW = 120 + Math.random() * 80; let platY = 220 - Math.random() * 50;
+                if (randomSelector > 0.60) {
+                    let platH = 20; let platW = 120 + Math.random() * 80; let platY = 220 - Math.random() * 45;
                     platforms.push({ x: 800, y: platY, width: platW, height: platH });
                 } else { generateDynamicObstacle(); }
             }
@@ -561,15 +596,15 @@
         }
 
         function generateDynamicObstacle() {
-            if (currentPhase === 4 && Math.random() > 0.4) {
-                obstacles.push({ x: 800, y: 266, width: 140, height: 70, type: 'train', color: '#1a1a2e', passed: false });
+            if (currentPhaseConfig.type === 'trains' && Math.random() > 0.35) {
+                obstacles.push({ x: 800, y: 266, width: 145, height: 70, type: 'train', color: '#18182b', passed: false });
             } else {
                 let isFly = (currentPhase >= 2 && Math.random() > 0.5);
                 if (isFly) {
-                    let flyY = Math.random() > 0.5 ? 240 : 275;
-                    obstacles.push({ x: 800, y: flyY, width: 28, height: 20, isFlying: true, color: '#ff5500', passed: false });
+                    let flyY = Math.random() > 0.5 ? 235 : 270;
+                    obstacles.push({ x: 800, y: flyY, width: 28, height: 20, isFlying: true, color: '#ff4500', passed: false });
                 } else {
-                    obstacles.push({ x: 800, y: 296, width: 22, height: 40, isFlying: false, color: groundStrokeColor, passed: false });
+                    obstacles.push({ x: 800, y: 296, width: 22, height: 40, isFlying: false, color: currentPhaseConfig.obs, passed: false });
                 }
             }
         }
@@ -587,9 +622,8 @@
                 if (!obs.passed && obs.x < player.x) {
                     obs.passed = true; coins += 6; localStorage.setItem('coins', coins); updateHUD();
                     playTone(580, 'sine', 0.03, 0.02);
-                    if (score % 250 === 0) obstacleSpeed += 0.7;
                 }
-                if (obs.x < -150) obstacles.splice(i, 1);
+                if (obs.x < -160) obstacles.splice(i, 1);
             }
         }
 
@@ -598,27 +632,18 @@
             if (lives <= 0) {
                 gameActive = false; document.getElementById('final-score').innerText = score;
                 document.getElementById('gameover-screen').classList.remove('hidden');
-                window.open(MONETAG_SMARTLINK, "_blank");
             }
         }
 
-        // --- GATILHO DE JOGO COMPLETO COM REQUISIÇÃO DE TELA CHEIA AUTOMÁTICA ---
+        // --- SISTEMAS DE MENUS INTERATIVOS (AÇÕES LIMPAS E SEM TRAVAS) ---
         function startGame() {
-            // Ativa o modo Fullscreen de forma imperceptível no clique do usuário
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            }
-            window.open(MONETAG_SMARTLINK, "_blank"); 
-            setTimeout(() => {
-                document.getElementById('start-screen').classList.add('hidden');
-                gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0;
-                updateHUD();
-            }, 300);
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
+            document.getElementById('start-screen').classList.add('hidden');
+            gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0;
+            updateHUD();
         }
 
         function openShop() {
-            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
-            window.open(MONETAG_SMARTLINK, "_blank");
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('shop-screen').classList.remove('hidden');
             buildShop();
@@ -651,7 +676,7 @@
                     if (isUnlocked) {
                         btn.innerText = isEquipped ? 'Em Uso' : 'Equipar'; if(isEquipped) btn.disabled = true;
                     } else {
-                        btn.innerText = item.type === 'ad' ? '🎬 Desbloquear' : `🪙 ${item.cost}`;
+                        btn.innerText = item.type === 'ad' ? '🎬 Liberar' : `🪙 ${item.cost}`;
                     }
 
                     btn.onclick = () => { if (isUnlocked) { currentSkinId = id; buildShop(); } else { purchaseSkinItem(id, item); } };
@@ -672,11 +697,8 @@
 
         function purchaseSkinItem(id, item) {
             if (item.type === 'ad') {
-                window.open(MONETAG_SMARTLINK, "_blank");
-                setTimeout(() => {
-                    unlockedSkins.push(id); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins));
-                    currentSkinId = id; buildShop(); alert("Skin liberada com sucesso!");
-                }, 1000);
+                unlockedSkins.push(id); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins));
+                currentSkinId = id; buildShop(); alert("Skin liberada com sucesso!");
             } else {
                 if (coins >= item.cost) {
                     coins -= item.cost; unlockedSkins.push(id);
@@ -687,7 +709,6 @@
         }
 
         function openWithdraw() { 
-            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
             document.getElementById('start-screen').classList.add('hidden'); 
             document.getElementById('withdraw-balance').innerText = saldoPixAcumulado; 
             document.getElementById('withdraw-screen').classList.remove('hidden'); 
@@ -735,8 +756,8 @@
             updateHUD(); closeWithdraw();
         }
 
-        function watchAdForLife() { window.open(MONETAG_SMARTLINK, "_blank"); setTimeout(() => { lives = 1; adLifeUsed = true; player.y = 290; player.velocity = 0; player.isJumping = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }, 1000); }
-        function triggerCoinReload() { window.open(MONETAG_SMARTLINK, "_blank"); setTimeout(() => { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); playTone(600, 'sine', 0.2, 0.05); }, 1000); }
+        function watchAdForLife() { lives = 1; adLifeUsed = true; player.y = 290; player.velocity = 0; player.isJumping = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
+        function triggerCoinReload() { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); playTone(600, 'sine', 0.2, 0.05); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
@@ -761,7 +782,7 @@
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- ARTISTAS VETORIAIS ---
+        // --- MODELADORES GRÁFICOS VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
             g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius);
             for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; }
