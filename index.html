@@ -149,12 +149,10 @@
 <body>
 
     <div id="game-container">
-        <!-- BALÃO CONFIRMAÇÃO DE CONTA PIX -->
         <div id="payout-toast">
             <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
         </div>
 
-        <!-- CONTROLADORES DA VIEWPORT SUPERIOR -->
         <div class="pause-btn" onclick="togglePauseGame()">⏸️</div>
 
         <div class="hud">
@@ -179,26 +177,21 @@
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
-        <!-- INTERFACE GRÁFICA DO MOTOR -->
         <canvas id="gameCanvas"></canvas>
 
-        <!-- BOTÃO ACIONADOR DO RAIO LASER -->
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- FIXED BANNER MONETAG -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
             </a>
         </div>
 
-        <!-- LOBBY INICIAL -->
         <div id="start-screen" class="screen">
             <div class="ad-warning-banner">
                 Quando abrir o anúncio em outra guia do seu navegador apenas deixe carregar e feche! Não clique em baixar nada da propaganda! Nós não nos responsabilizamos pelas propagandas dentro do jogo!
             </div>
 
-            <!-- EXPLICATIVO COMPLETO DO JOGO -->
             <div class="tutorial-card">
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
@@ -222,14 +215,12 @@
             </div>
         </div>
 
-        <!-- PAUSA OVERLAY SCREEN -->
         <div id="pause-screen" class="screen hidden" style="background:rgba(5,5,15,0.85);">
             <h2 style="color:#00f2fe; letter-spacing:3px; font-size:28px;">JOGO PAUSADO</h2>
             <p style="color:#8a8ab0; font-size:12px; margin-bottom:20px;">Sua corrida está congelada de forma segura.</p>
             <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">Retornar</button>
         </div>
 
-        <!-- GAME OVER COMUM -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 26px;">Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 12px;">Metros percorridos: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span></p>
@@ -240,7 +231,6 @@
             </div>
         </div>
 
-        <!-- GAME OVER FERROVIA -->
         <div id="train-gameover-screen" class="screen hidden">
             <h2 style="color: #ffaa00; font-size: 24px;">💥 Colisão de Trem Ferroviário!</h2>
             <p style="color:#fff; font-size: 12px; margin-bottom: 15px; text-align: center; max-width: 260px;">
@@ -250,7 +240,6 @@
             <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">Voltar ao Menu</button>
         </div>
 
-        <!-- MENU RANKING -->
         <div id="ranking-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="color:#00f2fe; margin-top:0; text-transform: uppercase; font-size: 14px;">🏆 RECORDES MUNDIAIS STAR RUNNER</h3>
@@ -259,7 +248,6 @@
             </div>
         </div>
 
-        <!-- CENTRAL DE SUPORTE -->
         <div id="support-screen" class="screen hidden">
             <div class="panel-box" style="justify-content: center; align-items: center; text-align: center;">
                 <h3 style="color: #00f2fe; margin-bottom: 10px; text-transform: uppercase; font-size: 14px;">Central de Suporte</h3>
@@ -274,7 +262,6 @@
             </div>
         </div>
 
-        <!-- LOJA AVANÇADA COMPLETA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap: wrap; gap:4px;">
@@ -294,7 +281,6 @@
             </div>
         </div>
 
-        <!-- FINANCEIRO SAQUES PIX -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">Resgatar Recompensa Pix</h3>
             <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
@@ -304,7 +290,6 @@
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">Voltar</button>
         </div>
 
-        <!-- EXTRATO HISTÓRICO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 12px; text-transform: uppercase;">Extrato Pix</h3>
@@ -313,7 +298,6 @@
             </div>
         </div>
 
-        <!-- PAINEL DEV -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>Acesso Restrito Developer</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
@@ -354,11 +338,11 @@
         let playerMana = 100;
         let activeLaserFrame = 0;
 
-        // LÓGICA DO CANO PORTAL BONUS
+        // LÓGICA DO CANO PORTAL BONUS (MÁRIO STYLE)
         let isBonusStageMode = false;
-        let bonusStageTimer = 0;
+        let bonusStageTimer = 0; // Controlado em frames (600 frames = 10 segundos reais)
         let preBonusPhaseConfig = null;
-        let pipeWarningActive = false; // Flag do aviso visual de aproximação
+        let pipeWarningActive = false;
 
         // AUDIO CONTEXT
         let audioCtx = null, musicInterval = null, beatCount = 0;
@@ -464,7 +448,7 @@
             'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' }
         };
 
-        // CONTROLES CONTÍNUOS
+        // CONTROLES GLOBAIS (ATIVOS EM TODAS AS FASES E NO BÔNUS)
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -481,7 +465,7 @@
             e.preventDefault();
             let touchX = e.touches[0].clientX;
             if (touchX > window.innerWidth / 2) triggerJump(); else triggerDuck(true);
-        }, { passive: false });
+        }, { mapassive: false });
         document.addEventListener('touchend', () => { if (gameActive) triggerDuck(false); }, { passive: true });
 
         function togglePauseGame() {
@@ -516,8 +500,30 @@
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
             }
-            itemsInGame = []; obstacles = []; platforms = []; isBonusStageMode = false; pipeWarningActive = false;
+            itemsInGame = []; obstacles = []; platforms = []; 
+            isBonusStageMode = false; pipeWarningActive = false;
             obstacleTimer = 0;
+        }
+
+        // CONVERSOR DA SALA BÔNUS (ESTILO MARIO EXTRA ROOM)
+        function triggerBonusStageActivation() {
+            preBonusPhaseConfig = currentPhaseConfig;
+            isBonusStageMode = true;
+            bonusStageTimer = 600; // 600 frames = 10 Segundos cravados a 60FPS
+            pipeWarningActive = false;
+            
+            // Limpa o mapa atual de perigos imediatamente
+            obstacles = [];
+            platforms = [];
+            itemsInGame = [];
+
+            // Geração da estrutura de pistas aéreas iniciais do bônus
+            platforms.push({ x: player.x + 80, y: BASE_GROUND_Y - 50, width: 140, isTrain: false, isPipe: false });
+            platforms.push({ x: player.x + 290, y: BASE_GROUND_Y - 110, width: 140, isTrain: false, isPipe: false });
+            
+            // Preenche as plataformas com estrelas/moedas
+            itemsInGame.push({ x: player.x + 150, y: BASE_GROUND_Y - 80, type: 'coin' });
+            itemsInGame.push({ x: player.x + 360, y: BASE_GROUND_Y - 140, type: 'coin' });
         }
 
         function updateAndGenerateTerrain(speed) {
@@ -571,21 +577,23 @@
             }
         }
 
-        // --- LOOP CRÍTICO DE EXECUÇÃO ---
+        // --- LOOP PRINCIPAL DO MOTOR CANVAS ---
         function runGameLoop() {
             try {
                 if (ctx) {
-                    let currentFrameSpeed = isBonusStageMode ? 9 : obstacleSpeed;
+                    let currentFrameSpeed = isBonusStageMode ? 7.5 : obstacleSpeed;
 
                     if (!isPaused && gameActive) {
-                        frameCount++; score++;
+                        frameCount++; 
                         
-                        if (currentPhase >= 4 && playerMana < 100 && frameCount % 6 === 0) {
+                        // Sistema de Mana das fases difíceis
+                        if (!isBonusStageMode && currentPhase >= 4 && playerMana < 100 && frameCount % 6 === 0) {
                             playerMana = Math.min(100, playerMana + 1);
                             safeSetText('hud-mana', `⚡ Laser: ${playerMana}%`);
                         }
 
                         if (!isBonusStageMode) {
+                            score++;
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
@@ -594,12 +602,12 @@
 
                             if (score % 20 === 0) { saldoPixAcumulado += 2; updateHUD(); }
 
-                            // --- SISTEMA INTELIGENTE DE DETECÇÃO, DESACELERAÇÃO E ALERTA DO CANO ---
+                            // Alerta Inteligente de aproximação do Túnel Verde
                             pipeWarningActive = false;
                             for (let p of platforms) {
-                                if (p.isPipe && p.x > player.x && p.x - player.x < 550) {
+                                if (p.isPipe && p.x > player.x && p.x - player.x < 480) {
                                     pipeWarningActive = true;
-                                    currentFrameSpeed = obstacleSpeed * 0.45; // Reduz a velocidade para 45% do normal
+                                    currentFrameSpeed = obstacleSpeed * 0.45; // Desacelera para 45% do normal
                                     break;
                                 }
                             }
@@ -607,20 +615,32 @@
                             updateAndGenerateTerrain(currentFrameSpeed);
                             updateSpawningEngine();
                         } else {
+                            // EXECUÇÃO INTERNA DO TEMPO DA SALA BÔNUS (10 SEGUNDOS CRUCIAL)
                             bonusStageTimer--;
+                            
+                            // Se o tempo acabar (0s), retorna imediatamente à fase normal
                             if (bonusStageTimer <= 0) {
-                                isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig;
+                                isBonusStageMode = false;
+                                currentPhaseConfig = preBonusPhaseConfig;
                                 initTerrain();
                             }
-                            if (frameCount % 12 === 0) {
-                                itemsInGame.push({ x: canvas.width + 20, y: BASE_GROUND_Y - 40 - (Math.random() * 120), type: 'coin' });
+
+                            // Geração contínua de plataformas flutuantes e moedas na sala bônus
+                            if (frameCount % 45 === 0) {
+                                let hY = BASE_GROUND_Y - 50 - (Math.random() * 90);
+                                platforms.push({ x: canvas.width + 10, y: hY, width: 130, isTrain: false, isPipe: false });
+                                
+                                // Fileira de moedas sobre a plataforma flutuante
+                                itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
+                                itemsInGame.push({ x: canvas.width + 80, y: hY - 30, type: 'coin' });
                             }
-                            currentFrameSpeed = 9;
-                            for (let i = 0; i < terrainList.length; i++) { terrainList[i].x -= currentFrameSpeed; }
+
+                            updateAndGenerateTerrain(currentFrameSpeed);
                         }
 
                         updateEntitiesAndCollisions(currentFrameSpeed);
 
+                        // Gravidade e Física Geral
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
                         let floorY = getGroundYAt(player.x + player.width/2);
@@ -629,37 +649,47 @@
                         if (player.velocity >= 0 && (player.y + player.height) <= floorY + 12 && (nextY + player.height) >= floorY - 12) {
                             player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
                         } else { player.y = nextY; }
+
+                        // Proteção contra quedas no abismo durante o Bônus (Não morre)
+                        if (isBonusStageMode && player.y > canvas.height) {
+                            player.y = BASE_GROUND_Y - player.height;
+                            player.velocity = 0;
+                        }
                     }
 
-                    // RENDERIZAÇÃO DO CENÁRIO
+                    // Renderização de Bioma do fundo
                     renderBackgroundScenariosLayer();
 
-                    // RENDER VISUAL DO PAINEL DE AVISO DO CANO (NA PARTE SUPERIOR CENTRAL DO CANVAS)
+                    // RENDER DO MARCADOR CRONÔMETRO DE 10 SEGUNDOS (SALA BÔNUS)
+                    if (isBonusStageMode && gameActive && !isPaused) {
+                        ctx.save();
+                        ctx.fillStyle = "#ffe81f";
+                        ctx.strokeStyle = "#000000";
+                        ctx.lineWidth = 4;
+                        ctx.font = "bold 22px 'Segoe UI', sans-serif";
+                        ctx.textAlign = "center";
+                        let timeLeft = (bonusStageTimer / 60).toFixed(1);
+                        ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110);
+                        ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110);
+                        ctx.restore();
+                    }
+
+                    // AVISO DO TÚNEL VERDE CHEGANDO
                     if (pipeWarningActive && gameActive && !isPaused) {
                         ctx.save();
-                        ctx.fillStyle = "rgba(40, 167, 69, 0.9)"; // Verde Mario Sólido/Transparente
+                        ctx.fillStyle = "rgba(40, 167, 69, 0.95)";
                         ctx.strokeStyle = "#00ffaa";
                         ctx.lineWidth = 2;
                         ctx.shadowBlur = 10; ctx.shadowColor = "#00ffaa";
-                        
                         let boxW = Math.min(canvas.width - 30, 440);
                         let boxX = (canvas.width - boxW) / 2;
                         let boxY = 70;
-                        
-                        ctx.beginPath();
-                        ctx.roundRect(boxX, boxY, boxW, 70, 10);
-                        ctx.fill(); ctx.stroke();
-
-                        ctx.fillStyle = "#ffffff";
-                        ctx.font = "bold 11px 'Segoe UI', sans-serif";
-                        ctx.textAlign = "center";
-                        ctx.shadowBlur = 0;
+                        ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 70, 10); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
                         ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
-                        ctx.font = "10px 'Segoe UI', sans-serif";
-                        ctx.fillStyle = "#ffe81f";
+                        ctx.font = "10px sans-serif"; ctx.fillStyle = "#ffe81f";
                         ctx.fillText("Pode colidir com segurança! NÃO PRECISA PULAR!", canvas.width / 2, boxY + 40);
-                        ctx.fillStyle = "#ffffff";
-                        ctx.fillText("Essa colisão não consome vidas e nem energia.", canvas.width / 2, boxY + 54);
+                        ctx.fillStyle = "#ffffff"; ctx.fillText("Essa colisão não consome vidas e nem energia.", canvas.width / 2, boxY + 54);
                         ctx.restore();
                     }
 
@@ -682,39 +712,34 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe");
                                 groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad;
-                                
                                 ctx.beginPath();
-                                ctx.moveTo(seg.x, seg.hStart);
-                                ctx.lineTo(seg.x + seg.w, seg.hEnd);
-                                ctx.lineTo(seg.x + seg.w, canvas.height);
-                                ctx.lineTo(seg.x, canvas.height);
-                                ctx.closePath();
-                                ctx.fill();
-
-                                ctx.strokeStyle = "#ffffff";
-                                ctx.lineWidth = 3;
-                                ctx.beginPath();
-                                ctx.moveTo(seg.x, seg.hStart);
-                                ctx.lineTo(seg.x + seg.w, seg.hEnd);
-                                ctx.stroke();
+                                ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
+                                ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height);
+                                ctx.closePath(); ctx.fill();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             }
                         }
                         ctx.restore();
                     }
 
-                    // RENDER ELEMENTOS DO MAPA
+                    // RENDER ELEMENTOS DO MAPA (PLATAFORMAS, TRENS E CANOS)
                     platforms.forEach(p => {
                         ctx.save();
                         if (p.isPipe) {
                             ctx.fillStyle = "#28a745"; ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.fillStyle = "#1e7e34"; ctx.fillRect(p.x + 4, p.y, 6, p.height);
-                            ctx.fillStyle = "#34ce57"; ctx.fillRect(p.x, p.y, p.width, 10);
+                            ctx.fillStyle = "#1e7e34"; ctx.fillRect(p.x + 5, p.y, 6, p.height);
+                            ctx.fillStyle = "#34ce57"; ctx.fillRect(p.x, p.y, p.width, 12);
                         } else if (p.isTrain) {
                             ctx.fillStyle = "#5c0622"; ctx.fillRect(p.x, p.y, p.width, p.height);
                             ctx.fillStyle = "#ffe81f"; for(let j=10; j<p.width-15; j+=35) ctx.fillRect(p.x+j, p.y+12, 12, 12);
                         } else {
-                            ctx.fillStyle = "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.strokeStyle = "#00f2fe"; ctx.strokeRect(p.x, p.y, p.width, p.height);
+                            // Plataformas flutuantes normais e da sala bônus
+                            ctx.fillStyle = isBonusStageMode ? "#0b0b26" : "#111126";
+                            ctx.fillRect(p.x, p.y, p.width, p.height);
+                            ctx.strokeStyle = isBonusStageMode ? "#ffe81f" : "#00f2fe";
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(p.x, p.y, p.width, p.height);
                         }
                         ctx.restore();
                     });
@@ -747,7 +772,8 @@
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             if (isBonusStageMode) {
-                grad.addColorStop(0, "#02000a"); grad.addColorStop(1, "#080018");
+                // Fundo Galáctico da Sala Bônus de Recompensa
+                grad.addColorStop(0, "#010005"); grad.addColorStop(1, "#070014");
             } else if (type === 'forest') {
                 grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
             } else if (type === 'volcano') {
@@ -762,8 +788,8 @@
 
             ctx.save();
             if (isBonusStageMode) {
-                ctx.fillStyle = "rgba(255,255,255,0.3)";
-                for(let i=0; i<20; i++) ctx.fillRect((canvas.width*0.05*i + frameCount)%canvas.width, 40 + (i*19)%220, 2, 2);
+                ctx.fillStyle = "rgba(255, 232, 31, 0.4)"; // Estrelas douradas brilhantes fixas e móveis
+                for(let i=0; i<30; i++) ctx.fillRect((canvas.width*0.04*i + frameCount*1.5)%canvas.width, 30 + (i*17)%260, 2.5, 2.5);
             } else if (type === 'city') {
                 ctx.fillStyle = "rgba(0, 242, 254, 0.05)";
                 ctx.fillRect(80, canvas.height - 350, 110, 220); ctx.fillRect(280, canvas.height - 390, 130, 260);
@@ -779,16 +805,17 @@
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
                 
-                if (frameCount > 200 && Math.random() > 0.85 && platforms.length === 0 && !isBonusStageMode) {
-                    platforms.push({ x: sX, y: BASE_GROUND_Y - 50, width: 45, height: 50, isPipe: true });
+                // Sorteador de Túneis Verdes (Canos)
+                if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
+                    platforms.push({ x: sX, y: BASE_GROUND_Y - 45, width: 45, height: 45, isPipe: true, isTrain: false });
                     return;
                 }
 
                 if (currentPhaseConfig.type === 'trains') {
-                    platforms.push({ x: sX, y: BASE_GROUND_Y - 70, width: 200, height: 70, isTrain: true });
+                    platforms.push({ x: sX, y: BASE_GROUND_Y - 70, width: 200, height: 70, isTrain: true, isPipe: false });
                 } else {
                     if (Math.random() > 0.55) {
-                        platforms.push({ x: sX, y: BASE_GROUND_Y - 85, width: 120, height: 16, isTrain: false });
+                        platforms.push({ x: sX, y: BASE_GROUND_Y - 85, width: 120, height: 16, isTrain: false, isPipe: false });
                     } else {
                         let breakableState = (currentPhase >= 4 && Math.random() > 0.4);
                         obstacles.push({
@@ -813,13 +840,13 @@
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) {
                         player.onPlatform = true; player.platformTop = p.y;
                     } else if (platOverlapsPlayer(p)) {
+                        // DETECÇÃO EXCLUSIVA DO TÚNEL VERDE (DIRECIONAMENTO CORRIGIDO)
                         if (p.isPipe) {
-                            platforms.splice(i, 1); preBonusPhaseConfig = currentPhaseConfig;
-                            isBonusStageMode = true; bonusStageTimer = 350;
-                            pipeWarningActive = false;
-                            initTerrain(); return;
+                            platforms.splice(i, 1);
+                            triggerBonusStageActivation();
+                            return;
                         }
-                        if (p.isTrain) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
+                        if (p.isTrain && !isBonusStageMode) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                     }
                 }
                 if (p.x < -300) platforms.splice(i, 1);
@@ -827,11 +854,11 @@
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
-                if (player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
+                if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1); if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
-                if (!o.passed && o.x < player.x) { o.passed = true; coins += 6; updateHUD(); }
+                if (!o.passed && o.x < player.x) { o.passed = true; if(!isBonusStageMode) coins += 6; updateHUD(); }
                 if (o.x < -100) obstacles.splice(i, 1);
             }
 
@@ -891,7 +918,7 @@
             toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden');
             const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = '';
             let records = [
-                { name: "Alexandre (Você)", score: Math.max(score, 1200) },
+                { name: "Italo (Você)", score: Math.max(score, 1200) },
                 { name: "Cyber_Runner99", score: 8450 },
                 { name: "PixMaster_X", score: 6200 },
                 { name: "StarGamer_Oficial", score: 4900 }
@@ -935,7 +962,7 @@
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
-        function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function closePixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${item.status==='Pago'?'#28a745':'#ffaa00'}; font-weight:bold;">${item.status}</div></li>`; }); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
