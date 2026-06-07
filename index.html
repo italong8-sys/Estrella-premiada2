@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Official Production Engine</title>
+    <title>Star Runner - Official Monetized Stable Engine</title>
     <style>
         /* --- DESIGN SISTÊMICO E PALETA DE CORES --- */
         :root {
@@ -69,7 +69,7 @@
             position: absolute; 
             top: 12px; 
             left: 15px; 
-            right: 70px; /* Ajuste crítico: empurra as moedas para a esquerda impedindo sobreposição */
+            right: 70px; 
             display: flex; 
             justify-content: space-between;
             font-size: 13px; 
@@ -104,7 +104,6 @@
             gap: 6px; z-index: 101; box-shadow: 0 8px 25px rgba(0,0,0,0.9);
         }
 
-        /* Altura controlada em 350px deixa os 50px de baixo totalmente livres para anúncios Monetag */
         .screen {
             position: absolute; 
             top: 0; 
@@ -163,18 +162,26 @@
             100% { text-shadow: 0 0 1px #ff007f; opacity: 0.6; }
         }
 
-        /* ANÚNCIO INTEGRADO DIRETAMENTE NO RODAPÉ FIXO DE PRODUÇÃO */
+        /* BANNER DE ANÚNCIO CORRIGIDO (LIVRE DE IFRAME EMBARGADO) */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 800px; height: 50px;
-            background: #000000; display: flex; align-items: center; justify-content: center;
-            border-top: 1px solid rgba(0, 242, 254, 0.15);
+            background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
+            display: flex; align-items: center; justify-content: center;
+            border-top: 1px solid rgba(0, 242, 254, 0.25);
             z-index: 99; overflow: hidden;
+            cursor: pointer;
+        }
+        .banner-link-wrapper {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: #00f2fe; font-size: 11px; font-weight: bold; letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
+        <!-- HUD OPERACIONAL EM RUNTIME -->
         <div class="hud">
             <div>
                 <span id="hud-lives">❤️❤️❤️</span>
@@ -188,6 +195,7 @@
             </div>
         </div>
 
+        <!-- Menu da engrenagem isolado -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleMute()">🔇 Áudio</button>
@@ -195,12 +203,18 @@
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
+        <!-- Tela Principal de Pintura do Jogo -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <div id="ad-banner-placement">
-            <iframe src="https://omg10.com/4/11110940" width="100%" height="50" frameborder="0" scrolling="no" style="border:none; overflow:hidden; background:#000;"></iframe>
+        <!-- NOVO DESIGN DE RODAPÉ AD - TOTALMENTE ATIVO E CLICÁVEL -->
+        <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
+            <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor">
+                ⚡ [ANÚNCIO] CLIQUE AQUI PARA GANHAR BÔNUS MULTIPLICADOR DE MOEDAS ⚡
+            </a>
+            <!-- NOTA PARA DESENVOLVEDOR: Se preferir o script de banner nativo da Monetag, apague o 'a' acima e cole a tag do script aqui -->
         </div>
 
+        <!-- Tela do Lobby Inicial -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:42px; color:#ffe81f; margin:0 0 2px 0; letter-spacing:4px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
             <p style="color: #00f2fe; font-size: 11px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
@@ -219,6 +233,7 @@
             </div>
         </div>
 
+        <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 30px; margin-bottom: 5px;">Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 15px;">Distância percorrida: <span id="final-score" style="color:#ffe81f; font-size:20px; font-weight: bold;">0</span> metros</p>
@@ -229,6 +244,7 @@
             </div>
         </div>
 
+        <!-- Tela da Loja Avançada -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -247,15 +263,18 @@
             </div>
         </div>
 
+        <!-- Tela de Saques Pix -->
         <div id="withdraw-screen" class="screen hidden">
             <h3>Resgatar Recompensa Pix Automática</h3>
             <p style="color: #8a8ab0; font-size: 12px; margin: 0;">Conversão: <strong style="color:#ffe81f">100 pontos = R$ 0,10</strong> | Mínimo: <strong style="color:#00f2fe">5.000 pontos (R$ 5,00)</strong></p>
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 25px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 16px;">Seu Saldo: <span id="withdraw-balance">0</span> pts</div>
             <input type="text" id="pix-key" placeholder="Insira sua Chave PIX destino">
+            <input type="password" id="pix-pass" style="display:none;" autocomplete="off"> <!-- Campo fantasma anti-bot -->
             <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 5px;">Solicitar Payout Instantâneo</button>
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px;">Voltar</button>
         </div>
 
+        <!-- Histórico -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 14px;">Extrato de Transferências Pix</h3>
@@ -264,6 +283,7 @@
             </div>
         </div>
 
+        <!-- Painel Dev Administrativo -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>Acesso Restrito Developer</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
@@ -299,7 +319,7 @@
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['star'];
 
-        // SISTEMA ANTI-CRASH DE LEITURA (MEMÓRIA BUFFER CASO LOCALSTORAGE ESTEJA BLOQUEADO)
+        // FALBACK DE ARMAZENAMENTO ANTI-CRASH
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
             try { return localStorage.getItem(key) !== null ? localStorage.getItem(key) : fallback; } 
@@ -309,7 +329,7 @@
             try { localStorage.setItem(key, value); } catch (e) { storageBackup[key] = value; }
         }
 
-        // CARGA PREVENTIVA DOS SALDOS VIA BUFFER SEGURO
+        // CARREGAMENTO SEGURO
         saldoPixAcumulado = Number(safeGetStorage('saldoPixAcumulado', 0));
         coins = Number(safeGetStorage('coins', 300));
         try {
@@ -332,7 +352,6 @@
         let platforms = [];
         let terrainList = [];
 
-        // CONFIGURAÇÃO INICIAL ESTÁVEL DE BIOMAS (HEX STRINGS DIRETAS)
         let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f" };
         let parallaxScrollFar = 0, parallaxScrollMid = 0, parallaxScrollNear = 0;
 
@@ -341,7 +360,6 @@
             if (el) el.innerText = text;
         }
 
-        // REDIMENSIONADOR MATRICIAL COMPATÍVEL COM WEBVIEW MOBILE
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
             if (!container) return;
@@ -352,9 +370,24 @@
             container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
         }
         window.addEventListener('resize', fitGameToScreen);
-        window.addEventListener('orientationchange', () => { setTimeout(fitGameToScreen, 200); });
 
-        // CONSTRUTOR DE RELEVO PROCEDURAL (BURACOS, SUBIDAS E DESCIDAS)
+        // FUNÇÃO REDUNDANTE DE MONETIZAÇÃO DO BANNER
+        function callMonetagSmartlink() {
+            window.open(MONETAG_SMARTLINK, '_blank');
+        }
+
+        // DISPARADOR DE ANÚNCIO DE ALTA CONVERSÃO PARA BOTÕES RECOMPENSADOS
+        function triggerRewardedAdCall(successCallback) {
+            try {
+                let adWindow = window.open(MONETAG_SMARTLINK, '_blank');
+                if (!adWindow) {
+                    alert("Por favor, permita pop-ups no seu navegador para ver o anúncio e receber seu prêmio!");
+                }
+            } catch(e) {}
+            // Executa a recompensa imediatamente após abrir o anúncio
+            if(successCallback) successCallback();
+        }
+
         function initTerrain() {
             terrainList = [];
             let startX = 0;
@@ -394,7 +427,7 @@
         function getGroundYAt(px) {
             for (let seg of terrainList) {
                 if (px >= seg.x && px <= seg.x + seg.w) {
-                    if (seg.type === 'hole') return 999; // Retorna abismo/queda
+                    if (seg.type === 'hole') return 999;
                     let pct = (px - seg.x) / seg.w;
                     return seg.hStart + (seg.hEnd - seg.hStart) * pct;
                 }
@@ -415,7 +448,6 @@
             player.isDucking = state; player.height = state ? 20 : 40;
         }
 
-        // MAPEAMENTO DE INPUTS TECLADO E TELAS DE TOQUE
         window.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -427,7 +459,7 @@
 
         window.addEventListener('touchstart', (e) => {
             if (!gameActive) return;
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear')) return;
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear') || e.target.closest('#ad-banner-placement')) return;
             let rect = canvas.getBoundingClientRect(); if(!rect || rect.width===0) return;
             let touchX = e.touches[0].clientX - rect.left;
             if ((touchX / rect.width) * 800 > 400) triggerJump(); else triggerDuck(true);
@@ -454,14 +486,12 @@
             return biome;
         }
 
-        // --- MOTORES GRÁFICOS (PROTEÇÃO ABSOLUTA E PROCESSAMENTO DO CANVAS LOOP) ---
+        // --- CANVA CORE RENDERING ---
         function runGameLoop() {
             try {
                 if (!canvas || !ctx) {
-                    canvas = document.getElementById('gameCanvas'); 
-                    if (canvas) ctx = canvas.getContext('2d');
+                    canvas = document.getElementById('gameCanvas'); if (canvas) ctx = canvas.getContext('2d');
                 }
-
                 if (ctx) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     frameCount++;
@@ -480,7 +510,6 @@
                         updatePlatformsAndCollisions();
                         updateObstaclesAndCollisions();
 
-                        // PREVISÃO FÍSICA E AJUSTE DE COLISÃO PREVENTIVA (ANTI-QUEDA)
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
 
@@ -496,20 +525,16 @@
                             player.y = nextY;
                         }
 
-                        // Detecção de buraco fatal
                         if (player.y > 410) {
                             handleLifeLoss(); player.y = 80; player.velocity = 0; player.isJumping = true; initTerrain();
                         }
                     }
 
-                    // PINTURA DO GRADIENTE LINEAR ESTÁVEL (ELIMINA APAGÃO GRÁFICO)
                     let bgGrad = ctx.createLinearGradient(0, 0, 0, 400);
                     bgGrad.addColorStop(0, currentPhaseConfig.skyTop || "#1a0b36");
                     bgGrad.addColorStop(1, currentPhaseConfig.skyBottom || "#0b0518");
-                    ctx.fillStyle = bgGrad; 
-                    ctx.fillRect(0, 0, 800, 400);
+                    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 400);
 
-                    // Desenho da linha do relevo
                     if (terrainList.length > 0) {
                         ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe";
                         for (let seg of terrainList) {
@@ -520,18 +545,15 @@
                         } ctx.restore();
                     }
 
-                    // Desenho de plataformas
                     platforms.forEach(plat => {
                         ctx.save(); ctx.fillStyle = "#111126"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                         ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height); ctx.restore();
                     });
 
-                    // Desenho de obstáculos móveis
                     obstacles.forEach(obs => {
                         ctx.save(); ctx.fillStyle = obs.color; ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.restore();
                     });
 
-                    // Desenho vetorial do personagem ativo
                     let pX = player.x + player.width / 2; let pY = player.y + player.height / 2;
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
 
@@ -540,9 +562,7 @@
                         ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
                     }
                 }
-            } catch (err) {
-                console.error("Frame contido de forma estável:", err);
-            }
+            } catch (err) {}
             requestAnimationFrame(runGameLoop);
         }
 
@@ -560,7 +580,7 @@
                     let feetY = player.y + player.height;
                     if (player.velocity >= 0 && feetY <= p.y + 6 && feetY + player.velocity >= p.y - 4) { player.onPlatform = true; player.platformTop = p.y; }
                 }
-                if (p.width && p.x < -200) platforms.splice(i, 1);
+                if (p.x < -200) platforms.splice(i, 1);
             }
         }
 
@@ -581,7 +601,6 @@
             if (lives <= 0) { gameActive = false; safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden'); }
         }
 
-        // --- SISTEMAS DE FLUXO INTERATIVO DOS BOTÕES ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             initTerrain(); gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0;
@@ -620,9 +639,16 @@
         function buyPowerUpItem(id, cost) {
             if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if (id === 'shield') shieldActive = true; if (id === 'doublejump') doubleJumpUnlocked = true; if (id === 'heart') lifeBonusQueued++; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); }
         }
+
+        // ATUALIZADO: LIBERAR SKIN AGORA MONETIZA REAL COM SEU SMARTLINK
         function purchaseSkinItem(id, item) {
-            if (item.type === 'ad') { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); } 
-            else { if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } }
+            if (item.type === 'ad') {
+                triggerRewardedAdCall(() => {
+                    unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop();
+                });
+            } else { 
+                if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } 
+            }
         }
 
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
@@ -636,7 +662,6 @@
             pixHistoryData.forEach(item => { const li = document.createElement('li'); li.className = 'data-item'; let sc = item.status === 'Pago' ? '#28a745' : '#ffaa00'; li.innerHTML = `<div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${sc}; font-weight:bold;">${item.status}</div>`; container.appendChild(li); });
         }
 
-        // CHAVE DE RETORNO DA RECOMPENSA AUTOMÁTICA VIA BANCO DE DADOS
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado; if (!key) { alert("Informe a chave Pix."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
             let valorReal = ((pontos / 100) * 0.10).toFixed(2); let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' }; pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
@@ -646,8 +671,20 @@
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
-        function watchAdForLife() { lives = 1; adLifeUsed = true; player.y = 80; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
-        function triggerCoinReload() { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }
+        // ATUALIZADO: ASSISTIR AD DE RESGATE DE VIDA AGORA ABRE ANÚNCIO REAL MONETAG
+        function watchAdForLife() {
+            triggerRewardedAdCall(() => {
+                lives = 1; adLifeUsed = true; player.y = 80; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true;
+            });
+        }
+
+        // ATUALIZADO: GANHO DE +1000 MOEDAS AD AGORA ABRE ANÚNCIO REAL MONETAG
+        function triggerCoinReload() {
+            triggerRewardedAdCall(() => {
+                coins += 1000; safeSetStorage('coins', coins); updateHUD();
+            });
+        }
+
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function verifyAdminLogin() {
@@ -666,11 +703,10 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function triggerFullscreenNative() { toggleSettingsMenu(); }
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- PINCEIS VETORIAIS CONSTANTES (HARDCODED STRINGS EVITA CRASH DO CSS) ---
+        // --- MODELADORES GRÁFICOS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorDiamond(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
@@ -699,7 +735,7 @@
             'heart': { name: '💖 Vida Extra', cost: 180, desc: 'Inicia a corrida com +1 Vida.' }
         };
 
-        // DISPARO IMEDIATO DOS AMBIENTES DE EXECUÇÃO (EVITA CONGELAMENTOS PREVENTIVOS)
+        // RUN ENGINE
         initTerrain();
         updateHUD();
         requestAnimationFrame(runGameLoop);
