@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Ultimate Protected Engine</title>
+    <title>Star Runner - Elite Production Engine</title>
     <style>
-        /* --- VARIÁVEIS VISUAIS PRINCIPAIS --- */
+        /* --- VARIÁVEIS VISUAIS NEON --- */
         :root {
             --primary: #ff007f;
             --secondary: #00f2fe;
@@ -22,9 +22,12 @@
         html, body {
             width: 100%; height: 100%;
             margin: 0; padding: 0;
-            background-color: #030308;
+            background-color: #030308 !important;
             overflow: hidden;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         body {
@@ -33,35 +36,31 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* CONTAINER MASTER - ESCALA INJETADA EM COORDENADAS ABSOLUTAS */
+        /* CONTAINER MASTER RESPONSIVO (NUNCA COLAPSA OU FICA PRETO) */
         #game-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 800px;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
             height: 400px;
             background: #000000;
             border-radius: 16px;
             box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(0, 242, 254, 0.2);
             overflow: hidden;
-            transform: translate(-50%, -50%) scale(1);
-            transform-origin: center center;
-            display: block !important;
-            z-index: 10;
             box-sizing: border-box;
+            display: block !important;
         }
 
         canvas { 
             display: block; 
-            width: 800px; 
-            height: 400px; 
+            width: 100%; 
+            height: 100%; 
             position: absolute; 
             top: 0; 
             left: 0; 
             z-index: 1; 
         }
 
-        /* --- HEADS UP DISPLAY (HUD) --- */
+        /* --- HUD EM RUNTIME --- */
         .hud {
             position: absolute; top: 12px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
@@ -74,7 +73,7 @@
         .hud-accent { color: #ffe81f; }
         .hud-secondary { color: #00f2fe; }
 
-        /* --- MENUS E INTERFACES FIXAS (ISOLADOS ACIMA DOS 50PX DO BANNER) --- */
+        /* --- INTERFACES E MENUS DE FLUXO (ZONA SEGURA ACIMA DO BANNER) --- */
         .settings-gear {
             position: absolute; top: 10px; right: 15px;
             font-size: 24px; cursor: pointer; z-index: 100;
@@ -89,12 +88,12 @@
             gap: 6px; z-index: 101; box-shadow: 0 8px 25px rgba(0,0,0,0.9);
         }
 
-        /* Altura controlada em 350px garante isolamento total contra o banner inferior */
+        /* Altura travada em 350px para nunca invadir os 50px do banner da Monetag */
         .screen {
             position: absolute; 
             top: 0; 
             left: 0; 
-            width: 800px; 
+            width: 100%; 
             height: 350px;
             background: #060612;
             display: flex; 
@@ -148,9 +147,9 @@
             100% { text-shadow: 0 0 1px #ff007f; opacity: 0.6; }
         }
 
-        /* AD BANNER INTEGRADO DIRETAMENTE NO CHÃO ABSOLUTO DO CONTAINER */
+        /* ANÚNCIO FIXO INTEGRADO SEM ADICIONAR TRAVAS GRÁFICAS */
         #ad-banner-placement {
-            position: absolute; bottom: 0; left: 0; width: 800px; height: 50px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: #000000; display: flex; align-items: center; justify-content: center;
             border-top: 1px solid rgba(0, 242, 254, 0.15);
             z-index: 99; overflow: hidden;
@@ -160,7 +159,7 @@
 <body>
 
     <div id="game-container">
-        <!-- HUD DA JOGATINA -->
+        <!-- HUD DE STATUS -->
         <div class="hud">
             <div>
                 <span id="hud-lives">❤️❤️❤️</span>
@@ -174,7 +173,7 @@
             </div>
         </div>
 
-        <!-- Menu do Canto -->
+        <!-- Engrenagem do Menu -->
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleMute()">🔇 Áudio</button>
@@ -182,15 +181,15 @@
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
-        <!-- Canvas Principal -->
+        <!-- Renderizador Gráfico -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- ESPAÇO DE MONETIZAÇÃO FIXO INFERIOR -->
+        <!-- BANNER MONETAG INFERIOR FIXO -->
         <div id="ad-banner-placement">
             <iframe src="https://omg10.com/4/11110940" width="100%" height="50" frameborder="0" scrolling="no" style="border:none; overflow:hidden; background:#000;"></iframe>
         </div>
 
-        <!-- Tela de Lobby Inicial -->
+        <!-- Tela de Inicialização -->
         <div id="start-screen" class="screen">
             <h1 style="font-size:42px; color:#ffe81f; margin:0 0 2px 0; letter-spacing:4px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
             <p style="color: #00f2fe; font-size: 11px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
@@ -220,7 +219,7 @@
             </div>
         </div>
 
-        <!-- Tela da Loja de Personagens -->
+        <!-- Tela da Loja Avançada -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -239,7 +238,7 @@
             </div>
         </div>
 
-        <!-- Tela de Saques -->
+        <!-- Tela de Payouts -->
         <div id="withdraw-screen" class="screen hidden">
             <h3>Resgatar Recompensa Pix Automática</h3>
             <p style="color: #8a8ab0; font-size: 12px; margin: 0;">Conversão: <strong style="color:#ffe81f">100 pontos = R$ 0,10</strong> | Mínimo: <strong style="color:#00f2fe">5.000 pontos (R$ 5,00)</strong></p>
@@ -249,7 +248,7 @@
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px;">Voltar</button>
         </div>
 
-        <!-- Histórico -->
+        <!-- Tela Historial -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 14px;">Extrato de Transferências Pix</h3>
@@ -258,7 +257,7 @@
             </div>
         </div>
 
-        <!-- Painel Admin Dev -->
+        <!-- Painel Admin Dev Privado -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>Acesso Restrito Developer</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
@@ -282,7 +281,7 @@
 
         let canvas = null, ctx = null;
 
-        // ESTADOS DO MOTOR
+        // PARÂMETROS OPERACIONAIS
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'star', currentShopTab = 'skins';
@@ -294,23 +293,30 @@
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['star'];
 
-        // CONTROLE SEGURO DE CACHE
+        // --- ENGENHARIA ANTI-CRASH DO STORAGE (PREVINE TELA PRETA NO CELL) ---
+        function safeGetStorage(key, fallback) {
+            try { return localStorage.getItem(key) || fallback; } 
+            catch (e) { return fallback; }
+        }
+        function safeSetStorage(key, value) {
+            try { localStorage.setItem(key, value); } catch (e) {}
+        }
+
+        // CARREGAMENTO SEGURO DE DADOS DE CONFIGURAÇÃO
+        saldoPixAcumulado = Number(safeGetStorage('saldoPixAcumulado', 0));
+        coins = Number(safeGetStorage('coins', 300));
         try {
-            saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado')) || 0;
-            coins = Number(localStorage.getItem('coins')) || 300;
-            let storedHistory = localStorage.getItem('pixHistoryData');
-            if (storedHistory) pixHistoryData = JSON.parse(storedHistory);
-            if (!Array.isArray(pixHistoryData)) pixHistoryData = [];
-            let storedSkins = localStorage.getItem('unlockedSkins');
-            if (storedSkins) unlockedSkins = JSON.parse(storedSkins);
-            if (!Array.isArray(unlockedSkins)) unlockedSkins = ['star'];
-        } catch (e) {
-            saldoPixAcumulado = 0; coins = 300; pixHistoryData = []; unlockedSkins = ['star'];
+            let h = safeGetStorage('pixHistoryData', null);
+            pixHistoryData = h ? JSON.parse(h) : [];
+            let s = safeGetStorage('unlockedSkins', null);
+            unlockedSkins = s ? JSON.parse(s) : ['star'];
+        } catch(e) {
+            pixHistoryData = []; unlockedSkins = ['star'];
         }
 
         const player = {
-            x: 120, y: 200, width: 40, height: 40,
-            gravity: 0.7, lift: -13, velocity: 0,
+            x: 120, y: 150, width: 40, height: 40,
+            gravity: 0.65, lift: -12.5, velocity: 0,
             isJumping: false, jumpCount: 0, isDucking: false,
             onPlatform: false, platformTop: 290
         };
@@ -322,30 +328,22 @@
         let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
         let parallaxScrollFar = 0, parallaxScrollMid = 0, parallaxScrollNear = 0;
 
-        // HELPER ESSENCIAL DE SEGURANÇA (PREVINE PARSE CRASH EM WEBVIEWS LENTOS)
         function safeSetText(id, text) {
             const el = document.getElementById(id);
             if (el) el.innerText = text;
         }
 
-        // SISTEMA DE ESCALA POR MATRIZ JAVASCRIPT (IMPEDE TELA PRETA)
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
             if (!container) return;
-            let w = window.innerWidth || document.documentElement.clientWidth || 800;
-            let h = window.innerHeight || document.documentElement.clientHeight || 400;
-            let scaleFactor = Math.min(w / 800, h / 400);
-            if (!scaleFactor || scaleFactor < 0.15 || isNaN(scaleFactor)) scaleFactor = 0.50; 
-            container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
+            container.style.transform = "none"; // Deixa o CSS nativo gerenciar dimensões básicas
         }
-        window.addEventListener('resize', fitGameToScreen);
-        window.addEventListener('orientationchange', () => { setTimeout(fitGameToScreen, 200); });
 
-        // INICIALIZAÇÃO FIXA DO RELEVO (BURACOS E RAMPA)
+        // GERADOR PROCEDURAL DE CHÃO (FLAT, BURACÃO, RAMPAS)
         function initTerrain() {
             terrainList = [];
             let startX = 0;
-            while (startX < 1200) {
+            while (startX < 1400) {
                 terrainList.push({ x: startX, w: 200, hStart: 336, hEnd: 336, type: 'flat' });
                 startX += 200;
             }
@@ -355,11 +353,11 @@
             for (let i = 0; i < terrainList.length; i++) {
                 terrainList[i].x -= obstacleSpeed;
             }
-            if (terrainList[0] && terrainList[0].x + terrainList[0].w < -100) {
+            if (terrainList[0] && terrainList[0].x + terrainList[0].w < -150) {
                 terrainList.shift();
             }
             let lastSeg = terrainList[terrainList.length - 1];
-            if (lastSeg && lastSeg.x + lastSeg.w < 1000) {
+            if (lastSeg && lastSeg.x + lastSeg.w < 1100) {
                 let nextX = lastSeg.x + lastSeg.w;
                 let rand = Math.random();
                 let width = 200;
@@ -368,10 +366,10 @@
                 let nextType = 'flat';
 
                 if (hStart === 336) {
-                    if (rand < 0.25) { nextType = 'uphill'; hEnd = 260; width = 160; } 
-                    else if (rand < 0.45 && score > 300) { nextType = 'hole'; width = 110; }
+                    if (rand < 0.22) { nextType = 'uphill'; hEnd = 260; width = 160; } 
+                    else if (rand < 0.40 && score > 250) { nextType = 'hole'; width = 105; }
                 } else if (hStart === 260) {
-                    if (rand < 0.35) { nextType = 'downhill'; hEnd = 336; width = 160; } 
+                    if (rand < 0.30) { nextType = 'downhill'; hEnd = 336; width = 160; } 
                     else { nextType = 'high-flat'; width = 200; }
                 }
                 terrainList.push({ x: nextX, w: width, hStart: hStart, hEnd: hEnd, type: nextType });
@@ -399,11 +397,9 @@
 
         function triggerDuck(state) {
             if (!gameActive) return;
-            player.isDucking = state;
-            player.height = state ? 20 : 40;
+            player.isDucking = state; player.height = state ? 20 : 40;
         }
 
-        // INPUTS MAPEADOS
         window.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -416,10 +412,9 @@
         window.addEventListener('touchstart', (e) => {
             if (!gameActive) return;
             if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear')) return;
-            let rect = canvas.getBoundingClientRect();
+            let rect = canvas.getBoundingClientRect(); if(!rect || rect.width===0) return;
             let touchX = e.touches[0].clientX - rect.left;
-            let canvasX = (touchX / rect.width) * 800;
-            if (canvasX > 400) triggerJump(); else triggerDuck(true);
+            if ((touchX / rect.width) * 800 > 400) triggerJump(); else triggerDuck(true);
         }, { passive: true });
         window.addEventListener('touchend', () => { if(gameActive) triggerDuck(false); }, { passive: true });
 
@@ -437,17 +432,16 @@
             let index = (phase - 1) % baseBiomes.length;
             let cycle = Math.floor((phase - 1) / baseBiomes.length);
             let biome = Object.assign({}, baseBiomes[index]);
-            if (cycle > 0) biome.name += ` [Hyper Drive X${cycle + 1}]`;
+            if (cycle > 0) biome.name += ` [Hyper X${cycle + 1}]`;
             obstacleSpeed = 6.5 + (phase * 0.45);
             if (obstacleSpeed > 16) obstacleSpeed = 16; 
             return biome;
         }
 
-        // --- PIPELINE DE RENDER CONTINUO ATIVO ---
+        // --- MOTOR ATIVO DE EXECUÇÃO REAL ---
         function runGameLoop() {
             if (!canvas || !ctx) {
-                canvas = document.getElementById('gameCanvas');
-                if (canvas) ctx = canvas.getContext('2d');
+                canvas = document.getElementById('gameCanvas'); if (canvas) ctx = canvas.getContext('2d');
             }
 
             if (ctx) {
@@ -461,9 +455,7 @@
                     safeSetText('hud-phase-txt', `Fase: ${currentPhase} - ${currentPhaseConfig.name}`);
 
                     if (score % 20 === 0) {
-                        saldoPixAcumulado += 2;
-                        localStorage.setItem('saldoPixAcumulado', saldoPixAcumulado);
-                        updateHUD();
+                        saldoPixAcumulado += 2; safeSetStorage('saldoPixAcumulado', saldoPixAcumulado); updateHUD();
                     }
 
                     parallaxScrollFar -= (obstacleSpeed * 0.1);
@@ -478,23 +470,28 @@
                     updatePlatformsAndCollisions();
                     updateObstaclesAndCollisions();
 
+                    // FÍSICA E POUSO PREVENTIVO BLINDADO
                     player.velocity += player.gravity;
-                    player.y += player.velocity;
+                    let nextY = player.y + player.velocity;
 
                     let currentFloorY = getGroundYAt(player.x + player.width / 2);
                     if (player.onPlatform) currentFloorY = player.platformTop;
 
-                    let feetPosition = player.y + player.height;
-                    if (feetPosition >= currentFloorY - 12 && feetPosition <= currentFloorY + 15 && currentFloorY !== 999) {
+                    let feetY = player.y + player.height;
+                    let nextFeetY = nextY + player.height;
+
+                    if (player.velocity >= 0 && feetY <= currentFloorY + 4 && nextFeetY >= currentFloorY - 6 && currentFloorY !== 999) {
                         player.y = currentFloorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
+                    } else {
+                        player.y = nextY;
                     }
 
-                    if (player.y > 420) {
-                        handleLifeLoss(); player.y = 100; player.velocity = 0; player.isJumping = true; initTerrain();
+                    if (player.y > 410) {
+                        handleLifeLoss(); player.y = 80; player.velocity = 0; player.isJumping = true; initTerrain();
                     }
                 }
 
-                // Desenho de fundo e trilha ativo sempre para eliminar tela preta inicial
+                // RENDERING DE CENÁRIO CONSECUTIVO (EVITA TRAVA EM PURE BLACK)
                 let bgGrad = ctx.createRadialGradient(400, 200, 50, 400, 200, 500);
                 bgGrad.addColorStop(0, currentPhaseConfig.skyTop); bgGrad.addColorStop(1, currentPhaseConfig.skyBottom);
                 ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -504,7 +501,7 @@
                     for (let seg of terrainList) {
                         if (seg.type !== 'hole') {
                             ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
-                            ctx.lineTo(seg.x + seg.w, 400); ctx.lineTo(seg.x, 400); ctx.fillStyle = "rgba(4, 4, 12, 0.4)"; ctx.fill();
+                            ctx.lineTo(seg.x + seg.w, 400); ctx.lineTo(seg.x, 400); ctx.fillStyle = "rgba(5, 5, 18, 0.4)"; ctx.fill();
                         }
                     } ctx.restore();
                 }
@@ -540,7 +537,8 @@
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= obstacleSpeed;
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
-                    if (player.y + player.height <= p.y + 10 && player.y + player.height + player.velocity >= p.y) { player.onPlatform = true; player.platformTop = p.y; }
+                    let feetY = player.y + player.height;
+                    if (player.velocity >= 0 && feetY <= p.y + 6 && feetY + player.velocity >= p.y - 4) { player.onPlatform = true; player.platformTop = p.y; }
                 }
                 if (p.x < -200) platforms.splice(i, 1);
             }
@@ -553,7 +551,7 @@
                     obstacles.splice(i, 1); if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
-                if (!obs.passed && obs.x < player.x) { obs.passed = true; coins += 6; localStorage.setItem('coins', coins); updateHUD(); }
+                if (!obs.passed && obs.x < player.x) { obs.passed = true; coins += 6; safeSetStorage('coins', coins); updateHUD(); }
                 if (obs.x < -100) obstacles.splice(i, 1);
             }
         }
@@ -563,11 +561,11 @@
             if (lives <= 0) { gameActive = false; safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden'); }
         }
 
-        // --- FLUXOS INTERATIVOS DE SELEÇÃO DOS MENUS (PRODUÇÃO) ---
+        // --- SISTEMAS INTERATIVOS DOS BOTÕES ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             initTerrain(); gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0;
-            obstacles = []; platforms = []; player.y = 150; player.velocity = 0; updateHUD();
+            obstacles = []; platforms = []; player.y = 120; player.velocity = 0; updateHUD();
         }
 
         function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
@@ -600,11 +598,11 @@
         }
 
         function buyPowerUpItem(id, cost) {
-            if (coins >= cost) { coins -= cost; localStorage.setItem('coins', coins); if (id === 'shield') shieldActive = true; if (id === 'doublejump') doubleJumpUnlocked = true; if (id === 'heart') lifeBonusQueued++; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); }
+            if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if (id === 'shield') shieldActive = true; if (id === 'doublejump') doubleJumpUnlocked = true; if (id === 'heart') lifeBonusQueued++; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); }
         }
         function purchaseSkinItem(id, item) {
-            if (item.type === 'ad') { unlockedSkins.push(id); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); } 
-            else { if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); localStorage.setItem('coins', coins); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } }
+            if (item.type === 'ad') { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); } 
+            else { if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } }
         }
 
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
@@ -620,15 +618,15 @@
 
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado; if (!key) { alert("Informe a chave Pix."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
-            let valorReal = ((pontos / 100) * 0.10).toFixed(2); let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' }; pixHistoryData.push(newRequest); localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
+            let valorReal = ((pontos / 100) * 0.10).toFixed(2); let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' }; pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
             fetch(URL_BACKEND_PIX, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chavePix: key, pontos: pontos }) })
-            .then(res => res.json()).then(data => { newRequest.status = data.success ? 'Pago' : 'Erro'; localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData)); alert(data.success ? `✅ Pago: R$ ${valorReal}` : "Erro banco"); })
-            .catch(() => { newRequest.status = 'Pago'; localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData)); alert(`✅ Resgate de R$ ${valorReal} processado.`); });
-            saldoPixAcumulado = 0; localStorage.setItem('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
+            .then(res => res.json()).then(data => { newRequest.status = data.success ? 'Pago' : 'Erro'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData)); alert(data.success ? `✅ Pago: R$ ${valorReal}` : "Erro banco"); })
+            .catch(() => { newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData)); alert(`✅ Resgate de R$ ${valorReal} processado.`); });
+            saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
-        function watchAdForLife() { lives = 1; adLifeUsed = true; player.y = 100; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
-        function triggerCoinReload() { coins += 1000; localStorage.setItem('coins', coins); updateHUD(); }
+        function watchAdForLife() { lives = 1; adLifeUsed = true; player.y = 80; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
+        function triggerCoinReload() { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function verifyAdminLogin() {
@@ -647,10 +645,10 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 150; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 150; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- MODELADORES GRÁFICOS VETORIAIS ---
+        // --- DESIGNERS VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorDiamond(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
@@ -662,9 +660,9 @@
         function drawVectorCatHelmet(g, x, y, r, color) { g.save(); g.fillStyle = "rgba(0, 242, 254, 0.2)"; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.strokeStyle = "#ffffff"; g.lineWidth = 2; g.stroke(); g.fillStyle = "#ffffff"; g.beginPath(); g.moveTo(x - 12, y - 10); g.lineTo(x - 4, y - r + 2); g.lineTo(x, y - 10); g.fill(); g.beginPath(); g.moveTo(x + 12, y - 10); g.lineTo(x + 4, y - r + 2); g.lineTo(x, y - 10); g.fill(); g.fillStyle = "#ff007f"; g.beginPath(); g.arc(x, y + 2, 2, 0, Math.PI*2); g.fill(); g.restore(); }
 
         const skinsDB = {
-            'star': { name: '⭐ Estrela Guia', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, varColor('--accent', '#ffe81f')) },
-            'diamond': { name: '💎 Diamante', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, varColor('--secondary', '#00f2fe')) },
-            'orb': { name: '🔮 Orbe Rubi', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorOrb(g, x, y, r, varColor('--primary', '#ff007f')) },
+            'star': { name: '⭐ Estrela Guia', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, '#ffe81f') },
+            'diamond': { name: '💎 Diamante', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, '#00f2fe') },
+            'orb': { name: '🔮 Orbe Rubi', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorOrb(g, x, y, r, '#ff007f') },
             'bat': { name: '🦇 Morcego', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorBat(g, x, y, r, '#ff0055') },
             'platypus': { name: '🕵️‍♂️ Ornitorrinco P.', type: 'coins', cost: 120, tab: 'bizarre', render: (g, x, y, r) => drawVectorPlatypus(g, x, y, r, '#2a9d8f') },
             'capybara': { name: '🦫 Capivara Cyber', type: 'coins', cost: 180, tab: 'bizarre', render: (g, x, y, r) => drawVectorCapybara(g, x, y, r, '#8b5a2b') },
@@ -679,7 +677,7 @@
             'heart': { name: '💖 Vida Extra', cost: 180, desc: 'Inicia a corrida com +1 Vida.' }
         };
 
-        // LOOP DE ENGENHARIA DISPARADO IMEDIATAMENTE (EVITA CONGELAMENTO)
+        // INICIALIZAÇÃO E ACIONAMENTO ASSISTIDO DO GAME LOOP
         initTerrain();
         updateHUD();
         requestAnimationFrame(runGameLoop);
