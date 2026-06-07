@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Official Monetized Stable Engine</title>
+    <title>Star Runner - Production Engine</title>
     <style>
         /* --- DESIGN SISTÊMICO E PALETA DE CORES --- */
         :root {
@@ -178,7 +178,7 @@
             100% { text-shadow: 0 0 1px #ff007f; opacity: 0.6; }
         }
 
-        /* BANNER DE ANÚNCIO CORRIGIDO */
+        /* BANNER DE ANÚNCIO NO RODAPÉ */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 800px; height: 50px;
             background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
@@ -222,7 +222,7 @@
         <!-- Tela Principal de Pintura do Jogo -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- NOVO DESIGN DE RODAPÉ AD - CLICÁVEL -->
+        <!-- RODAPÉ AD - CLICÁVEL -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] CLIQUE AQUI PARA GANHAR BÔNUS MULTIPLICADOR DE MOEDAS ⚡
@@ -365,15 +365,15 @@
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['star'];
 
-        // NOVAS ENTIDADES COLECIONÁVEIS
-        let itemsInGame = []; // Moedas e Escudos flutuantes
+        // ENTIDADES COLECIONÁVEIS
+        let itemsInGame = []; 
 
-        // AUDIO CONTEXT (PROCEDURAL WEB AUDIO API)
+        // AUDIO CONTEXT NATIVO PROCEDURAL
         let audioCtx = null;
         let musicInterval = null;
         let beatCount = 0;
 
-        // BUFFER BACKUP BACKEND
+        // BUFFER BACKUP ARMAZENAMENTO
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
             try { return localStorage.getItem(key) !== null ? localStorage.getItem(key) : fallback; } 
@@ -383,7 +383,7 @@
             try { localStorage.setItem(key, value); } catch (e) { storageBackup[key] = value; }
         }
 
-        // LEITURA INICIAL
+        // CARREGAMENTO SEGURO DOS DADOS
         saldoPixAcumulado = Number(safeGetStorage('saldoPixAcumulado', 0));
         coins = Number(safeGetStorage('coins', 300));
         try {
@@ -424,11 +424,68 @@
         }
         window.addEventListener('resize', fitGameToScreen);
 
-        // --- SISTEMA PROCEDURAL DE ÁUDIO (NATIVO SINTETIZADO SEM ARQUIVOS) ---
+        // --- ENGENHARIA DE CONTROLES BLINDADOS (ANTI-BLOQUEIO MOBILE) ---
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { 
+                e.preventDefault(); 
+                triggerJump(); 
+            }
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') { 
+                e.preventDefault(); 
+                triggerDuck(true); 
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                triggerDuck(false);
+            }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            // Desperta o motor de áudio no primeiro clique na tela
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            } else if (!audioCtx) {
+                initAudioEngine();
+            }
+            
+            if (!gameActive) return;
+            
+            // Ignora interações nos botões e menus da interface
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'INPUT' || 
+                e.target.closest('.dropdown-menu') || 
+                e.target.closest('.settings-gear') || 
+                e.target.closest('#ad-banner-placement')) {
+                return;
+            }
+
+            e.preventDefault(); // Impede scrolls fantasmas dentro de WebViews apps
+            
+            // Mapeamento infalível baseado na largura total do dispositivo (Lado Direito Pula, Esquerdo Agacha)
+            let touchX = e.touches[0].clientX;
+            if (touchX > window.innerWidth / 2) {
+                triggerJump();
+            } else {
+                triggerDuck(true);
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
+            triggerDuck(false); // Retorna ao tamanho normal quando soltar o dedo
+        }, { passive: true });
+
+
+        // --- SINTETIZADOR DE ÁUDIO WEB AUDIO API ---
         function initAudioEngine() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            startProceduralMusic();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                startProceduralMusic();
+            } catch(err) {}
         }
 
         function playSoundJump() {
@@ -438,10 +495,10 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+            osc.frequency.exponentialRampToValueAtTime(580, audioCtx.currentTime + 0.14);
             gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.14);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.14);
         }
 
         function playSoundCoin() {
@@ -450,11 +507,11 @@
             let gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(987, audioCtx.currentTime); // Nota B5
-            osc.frequency.setValueAtTime(1318, audioCtx.currentTime + 0.07); // Nota E6
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            osc.frequency.setValueAtTime(987, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1318, audioCtx.currentTime + 0.07);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.005, audioCtx.currentTime + 0.18);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.18);
         }
 
         function playSoundShield() {
@@ -463,17 +520,16 @@
             let gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            osc.frequency.setValueAtTime(280, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(850, audioCtx.currentTime + 0.28);
+            gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.28);
         }
 
-        // MÚSICA DE FUNDO RETRÔ CHIPTUNE NÃO-ENJOATIVA
         function startProceduralMusic() {
             if (musicInterval) clearInterval(musicInterval);
-            const notes = [110, 130, 146, 165, 110, 130, 165, 196]; // Linha de baixo cyberpunk suave
+            const notes = [110, 130, 146, 165, 110, 130, 165, 196]; 
             musicInterval = setInterval(() => {
                 if (!gameActive || isMuted || !audioCtx) return;
                 try {
@@ -483,21 +539,18 @@
                     osc.type = 'triangle';
                     let currentNote = notes[beatCount % notes.length];
                     
-                    // Melodia randômica leve em compassos específicos para dar dinamismo
                     if (beatCount % 4 === 2 && Math.random() > 0.4) {
-                        let mel = osc;
-                        mel.frequency.setValueAtTime(currentNote * 4, audioCtx.currentTime);
-                        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                        osc.frequency.setValueAtTime(currentNote * 4, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
                     } else {
                         osc.frequency.setValueAtTime(currentNote, audioCtx.currentTime);
-                        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
                     }
-                    
                     gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.38);
                     beatCount++;
                 } catch(e){}
-            }, 220); // Andamento confortável de ~136 BPM
+            }, 225);
         }
 
         // MONETIZAÇÃO
@@ -536,7 +589,6 @@
                 let hEnd = hStart;
                 let nextType = 'flat';
 
-                // Se for bioma de trens, o chão básico se mantém plano para os trilhos
                 if (currentPhaseConfig.type === 'trains') {
                     terrainList.push({ x: nextX, w: width, hStart: 336, hEnd: 336, type: 'flat' });
                     return;
@@ -568,25 +620,23 @@
             if (!gameActive) return;
             if (player.isJumping && !doubleJumpUnlocked) return;
             if (player.isJumping && doubleJumpUnlocked && player.jumpCount >= 2) return;
+            
             playSoundJump();
-            if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; player.jumpCount = 1; player.onPlatform = false; } 
-            else if (doubleJumpUnlocked && player.jumpCount === 1) { player.velocity = player.lift * 0.85; player.jumpCount = 2; }
+            if (!player.isJumping) { 
+                player.velocity = player.lift; 
+                player.isJumping = true; 
+                player.jumpCount = 1; 
+                player.onPlatform = false; 
+            } else if (doubleJumpUnlocked && player.jumpCount === 1) { 
+                player.velocity = player.lift * 0.85; 
+                player.jumpCount = 2; 
+            }
         }
 
         function triggerDuck(state) {
             if (!gameActive) return;
             player.isDucking = state; player.height = state ? 20 : 40;
         }
-
-        // CONTROLES
-        window.addEventListener('keydown', (e) => {
-            if (document.activeElement.tagName === 'INPUT') return;
-            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
-            if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
-        });
 
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
@@ -606,7 +656,7 @@
             return biome;
         }
 
-        // --- LOOP GRÁFICO E MECÂNICO PRINCIPAL DO CANVAS ---
+        // --- RENDER ENGINE PRINCIPAL DO CANVAS ---
         function runGameLoop() {
             try {
                 if (!canvas || !ctx) {
@@ -628,7 +678,7 @@
                         }
 
                         updateAndGenerateTerrain();
-                        updateSpawningEngine(); // Gerencia Trens, Plataformas, Obstáculos e Itens
+                        updateSpawningEngine(); 
                         updateEntitiesAndCollisions();
 
                         player.velocity += player.gravity;
@@ -640,7 +690,8 @@
                         let feetY = player.y + player.height;
                         let nextFeetY = nextY + player.height;
 
-                        if (player.velocity >= 0 && feetY <= currentFloorY + 4 && nextFeetY >= currentFloorY - 6 && currentFloorY !== 999) {
+                        // Sistema robusto de aterrissagem física tolerante contra skips de frames
+                        if (player.velocity >= 0 && feetY <= currentFloorY + 10 && nextFeetY >= currentFloorY - 10 && currentFloorY !== 999) {
                             player.y = currentFloorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
                         } else {
                             player.y = nextY;
@@ -651,20 +702,19 @@
                         }
                     }
 
-                    // DRAW SKY
+                    // PINTA CÉU LINEAR
                     let bgGrad = ctx.createLinearGradient(0, 0, 0, 400);
                     bgGrad.addColorStop(0, currentPhaseConfig.skyTop || "#1a0b36");
                     bgGrad.addColorStop(1, currentPhaseConfig.skyBottom || "#0b0518");
                     ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 400);
 
-                    // DRAW TRACKS / CHÃO
+                    // PINTA RELEVO / TRILHOS
                     if (terrainList.length > 0) {
                         ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe";
                         for (let seg of terrainList) {
                             if (seg.type !== 'hole') {
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                                 if (currentPhaseConfig.type === 'trains') {
-                                    // Adiciona dormentes de ferrovia visuais
                                     for(let rx = seg.x; rx < seg.x + seg.w; rx += 30) {
                                         ctx.fillStyle = "#3e3e4f"; ctx.fillRect(rx, 336, 6, 12);
                                     }
@@ -673,19 +723,16 @@
                         } ctx.restore();
                     }
 
-                    // DRAW PLATFORMS / TRENS
+                    // PINTA TRENS / PLATAFORMAS
                     platforms.forEach(plat => {
                         ctx.save();
                         if (plat.isTrain) {
-                            // Renderizador Estilizado de Trem Ferroviário
                             ctx.fillStyle = "#5c0622"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                             ctx.fillStyle = "#a11241"; ctx.fillRect(plat.x + 4, plat.y + 4, plat.width - 8, plat.height - 12);
-                            // Janelas do Vagão
                             ctx.fillStyle = "#ffe81f";
                             for(let j=15; j < plat.width - 20; j += 40) {
                                 ctx.fillRect(plat.x + j, plat.y + 12, 18, 14);
                             }
-                            // Frente da Locomotiva (Se for o vagão frontal)
                             ctx.fillStyle = "#222"; ctx.fillRect(plat.x, plat.y + 6, 8, plat.height - 12);
                         } else {
                             ctx.fillStyle = "#111126"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
@@ -694,7 +741,7 @@
                         ctx.restore();
                     });
 
-                    // DRAW ITEMS (MOEDAS E ESCUDOS)
+                    // PINTA ITENS COLECIONÁVEIS
                     itemsInGame.forEach(item => {
                         ctx.save();
                         if (item.type === 'coin') {
@@ -709,12 +756,12 @@
                         ctx.restore();
                     });
 
-                    // DRAW OBSTACLES
+                    // PINTA OBSTÁCULOS
                     obstacles.forEach(obs => {
                         ctx.save(); ctx.fillStyle = obs.color; ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.restore();
                     });
 
-                    // DRAW PLAYER
+                    // PINTA SKIN DO PERSONAGEM
                     let pX = player.x + player.width / 2; let pY = player.y + player.height / 2;
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
 
@@ -727,27 +774,22 @@
             requestAnimationFrame(runGameLoop);
         }
 
-        // --- GERENCIADOR DE SPAWN DINÂMICO ---
         function updateSpawningEngine() {
             let spawnInterval = Math.max(30, 120 - (currentPhase * 5));
             if (++obstacleTimer > spawnInterval) {
                 obstacleTimer = 0;
                 
                 if (currentPhaseConfig.type === 'trains') {
-                    // MÓDULO FERROVIÁRIO: Spawn de Trens Longos obriga corrida por cima
                     platforms.push({
                         x: 850, y: 260,
                         width: 220, height: 76,
                         isTrain: true
                     });
-
-                    // Coloca moedas em cima do trem
                     if(Math.random() > 0.3) {
                         itemsInGame.push({ x: 900, y: 220, type: 'coin', collected: false });
                         itemsInGame.push({ x: 960, y: 220, type: 'coin', collected: false });
                     }
                 } else {
-                    // MÓDULO NORMAL: Plataformas e Obstáculos Padrões
                     if (Math.random() > 0.6) { 
                         platforms.push({ x: 800, y: 220, width: 140, height: 16, isTrain: false }); 
                     } else { 
@@ -755,7 +797,6 @@
                         if(obsY < 400) obstacles.push({ x: 800, y: obsY, width: 20, height: 35, color: currentPhaseConfig.obs, passed: false }); 
                     }
 
-                    // Distribuição aleatória de moedas e escudos blindados
                     if (Math.random() > 0.5) {
                         itemsInGame.push({ x: 850, y: 190, type: 'coin', collected: false });
                     }
@@ -766,22 +807,18 @@
             }
         }
 
-        // --- SISTEMA FÍSICO DE COLISÕES CORRIGIDO ---
         function updateEntitiesAndCollisions() {
             player.onPlatform = false;
 
-            // 1. Processa Plataformas e Trens
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= obstacleSpeed;
                 
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     let feetY = player.y + player.height;
                     
-                    // Detecção de Pouso Seguro em Cima do Trem/Plataforma
                     if (player.velocity >= 0 && feetY <= p.y + 10 && feetY + player.velocity >= p.y - 4) {
                         player.onPlatform = true; player.platformTop = p.y;
                     } 
-                    // Se bateu na frente ou lado do Trem -> Queda/Colisão Fatal
                     else if (platOverlapsPlayer(p) && p.isTrain) {
                         platforms.splice(i, 1);
                         if (shieldActive) { shieldActive = false; updateHUD(); continue; }
@@ -792,7 +829,6 @@
                 if (p.x < -300) platforms.splice(i, 1);
             }
 
-            // 2. Processa Obstáculos Comuns
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i]; obs.x -= obstacleSpeed;
                 if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
@@ -803,10 +839,8 @@
                 if (obs.x < -100) obstacles.splice(i, 1);
             }
 
-            // 3. Processa Coleta de Moedas e Itens de Blindagem (Escudos)
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
                 let it = itemsInGame[i]; it.x -= obstacleSpeed;
-                // Colisão por Proximidade Circular
                 let pX = player.x + player.width/2; let pY = player.y + player.height/2;
                 let dist = Math.hypot(pX - it.x, pY - it.y);
                 if (dist < 28) {
@@ -825,7 +859,6 @@
             return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y);
         }
 
-        // TRATAMENTO EXCLUSIVO DE IMPACTO NO TREM
         function handleTrainCrashFatal() {
             gameActive = false;
             document.getElementById('train-gameover-screen').classList.remove('hidden');
@@ -834,7 +867,6 @@
         function watchAdForTrainContinue() {
             triggerRewardedAdCall(() => {
                 document.getElementById('train-gameover-screen').classList.add('hidden');
-                // Mantém a pontuação e reinicia imediatamente na mesma fase limpa
                 initTerrain();
                 player.y = 80; player.velocity = 0; player.isJumping = true;
                 gameActive = true; updateHUD();
@@ -858,7 +890,6 @@
             obstacles = []; platforms = []; player.y = 120; player.velocity = 0; updateHUD();
         }
 
-        // --- SISTEMA DE TELAS AUXILIARES E MENUS ---
         function openSupportScreen() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
         function closeSupportScreen() { document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
 
@@ -942,7 +973,7 @@
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- PINCEIS VETORIAIS DE RENDERING ---
+        // --- MODELADORES VETORIAIS DE RENDERING ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorDiamond(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
