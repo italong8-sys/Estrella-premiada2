@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Ultimate Stable Engine</title>
+    <title>Star Runner - Ultimate Stable Production</title>
     <style>
-        /* --- SISTEMA DE VARIÁVEIS VISUAIS NEON E DINÂMICAS --- */
+        /* --- VARIÁVEIS VISUAIS RESTRITAS --- */
         :root {
-            --primary: #ff007f;       /* Rosa Neon */
-            --secondary: #00f2fe;     /* Ciano Neon */
-            --accent: #ffe81f;        /* Amarelo Ouro */
+            --primary: #ff007f;
+            --secondary: #00f2fe;
+            --accent: #ffe81f;
             --bg: #030308;
             --surface: #0a0a1a;
             --surface-light: #151530;
@@ -33,7 +33,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* CONTAINER COM AUTO-ESCALA UNIVERSAL TOTALMENTE BLINDADO */
+        /* CONTAINER MASTER COM REDIMENSIONAMENTO PROTEGIDO */
         #game-container {
             position: absolute;
             top: 50%;
@@ -42,18 +42,17 @@
             height: 400px;
             background: #000000;
             border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 242, 254, 0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(0, 242, 254, 0.2);
             overflow: hidden;
             transform: translate(-50%, -50%) scale(1);
             transform-origin: center center;
-            flex-shrink: 0;
             display: block !important;
             z-index: 10;
         }
 
         canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
 
-        /* --- HUD DE RUNTIME --- */
+        /* --- HEADS UP DISPLAY (HUD) --- */
         .hud {
             position: absolute; top: 15px; left: 15px; right: 15px;
             display: flex; justify-content: space-between;
@@ -66,31 +65,28 @@
         .hud-accent { color: #ffe81f; }
         .hud-secondary { color: #00f2fe; }
 
-        /* --- PAINÉIS DE MENUS --- */
+        /* --- MENUS DE INTERFACE (BLINDADOS CONTRA TELA PRETA) --- */
         .settings-gear {
             position: absolute; top: 12px; right: 15px;
             font-size: 26px; cursor: pointer; z-index: 100;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             padding: 5px;
         }
-        .settings-gear:hover { transform: rotate(90deg) scale(1.15); }
 
         .dropdown-menu {
             position: absolute; top: 52px; right: 15px;
-            background: rgba(10, 10, 26, 0.95); border: 1px solid rgba(0, 242, 254, 0.3);
+            background: #0a0a1a; border: 1px solid rgba(0, 242, 254, 0.3);
             border-radius: 12px; padding: 12px; display: flex; flex-direction: column;
-            gap: 8px; z-index: 101; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+            gap: 8px; z-index: 101; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
         }
 
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 3, 8, 0.94);
+            background: #050510; /* Cor sólida estável para evitar falhas de opacidade em WebViews */
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             border-radius: 16px; z-index: 10;
-            backdrop-filter: blur(6px);
             box-sizing: border-box;
+            padding: 20px;
         }
         .hidden { display: none !important; }
 
@@ -99,16 +95,14 @@
             border: 1px solid rgba(255,255,255,0.1);
             padding: 12px 28px; font-size: 13px; font-weight: bold;
             border-radius: 30px; cursor: pointer; text-transform: uppercase;
-            transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .btn:hover { background: #ffffff; color: #030308; transform: translateY(-2px); }
+        .btn:hover { background: #ffffff; color: #030308; }
         .btn-primary { 
             background: linear-gradient(135deg, #ff007f 0%, #bd005b 100%); 
             color: white; border: none;
             box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
         }
-        .btn-primary:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 0, 127, 0.6); }
         .btn-sm { padding: 6px 14px; font-size: 11px; border-radius: 15px; }
 
         input[type="text"] {
@@ -118,9 +112,8 @@
 
         .shop-box, .panel-box { width: 94%; background: #0a0a1a; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; box-sizing: border-box; }
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 190px; overflow-y: auto; padding-right: 4px; }
-        .shop-item { background: #151530; border: 2px solid transparent; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between; transition: transform 0.2s; }
-        .shop-item:hover { transform: translateY(-2px); }
+        .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 190px; overflow-y: auto; }
+        .shop-item { background: #151530; border: 2px solid transparent; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between; }
         .shop-item.selected { border-color: #ffe81f; background: rgba(255, 232, 31, 0.03); }
 
         .data-list { width: 100%; max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 0; list-style: none; }
@@ -139,7 +132,7 @@
             100% { text-shadow: 0 0 2px #fff, 0 0 5px #ff007f; opacity: 0.5; }
         }
 
-        /* BANNER DE ANÚNCIOS REMANEJADO COM SEGURANÇA NO RODAPÉ */
+        /* ANÚNCIO DE BASE FIXO SEGURO EXIGIDO */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: #000; display: flex; align-items: center; justify-content: center;
@@ -265,6 +258,7 @@
         let canvas = null;
         let ctx = null;
 
+        // PARÂMETROS DO MOTOR INFINITO PROCEDURAL
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'star', currentShopTab = 'skins';
@@ -280,6 +274,7 @@
         let pixHistoryData = [];
         let unlockedSkins = ['star'];
 
+        // PREVENÇÃO CONTRA CORRUPÇÃO DE LOCALSTORAGE
         try {
             saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado')) || 0;
             coins = Number(localStorage.getItem('coins')) || 300;
@@ -309,13 +304,17 @@
         let parallaxScrollMid = 0;
         let parallaxScrollNear = 0;
 
+        // CALCULO DE ADAPTAÇÃO DE INTERFACE MATEMÁTICA
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
             if (!container) return;
+            
             let w = window.innerWidth || document.documentElement.clientWidth || 800;
             let h = window.innerHeight || document.documentElement.clientHeight || 400;
+
             let scaleFactor = Math.min(w / 800, h / 400);
-            if (!scaleFactor || scaleFactor < 0.18 || isNaN(scaleFactor)) scaleFactor = 0.45; 
+            if (!scaleFactor || scaleFactor < 0.12 || isNaN(scaleFactor)) scaleFactor = 0.50; 
+            
             container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
         }
         window.addEventListener('resize', fitGameToScreen);
@@ -333,6 +332,7 @@
             try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; } catch(e) { return fallback; }
         }
 
+        // MOTOR SINTETIZADOR DE ÁUDIO WEB API
         let audioCtx = null;
         function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
         function playTone(freq, type, duration, volume = 0.04) {
@@ -386,6 +386,36 @@
             }
         }
 
+        // CONTROLES DE ENTRADA (TECLADO)
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); triggerDuck(true); }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
+        });
+
+        // CONTROLES DE TOQUE DINÂMICOS PARA CELULAR (BLINDADOS)
+        window.addEventListener('touchstart', (e) => {
+            if (!gameActive) return;
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear')) return;
+            
+            let rect = canvas.getBoundingClientRect();
+            if (!rect || rect.width === 0) return;
+            
+            let touchX = e.touches[0].clientX - rect.left;
+            let canvasX = (touchX / rect.width) * 800;
+            
+            if (canvasX > 400) triggerJump(); else triggerDuck(true);
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
+            triggerDuck(false);
+        }, { passive: true });
+
+        // CÁLCULO E GERAÇÃO PROCEDURAL DE FASES INFINITAS (CRIATIVIDADE TOTAL)
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "Metrópole Cyber", top: "#1a0b36", bottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" },
@@ -401,25 +431,25 @@
             let cycle = Math.floor((phase - 1) / baseBiomes.length);
             let biome = Object.assign({}, baseBiomes[index]);
             if (cycle > 0) biome.name += ` [Hyper X${cycle + 1}]`;
+            
+            // Dificuldade progressiva real baseada na fase atual
             obstacleSpeed = 6.5 + (phase * 0.45);
-            if (obstacleSpeed > 16) obstacleSpeed = 16;
+            if (obstacleSpeed > 16) obstacleSpeed = 16; 
             return biome;
         }
 
+        // --- LOOP CRÍTICO DE RENDERIZAÇÃO (CANVAS RENDER ENGINE) ---
         function runGameLoop() {
-            if (!canvas || !ctx) {
-                canvas = document.getElementById('gameCanvas');
-                if (canvas) ctx = canvas.getContext('2d');
-            }
-            
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 frameCount++;
 
                 if (gameActive) {
                     score++;
+                    // Regra: 500 metros por fase exatos
                     currentPhase = Math.floor(score / 500) + 1;
                     currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
+                    
                     try { document.getElementById('hud-phase-txt').innerText = `Fase: ${currentPhase} - ${currentPhaseConfig.name}`; } catch(e){}
 
                     if (score % 20 === 0) {
@@ -451,12 +481,14 @@
                     }
                 }
 
+                // Renderizar estruturas suspensas
                 platforms.forEach(plat => {
                     ctx.save(); ctx.fillStyle = "rgba(12, 12, 36, 0.9)"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                     ctx.strokeStyle = currentPhaseConfig.ground; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
                     ctx.beginPath(); ctx.moveTo(plat.x, plat.y); ctx.lineTo(plat.x + plat.width, plat.y); ctx.strokeStyle = "#fff"; ctx.stroke(); ctx.restore();
                 });
 
+                // Renderizar obstáculos móveis
                 obstacles.forEach(obs => {
                     ctx.save(); ctx.fillStyle = obs.color;
                     if (obs.type === 'train') {
@@ -491,16 +523,15 @@
             for (let offset of [parallaxScrollFar, parallaxScrollFar + 800]) {
                 if (type === "city" || type === "matrix") { ctx.fillRect(offset + 40, 160, 80, 176); ctx.fillRect(offset + 300, 120, 110, 216); } 
                 else if (type === "space") { ctx.beginPath(); ctx.arc(offset + 200, 120, 40, 0, Math.PI*2); ctx.fill(); } 
-                else { ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 180, 160); ctx.lineTo(offset + 360, 260); ctx.lineTo(offset + 600, 120); ctx.lineTo(offset + 800, 336); ctx.fill(); }
+                else { ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 180, 160); ctx.lineTo(offset + 360, 260); ctx.fill(); }
             } ctx.restore();
 
             ctx.save(); ctx.fillStyle = "rgba(10, 10, 28, 0.65)";
             for (let offset of [parallaxScrollMid, parallaxScrollMid + 800]) {
-                if (type === "city" || type === "trains") { ctx.fillRect(offset + 10, 100, 60, 236); ctx.fillRect(offset + 150, 150, 85, 186); ctx.fillRect(offset + 500, 80, 70, 256); } 
-                else if (type === "matrix") { ctx.fillStyle = "#00ff33"; ctx.globalAlpha = 0.15; ctx.fillRect(offset + 50, 0, 2, 336); ctx.fillRect(offset + 250, 0, 4, 336); ctx.fillStyle = "rgba(10,10,28,0.65)"; ctx.globalAlpha = 1.0; } 
+                if (type === "city" || type === "trains") { ctx.fillRect(offset + 10, 100, 60, 236); ctx.fillRect(offset + 500, 80, 70, 256); } 
+                else if (type === "matrix") { ctx.fillStyle = "#00ff33"; ctx.globalAlpha = 0.15; ctx.fillRect(offset + 50, 0, 2, 336); ctx.fillStyle = "rgba(10,10,28,0.65)"; ctx.globalAlpha = 1.0; } 
                 else if (type === "desert") { ctx.beginPath(); ctx.moveTo(offset + 50, 336); ctx.lineTo(offset + 150, 180); ctx.lineTo(offset + 250, 336); ctx.fill(); } 
-                else if (type === "space") { ctx.fillStyle = "#fff"; ctx.fillRect(offset + 100, 40, 2, 2); ctx.fillRect(offset + 450, 190, 3, 3); ctx.fillStyle = "rgba(10,10,28,0.65)"; } 
-                else { ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 120, 220); ctx.lineTo(offset + 280, 336); ctx.fill(); }
+                else { ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 120, 220); ctx.fill(); }
             } ctx.restore();
 
             ctx.save(); ctx.fillStyle = "rgba(5, 5, 15, 0.92)";
@@ -654,7 +685,7 @@
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- MODELADORES VETORIAIS ---
+        // --- MODELADORES GRÁFICOS VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorDiamond(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
@@ -665,25 +696,17 @@
         function drawVectorTV(g, x, y, r, color) { g.save(); g.fillStyle = color; g.fillRect(x - r, y - r, r*2, r*1.6); g.fillStyle = Math.random() > 0.5 ? '#777' : '#999'; g.fillRect(x - r + 5, y - r + 5, r*1.4, r*1.2); g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x - 15, y - r - 12); g.moveTo(x, y - r); g.lineTo(x + 15, y - r - 12); g.stroke(); g.restore(); }
         function drawVectorDuck(g, x, y, r, color) { g.save(); g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.beginPath(); g.arc(x + r/2, y - r/2, r/1.6, 0, Math.PI*2); g.fill(); g.fillStyle = '#ff6600'; g.fillRect(x + r, y - r/2, 10, 5); g.restore(); }
 
-        // --- SISTEMA DE INICIALIZAÇÃO ASSEGURADO E PROTEGIDO ---
-        function initUltimateEngine() {
+        // --- EVENTO DE INICIALIZAÇÃO SINCRONIZADO E SEGURO ---
+        window.addEventListener('load', () => {
             canvas = document.getElementById('gameCanvas');
             if (canvas) ctx = canvas.getContext('2d');
             
             fitGameToScreen();
             updateHUD();
-        }
-
-        // Evento principal disparado assim que o navegador monta a estrutura DOM
-        window.addEventListener('DOMContentLoaded', initUltimateEngine);
-        // Fallback redundante caso o script seja injetado em tempo de execução tardio
-        window.addEventListener('load', () => {
-            initUltimateEngine();
-            fitGameToScreen();
+            
+            // Disparador do loop gráfico em ambiente 100% montado
+            requestAnimationFrame(runGameLoop);
         });
-
-        // Disparo contínuo e imediato do loop - auto-recuperável frame a frame
-        requestAnimationFrame(runGameLoop);
     </script>
 </body>
 </html>
