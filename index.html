@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Engineered Edition</title>
+    <title>Star Runner - Optimized Master Engine</title>
     <style>
         :root {
             --primary: #ff007f;
@@ -77,8 +77,15 @@
         .ad-warning-banner {
             width: 100%; max-width: 500px; background: rgba(255, 0, 127, 0.12);
             border: 1px solid #ff007f; color: #ffffff; font-size: 10px; font-weight: 500;
-            text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.4;
+            text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; line-height: 1.4;
         }
+
+        /* PAINEL EXPLICATIVO DE REGRAS/TUTORIAL INTERNO */
+        .tutorial-card {
+            width: 100%; max-width: 500px; background: #0a0a20; border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 10px; padding: 12px; margin-bottom: 14px; font-size: 11px; line-height: 1.5;
+        }
+        .tut-title { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
 
         .btn {
             background: #151530; color: #ffffff; border: 1px solid rgba(255,255,255,0.1);
@@ -116,7 +123,7 @@
         .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
-        /* BALÃO TOAST NOTIFICAÇÃO REAL DE PIX SUCESSO */
+        /* BALÃO TOAST NOTIFICAÇÃO DE PIX SUCESSO */
         #payout-toast {
             position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
@@ -142,7 +149,7 @@
 <body>
 
     <div id="game-container">
-        <!-- BALÃO REALTIME CONFIRMAÇÃO DE CONTA PIX -->
+        <!-- BALÃO CONFIRMAÇÃO DE CONTA PIX -->
         <div id="payout-toast">
             <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
         </div>
@@ -175,10 +182,10 @@
         <!-- INTERFACE GRÁFICA DO MOTOR -->
         <canvas id="gameCanvas"></canvas>
 
-        <!-- BOTÃO ACIONADOR DO RAIO LAZER -->
+        <!-- BOTÃO ACIONADOR DO RAIO LASER -->
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- SUPORTE DE PUBLICIDADE FIXED BANNER MONETAG -->
+        <!-- FIXED BANNER MONETAG -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
@@ -190,12 +197,24 @@
             <div class="ad-warning-banner">
                 Quando abrir o anúncio em outra guia do seu navegador apenas deixe carregar e feche! Não clique em baixar nada da propaganda! Nós não nos responsabilizamos pelas propagandas dentro do jogo!
             </div>
-            <h1 style="font-size:32px; color:#ffe81f; margin:0; letter-spacing:3px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
-            <p style="color: #00f2fe; font-size: 10px; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
+
+            <!-- EXPLICATIVO COMPLETO DO JOGO -->
+            <div class="tutorial-card">
+                <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
+                <div style="color:#d1d1f0; margin-bottom: 8px;">
+                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se você optar por colidir de frente com o tubo, seu personagem será teleportado para uma dimensão bônus espacial escura. Lá, você poderá coletar dezenas de moedas e estrelas de forma totalmente segura e livre de perigos por tempo limitado, retornando depois exatamente para a fase em que parou!
+                </div>
+                <div class="tut-title" style="color:#ff007f;">⚡ Botão de Poder (Raio de Plasma)</div>
+                <div style="color:#d1d1f0;">
+                    A partir da **Fase 4 (Vale Vulcânico)**, o jogo fica muito mais difícil. Para te ajudar, um botão flutuante de raio (⚡) surgirá no canto inferior direito, junto com uma barra de energia (Mana) no topo. Toque nele para disparar um laser retilíneo que pulveriza e quebra os caixotes de madeira e obstáculos físicos à sua frente instantaneamente! Use com estratégia, pois o poder gasta energia, que recarrega sozinha ao longo do tempo.
+                </div>
+            </div>
+
+            <h1 style="font-size:28px; color:#ffe81f; margin:0 0 10px 0; letter-spacing:3px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
 
             <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">Iniciar Corrida</button>
             
-            <div style="margin-top: 14px; display:flex; gap:6px; flex-direction: column; width: 100%; max-width: 250px;">
+            <div style="margin-top: 10px; display:flex; gap:6px; flex-direction: column; width: 100%; max-width: 250px;">
                 <button class="btn btn-sm" onclick="openShop()">Lojinha Mutante</button>
                 <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
                 <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
@@ -255,7 +274,7 @@
             </div>
         </div>
 
-        <!-- LOJA AVANÇADA COMPLETA (PERSONAGENS E CENÁRIOS) -->
+        <!-- LOJA AVANÇADA COMPLETA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap: wrap; gap:4px;">
@@ -377,7 +396,7 @@
 
         let obstacles = []; let platforms = []; let terrainList = [];
 
-        let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
+        let currentPhaseConfig = { name: "Metrópole Cyber", top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" };
 
         function safeSetText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
 
@@ -397,7 +416,6 @@
         // --- ENGENHARIA PROCEDURAL: GERADOR DOS 100 PERSONAGENS (50+50) ---
         const skinsDB = {};
         
-        // 50 Skins Normais / Ads
         for (let i = 1; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
             skinsDB[`skin_${i}`] = {
@@ -419,7 +437,6 @@
             render: (g, cx, cy, r) => { drawVectorGeometricShape(g, cx, cy, 5, r, r/2, '#ffe81f'); }
         };
 
-        // 50 Skins Bizarras (Moedas)
         for (let i = 1; i <= 50; i++) {
             let bizarroColor = `hsl(${(i * 13) % 360}, 90%, 40%)`;
             let costScale = 100 + (i * 12);
@@ -446,7 +463,7 @@
             'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' }
         };
 
-        // CONTROLES DE CAPTURA
+        // CONTROLES CONTÍNUOS
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -472,7 +489,7 @@
             document.getElementById('pause-screen').classList.toggle('hidden', !isPaused);
         }
 
-        // SINTETIZADOR DE ÁUDIO
+        // ELEMENTOS DE ÁUDIO PROCEDURAL
         function initAudioEngine() { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startProceduralMusic(); } catch(e){} }
         function playSoundJump() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(550, audioCtx.currentTime + 0.12); g.gain.setValueAtTime(0.12, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12); osc.start(); osc.stop(audioCtx.currentTime + 0.12); }
         function playSoundCoin() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); g.gain.setValueAtTime(0.06, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); osc.start(); osc.stop(audioCtx.currentTime + 0.15); }
@@ -499,6 +516,7 @@
                 startX += 200;
             }
             itemsInGame = []; obstacles = []; platforms = []; isBonusStageMode = false;
+            obstacleTimer = 0; // Reseta o timer para forçar novos spawns imediatos
         }
 
         function updateAndGenerateTerrain() {
@@ -530,9 +548,9 @@
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "Metrópole Cyber", top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" },
-                { name: "Floresta Sunset", top: "#1e3512", bottom: "#081203", ground: "#28a745", obs: "#ffe81f", type: "forest" },
-                { name: "Matrix Digital", top: "#010a02", bottom: "#000000", ground: "#00ff33", obs: "#ffffff", type: "matrix" },
-                { name: "Vale Vulcânico", top: "#2d0505", bottom: "#050000", ground: "#ff5500", obs: "#ffaa00", type: "volcano" },
+                { name: "Floresta Sunset", top: "#12240b", bottom: "#040a02", ground: "#28a745", obs: "#ffe81f", type: "forest" },
+                { name: "Matrix Digital", top: "#000c02", bottom: "#000000", ground: "#00ff33", obs: "#ffffff", type: "matrix" },
+                { name: "Vale Vulcânico", top: "#2d0505", bottom: "#0a0101", ground: "#ff5500", obs: "#ffaa00", type: "volcano" },
                 { name: "Linhas Ferroviárias", top: "#020b1a", bottom: "#000205", ground: "#5a5a75", obs: "#e2e8f0", type: "trains" }
             ];
             let index = (phase - 1) % baseBiomes.length;
@@ -552,7 +570,7 @@
             }
         }
 
-        // --- RENDER LOOP MOTOR GRÁFICO ---
+        // --- LOOP CRÍTICO DE PERFORMANCE FIXADO ---
         function runGameLoop() {
             try {
                 if (ctx) {
@@ -598,9 +616,10 @@
                         } else { player.y = nextY; }
                     }
 
+                    // RENDERIZAÇÃO ESTÁVEL DO CENÁRIO FIXADA (Mapeamento de degradê sem estouro)
                     renderBackgroundScenariosLayer();
 
-                    // PINTURA DO RAIO LASER
+                    // RAIO LASER
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
                         activeLaserFrame--;
                         ctx.save(); ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 6;
@@ -610,13 +629,12 @@
                         ctx.restore();
                     }
 
-                    // --- DESENHO CORRIGIDO DA BASE (CHÃO SÓLIDO PREENCHIDO) ---
+                    // BLOCOS SÓLIDOS DO CHÃO
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
                             if (seg.type !== 'hole') {
-                                // Cria bloco preenchido até o fim inferior da tela
-                                let groundGrad = ctx.createLinearGradient(seg.x, seg.hStart, seg.x, canvas.height);
+                                let groundGrad = ctx.createLinearGradient(0, seg.hStart, 0, canvas.height);
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe");
                                 groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad;
@@ -629,25 +647,18 @@
                                 ctx.closePath();
                                 ctx.fill();
 
-                                // Linha de Superfície Neon de Alta Visibilidade
                                 ctx.strokeStyle = "#ffffff";
                                 ctx.lineWidth = 3;
                                 ctx.beginPath();
                                 ctx.moveTo(seg.x, seg.hStart);
                                 ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.stroke();
-
-                                if (currentPhaseConfig.type === 'trains') {
-                                    for(let rx = seg.x; rx < seg.x + seg.w; rx += 25) {
-                                        ctx.fillStyle = "#3e3e4f"; ctx.fillRect(rx, BASE_GROUND_Y, 5, 10);
-                                    }
-                                }
                             }
                         }
                         ctx.restore();
                     }
 
-                    // PINTA PLATAFORMAS / TRENS / CANOS
+                    // RENDER ELEMENTOS DO MAPA
                     platforms.forEach(p => {
                         ctx.save();
                         if (p.isPipe) {
@@ -664,21 +675,18 @@
                         ctx.restore();
                     });
 
-                    // PINTA COLECIONÁVEIS
                     itemsInGame.forEach(it => {
                         ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
                         ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill();
                         ctx.restore();
                     });
 
-                    // PINTA OBSTÁCULOS
                     obstacles.forEach(o => {
                         ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height);
                         if(o.isBreakable) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.strokeRect(o.x, o.y, o.width, o.height); }
                         ctx.restore();
                     });
 
-                    // PINTA PLAYER SKIN
                     let pX = player.x + player.width/2; let pY = player.y + player.height/2;
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, pX, pY, player.width/2);
                     if (shieldActive) { ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width*0.85, 0, Math.PI*2); ctx.strokeStyle="#00f2fe"; ctx.lineWidth=2; ctx.stroke(); ctx.restore(); }
@@ -703,31 +711,33 @@
             } else if (type === 'matrix') {
                 grad.addColorStop(0, "#000c02"); grad.addColorStop(1, "#000000");
             } else {
-                grad.addColorStop(0, currentPhaseConfig.skyTop); grad.addColorStop(1, currentPhaseConfig.skyBottom);
+                grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); 
+                grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
             }
             ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // PARALAX TEXTURIZADO DE FUNDO
+            // PARALAX RENDER ELEMENTOS
             ctx.save();
             if (isBonusStageMode) {
                 ctx.fillStyle = "rgba(255,255,255,0.3)";
                 for(let i=0; i<20; i++) ctx.fillRect((canvas.width*0.05*i + frameCount)%canvas.width, 40 + (i*19)%220, 2, 2);
             } else if (type === 'city') {
-                ctx.fillStyle = "rgba(0, 242, 254, 0.04)";
-                ctx.fillRect(80, canvas.height - 320, 110, 200); ctx.fillRect(280, canvas.height - 360, 130, 240);
+                ctx.fillStyle = "rgba(0, 242, 254, 0.05)";
+                ctx.fillRect(80, canvas.height - 350, 110, 220); ctx.fillRect(280, canvas.height - 390, 130, 260);
             } else if (type === 'forest') {
-                ctx.fillStyle = "rgba(40, 167, 69, 0.05)";
-                for(let i=0; i<6; i++) { ctx.beginPath(); ctx.moveTo(180*i, BASE_GROUND_Y); ctx.lineTo(180*i + 60, BASE_GROUND_Y - 150); ctx.lineTo(180*i + 120, BASE_GROUND_Y); ctx.fill(); }
+                ctx.fillStyle = "rgba(40, 167, 69, 0.06)";
+                for(let i=0; i<6; i++) { ctx.beginPath(); ctx.moveTo(180*i, BASE_GROUND_Y); ctx.lineTo(180*i + 60, BASE_GROUND_Y - 160); ctx.lineTo(180*i + 120, BASE_GROUND_Y); ctx.fill(); }
             }
             ctx.restore();
         }
 
         function updateSpawningEngine() {
-            let interval = Math.max(40, 120 - (currentPhase * 4));
+            // Acelera a cadência do gerador inicial diminuindo a janela vazia
+            let interval = Math.max(30, 80 - (currentPhase * 4));
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
                 
-                if (frameCount > 300 && Math.random() > 0.88 && platforms.length === 0 && !isBonusStageMode) {
+                if (frameCount > 200 && Math.random() > 0.85 && platforms.length === 0 && !isBonusStageMode) {
                     platforms.push({ x: sX, y: BASE_GROUND_Y - 50, width: 45, height: 50, isPipe: true });
                     return;
                 }
@@ -735,7 +745,7 @@
                 if (currentPhaseConfig.type === 'trains') {
                     platforms.push({ x: sX, y: BASE_GROUND_Y - 70, width: 200, height: 70, isTrain: true });
                 } else {
-                    if (Math.random() > 0.65) {
+                    if (Math.random() > 0.55) {
                         platforms.push({ x: sX, y: BASE_GROUND_Y - 85, width: 120, height: 16, isTrain: false });
                     } else {
                         let breakableState = (currentPhase >= 4 && Math.random() > 0.4);
@@ -745,8 +755,8 @@
                             isBreakable: breakableState, passed: false
                         });
                     }
-                    if (Math.random() > 0.5) itemsInGame.push({ x: sX + 30, y: BASE_GROUND_Y - 40, type: 'coin' });
-                    if (Math.random() > 0.94 && !shieldActive) itemsInGame.push({ x: sX + 40, y: BASE_GROUND_Y - 55, type: 'shieldItem' });
+                    if (Math.random() > 0.3) itemsInGame.push({ x: sX + 40, y: BASE_GROUND_Y - 40, type: 'coin' });
+                    if (Math.random() > 0.92 && !shieldActive) itemsInGame.push({ x: sX + 50, y: BASE_GROUND_Y - 55, type: 'shieldItem' });
                 }
             }
         }
