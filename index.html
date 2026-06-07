@@ -117,8 +117,15 @@
         }
         .shop-tabs { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; flex-wrap: wrap; }
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 4px; }
-        .shop-item { background: #151530; border: 2px solid transparent; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between; gap: 6px; }
+        
+        /* ITEM DA LOJA ATUALIZADO COM DISPLAY DE PREVIEW */
+        .shop-item { 
+            background: #151530; border: 2px solid transparent; border-radius: 10px; 
+            padding: 8px; display: flex; flex-direction: column; align-items: center; 
+            text-align: center; justify-content: space-between; gap: 6px; 
+        }
         .shop-item.selected { border-color: #ffe81f; background: rgba(255, 232, 31, 0.03); }
+        .preview-canvas-mini { background: rgba(0,0,0,0.4); border-radius: 6px; display: block; margin-bottom: 2px; }
 
         .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
@@ -434,7 +441,7 @@
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
-        // --- ENGENHARIA PROCEDURAL: NOMES 100% ÚNICOS ---
+        // --- ENGENHARIA PROCEDURAL: NOMES COM IDENTIDADE EXCLUSIVA ---
         const skinsDB = {};
 
         const normalNamesArray = [
@@ -494,14 +501,18 @@
             };
         }
 
+        // EXPANSÃO DA BASE DE CENÁRIOS COM AMBIENTES REALISTAS/CINEMATÁTICOS
         const scenariosDB = {
-            'scen_default': { name: 'Padrão Mutável', type: 'free', desc: 'Acompanha as fases.' },
+            'scen_default': { name: 'Padrão Dinâmico', type: 'free', desc: 'Muda de acordo com as fases.' },
             'scen_neon': { name: '🌌 Hiper-Espaço Neon', type: 'ad', desc: 'Fundo estelar galáctico roxo' },
             'scen_matrix': { name: '🟢 Data Stream Alpha', type: 'ad', desc: 'Códigos binários persistentes' },
-            'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' }
+            'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' },
+            'scen_cyberpunk_city': { name: '🌆 Megacidade Cyber (Realista)', type: 'ad', desc: 'Silhuetas de arranha-céus e neblina realista' },
+            'scen_aurora_boreal': { name: '🌌 Aurora Polar (Realista)', type: 'ad', desc: 'Ondas cósmicas luminescentes no céu' },
+            'scen_desert_sunset': { name: '🏜️ Deserto Quântico (Realista)', type: 'ad', desc: 'Dunas em degradê e sol poente' }
         };
 
-        // CONTROLES DE ENTRADA CORRIGIDOS: APENAS PULO É PERMITIDO (ELIMINAÇÃO DO BUG DO LIMBO)
+        // CONTROLES DE ENTRADA CORRIGIDOS (APENAS PULO)
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -512,7 +523,7 @@
             if (!gameActive || isPaused) return;
             if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear') || e.target.closest('#ad-banner-placement') || e.target.closest('.pause-btn') || e.target.closest('#laser-action-btn')) return;
             e.preventDefault();
-            triggerJump(); // Qualquer área clicada gera apenas o pulo seguro
+            triggerJump();
         }, { passive: false });
 
         function togglePauseGame() {
@@ -562,11 +573,10 @@
             }, 230);
         }
 
-        // --- ENGENHARIA DO NOVO TERRENO PROCEDURAL (ESTILO MARIO / SONIC) ---
+        // --- ENGENHARIA DO TERRENO PROCEDURAL (SLOPES E ABISMOS) ---
         function initTerrain() {
             if(!canvas) resizeEngineCanvas();
             terrainList = []; let startX = 0;
-            // Cria a largada inicial plana e segura
             while (startX < canvas.width + 800) {
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
@@ -597,25 +607,18 @@
                     return;
                 }
                 
-                let r = Math.random();
-                let type = 'flat';
-                let hStart = lastSeg.hEnd;
-                let hEnd = lastSeg.hEnd;
+                let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
                 
-                // Os trilhos ferroviários permanecem lineares e retos
                 if (currentPhaseConfig.type === 'trains') {
                     type = 'flat';
                 } else {
                     if (r < 0.45) {
                         type = 'flat';
                     } else if (r < 0.62 && lastSeg.type !== 'hole') {
-                        // BURACOR/ABISMO (Se cair perde vida)
                         type = 'hole';
                     } else if (r < 0.82) {
-                        // SUBIDA ÉPICA
                         type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 100, lastSeg.hEnd - 35);
                     } else {
-                        // DESCIDA SUAVE
                         type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 35);
                     }
                 }
@@ -623,13 +626,12 @@
             }
         }
 
-        // MAPEADOR GEOMÉTRICO INTERPOLADO DE ALTURA DO CHÃO (SLOPES)
         function getGroundYAt(px) {
             for (let seg of terrainList) {
                 if (px >= seg.x && px <= seg.x + seg.w) {
-                    if (seg.type === 'hole') return canvas.height + 999; // Retorna infinito matemático
+                    if (seg.type === 'hole') return canvas.height + 999;
                     let pct = (px - seg.x) / seg.w;
-                    return seg.hStart + (seg.hEnd - seg.hStart) * pct; // Equação linear analítica da colina
+                    return seg.hStart + (seg.hEnd - seg.hStart) * pct;
                 }
             }
             return BASE_GROUND_Y;
@@ -721,18 +723,14 @@
                         let floorY = getGroundYAt(player.x + player.width/2);
                         if (player.onPlatform) floorY = player.platformTop;
 
-                        // VERIFICAÇÃO DE QUEDA EM ABISMOS (MÁRIO/SONIC STYLE)
                         if (player.y > canvas.height + 15) {
                             if (isBonusStageMode) {
                                 player.y = BASE_GROUND_Y - player.height; player.velocity = 0;
                             } else {
                                 handleLifeLoss();
-                                if (lives > 0) {
-                                    player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); // Respawn seguro
-                                }
+                                if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
                             }
                         } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
-                            // Fixação de aderência reativa para subidas e descidas fluidas
                             player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
                         } else { player.y = nextY; }
                     }
@@ -769,7 +767,6 @@
                         ctx.restore();
                     }
 
-                    // RENDERIZADOR DO TERRENO DINÂMICO
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
@@ -786,7 +783,6 @@
                                 ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             } else {
-                                // Bordas estéticas verticais do abismo para scannabilidade do mapa
                                 ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x, canvas.height); ctx.stroke();
                                 ctx.beginPath(); ctx.moveTo(seg.x + seg.w, seg.hEnd); ctx.lineTo(seg.x + seg.w, canvas.height); ctx.stroke();
@@ -813,7 +809,8 @@
 
                     itemsInGame.forEach(it => {
                         ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
-                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill();
+                        ctx.restore();
                     });
 
                     obstacles.forEach(o => {
@@ -830,47 +827,140 @@
             requestAnimationFrame(runGameLoop);
         }
 
+        // --- ENGENHARIA VISUAL AVANÇADA: RENDERIZADOR DE CENÁRIOS REALISTAS ---
         function renderBackgroundScenariosLayer() {
-            let type = currentPhaseConfig.type;
-            if (currentScenarioId === 'scen_neon') type = 'neon_fixed';
-            if (currentScenarioId === 'scen_matrix') type = 'matrix';
-            if (currentScenarioId === 'scen_inferno') type = 'volcano';
+            let activeScenario = currentScenarioId;
+            if (activeScenario === 'scen_default') {
+                activeScenario = currentPhaseConfig.type;
+            }
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
             if (isBonusStageMode) {
                 grad.addColorStop(0, "#010005"); grad.addColorStop(1, "#070014");
-            } else if (type === 'forest') {
-                grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
-            } else if (type === 'volcano') {
-                grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
-            } else if (type === 'matrix') {
-                grad.addColorStop(0, "#000c02"); grad.addColorStop(1, "#000000");
-            } else {
-                grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); 
-                grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
-            }
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            if (isBonusStageMode) {
-                ctx.fillStyle = "rgba(255, 232, 31, 0.4)";
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.save(); ctx.fillStyle = "rgba(255, 232, 31, 0.4)";
                 for(let i=0; i<30; i++) ctx.fillRect((canvas.width*0.04*i + frameCount*1.5)%canvas.width, 30 + (i*17)%260, 2.5, 2.5);
-            } else if (type === 'city') {
-                ctx.fillStyle = "rgba(0, 242, 254, 0.05)";
-                ctx.fillRect(80, canvas.height - 350, 110, 220); ctx.fillRect(280, canvas.height - 390, 130, 260);
-            } else if (type === 'forest') {
-                ctx.fillStyle = "rgba(40, 167, 69, 0.06)";
-                for(let i=0; i<6; i++) { ctx.beginPath(); ctx.moveTo(180*i, BASE_GROUND_Y); ctx.lineTo(180*i + 60, BASE_GROUND_Y - 160); ctx.lineTo(180*i + 120, BASE_GROUND_Y); ctx.fill(); }
+                ctx.restore();
+                return;
             }
-            ctx.restore();
+
+            // SWITCH DE CENÁRIOS ATIVOS DURANTE A PARTIDA
+            switch(activeScenario) {
+                case 'scen_cyberpunk_city':
+                    // Degradê atmosférico de metrópole real em neblina
+                    grad.addColorStop(0, "#090314"); grad.addColorStop(0.5, "#1f0f33"); grad.addColorStop(1, "#0a0518");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.save();
+                    // Camada Distante de Prédios (Paralaxe Lento)
+                    ctx.fillStyle = "rgba(20, 10, 35, 0.7)";
+                    for(let i=0; i<15; i++) {
+                        let w = 90; let h = 260 + (i * 13) % 110;
+                        let x = (i * 110 - frameCount * 0.3) % (canvas.width + w) - w;
+                        ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
+                    }
+                    // Camada Próxima de Prédios com Janelas Realistas
+                    ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
+                    for(let i=0; i<12; i++) {
+                        let w = 120; let h = 180 + (i * 29) % 140;
+                        let x = (i * 160 - frameCount * 0.9) % (canvas.width + w) - w;
+                        ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
+                        // Desenha pequenas janelas neon amarelas/azuis fixas nos prédios
+                        ctx.fillStyle = (i % 2 === 0) ? "#00f2fe" : "#ffe81f";
+                        for(let wx = x + 15; wx < x + w - 20; wx += 25) {
+                            for(let wy = BASE_GROUND_Y - h + 20; wy < BASE_GROUND_Y - 10; wy += 35) {
+                                if((wx+wy) % 3 === 0) ctx.fillRect(wx, wy, 6, 8);
+                            }
+                        }
+                        ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
+                    }
+                    ctx.restore();
+                    break;
+
+                case 'scen_aurora_boreal':
+                    // Céu estrelado polar profundo
+                    grad.addColorStop(0, "#020514"); grad.addColorStop(0.7, "#051226"); grad.addColorStop(1, "#01040d");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.save();
+                    // Render de estrelas fixas reais
+                    ctx.fillStyle = "rgba(255,255,255,0.6)";
+                    for(let i=0; i<40; i++) ctx.fillRect((i*47)%canvas.width, (i*31)%220, 1.5, 1.5);
+                    
+                    // Ondas orgânicas da Aurora Boreal ondulando com Math.sin
+                    for(let layer=0; layer<3; layer++) {
+                        let alpha = 0.06 - (layer * 0.015);
+                        ctx.fillStyle = layer === 0 ? `rgba(0, 255, 150, ${alpha})` : (layer === 1 ? `rgba(0, 242, 254, ${alpha})` : `rgba(124, 0, 254, ${alpha})`);
+                        ctx.beginPath();
+                        ctx.moveTo(0, canvas.height);
+                        for(let x=0; x<=canvas.width; x+=40) {
+                            let yOffset = Math.sin((x * 0.003) + (frameCount * 0.015) + layer) * 60;
+                            ctx.lineTo(x, 100 + (layer * 40) + yOffset);
+                        }
+                        ctx.lineTo(canvas.width, canvas.height);
+                        ctx.closePath(); ctx.fill();
+                    }
+                    ctx.restore();
+                    break;
+
+                case 'scen_desert_sunset':
+                    // Pôr do sol realista em degradê escalonado
+                    grad.addColorStop(0, "#1f0314"); grad.addColorStop(0.3, "#5c0c22"); 
+                    grad.addColorStop(0.6, "#d9381e"); grad.addColorStop(0.8, "#f2a104"); grad.addColorStop(1, "#ffe81f");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.save();
+                    // Sol Gigante Poente
+                    ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 40; ctx.shadowColor = "#ffaa00";
+                    ctx.beginPath(); ctx.arc(canvas.width * 0.75, BASE_GROUND_Y + 10, 75, 0, Math.PI * 2); ctx.fill();
+                    ctx.shadowBlur = 0; // Reseta o blur do motor
+                    
+                    // Montanhas/Dunas procedurais de areia em camadas de silhueta
+                    ctx.fillStyle = "#3d0319";
+                    ctx.beginPath(); ctx.moveTo(0, canvas.height);
+                    for(let x=0; x<=canvas.width; x+=50) {
+                        ctx.lineTo(x, (BASE_GROUND_Y - 60) + Math.sin(x * 0.005 - frameCount * 0.01) * 20);
+                    }
+                    ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
+
+                    ctx.fillStyle = "#1c000a";
+                    ctx.beginPath(); ctx.moveTo(0, canvas.height);
+                    for(let x=0; x<=canvas.width; x+=50) {
+                        ctx.lineTo(x, (BASE_GROUND_Y - 20) + Math.cos(x * 0.007 - frameCount * 0.03) * 15);
+                    }
+                    ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
+                    ctx.restore();
+                    break;
+
+                case 'scen_neon':
+                    grad.addColorStop(0, "#0b001a"); grad.addColorStop(1, "#26004d");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    break;
+                case 'matrix':
+                    grad.addColorStop(0, "#000c02"); grad.addColorStop(1, "#000000");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    break;
+                case 'volcano':
+                    grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    break;
+                case 'forest':
+                    grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    break;
+                default: // City comum / Padrão
+                    grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); 
+                    grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    break;
+            }
         }
 
         function updateSpawningEngine() {
             let interval = Math.max(30, 80 - (currentPhase * 4));
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
-                
-                // Mapeia a altura exata do chão atual para evitar que objetos fiquem flutuando nas colinas
                 let currentGroundY = getGroundYAt(sX);
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
@@ -1014,6 +1104,7 @@
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
+        // --- ATUALIZAÇÃO DO CONSTRUTOR DA LOJA COM PREVIEWS VETORIAIS DE 50x50 EM CANVAS INDEPENDENTES ---
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -1027,11 +1118,35 @@
                     grid.innerHTML += `<div class='shop-item'><div style='font-size:10px; font-weight:bold;'>${item.name}</div><button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}')">${isUnlocked?(isEquipped?'Uso':'Equipar'):'🎬 Liberar'}</button></div>`;
                 }
             } else {
+                // RENDERIZADOR DE SKINS COM ICONE DE IMAGEM ASSEMLHADA
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
                     let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
-                    grid.innerHTML += `<div class='shop-item'><div style='font-size:10px; font-weight:bold;'>${item.name}</div><button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">${isUnlocked?(isEquipped?'Uso':'Equipar'):(item.type==='ad'?'🎬 Ver':`🪙 ${item.cost}`)}</button></div>`;
+                    
+                    // Insere o container com a tag canvas de tamanho fixado para a prévia do ícone
+                    grid.innerHTML += `
+                        <div class="shop-item">
+                            <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_${id}"></canvas>
+                            <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
+                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">
+                                ${isUnlocked?(isEquipped?'Uso':'Equipar'):(item.type==='ad'?'🎬 Ver':`🪙 ${item.cost}`)}
+                            </button>
+                        </div>`;
                 }
+
+                // Ciclo pós-DOM para desenhar as figuras idênticas dentro de cada mini preview icon
+                setTimeout(() => {
+                    for (const [id, item] of Object.entries(skinsDB)) {
+                        if (item.tab !== currentShopTab) continue;
+                        let miniC = document.getElementById(`mini_preview_${id}`);
+                        if (miniC) {
+                            let mCtx = miniC.getContext('2d');
+                            mCtx.clearRect(0,0,50,50);
+                            // Executa a função vetorial nativa da skin centralizada no meio do canvas de ícone
+                            item.render(mCtx, 25, 25, 14);
+                        }
+                    }
+                }, 10);
             }
         }
 
