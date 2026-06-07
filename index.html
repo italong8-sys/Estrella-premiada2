@@ -36,7 +36,7 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* CONTAINER MASTER RESPONSIVO (PRODUÇÃO BLINDADA) */
+        /* CONTAINER MASTER RESPONSIVO */
         #game-container {
             position: absolute;
             top: 50%;
@@ -64,7 +64,7 @@
             z-index: 1; 
         }
 
-        /* --- HUD DE STATUS AJUSTADO (AFASTADO DA ENGRENAGEM CORES) --- */
+        /* --- HUD DE STATUS AJUSTADO --- */
         .hud {
             position: absolute; 
             top: 12px; 
@@ -84,7 +84,7 @@
         .hud-accent { color: #ffe81f; }
         .hud-secondary { color: #00f2fe; }
 
-        /* --- INTERFACES DO MENU (ZONA SUPERIOR SEGURA ISOLADA) --- */
+        /* --- INTERFACES DO MENU --- */
         .settings-gear {
             position: absolute; 
             top: 10px; 
@@ -120,6 +120,22 @@
             padding: 15px;
         }
         .hidden { display: none !important; }
+
+        /* TEXTO DE ALERTA DE ANÚNCIOS INICIAL */
+        .ad-warning-banner {
+            width: 90%;
+            background: rgba(255, 0, 127, 0.15);
+            border: 1px solid #ff007f;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+        }
 
         .btn {
             background: #151530; color: #ffffff;
@@ -162,7 +178,7 @@
             100% { text-shadow: 0 0 1px #ff007f; opacity: 0.6; }
         }
 
-        /* BANNER DE ANÚNCIO CORRIGIDO (LIVRE DE IFRAME EMBARGADO) */
+        /* BANNER DE ANÚNCIO CORRIGIDO */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 800px; height: 50px;
             background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
@@ -199,29 +215,33 @@
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleMute()">🔇 Áudio</button>
-            <button class="btn btn-sm" onclick="triggerFullscreenNative()">📺 Tela Cheia</button>
+            <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte</button>
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
         <!-- Tela Principal de Pintura do Jogo -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- NOVO DESIGN DE RODAPÉ AD - TOTALMENTE ATIVO E CLICÁVEL -->
+        <!-- NOVO DESIGN DE RODAPÉ AD - CLICÁVEL -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
-            <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor">
+            <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] CLIQUE AQUI PARA GANHAR BÔNUS MULTIPLICADOR DE MOEDAS ⚡
             </a>
-            <!-- NOTA PARA DESENVOLVEDOR: Se preferir o script de banner nativo da Monetag, apague o 'a' acima e cole a tag do script aqui -->
         </div>
 
         <!-- Tela do Lobby Inicial -->
         <div id="start-screen" class="screen">
-            <h1 style="font-size:42px; color:#ffe81f; margin:0 0 2px 0; letter-spacing:4px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
-            <p style="color: #00f2fe; font-size: 11px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
+            <!-- Banner de Alerta Mandatório -->
+            <div class="ad-warning-banner">
+                Quando abrir o anúncio em outra guia do seu navegador apenas deixe carregar e feche! Não clique em baixar nada da propaganda! Nós não nos responsabilizamos pelas propagandas dentro do jogo!
+            </div>
+
+            <h1 style="font-size:38px; color:#ffe81f; margin:0 0 2px 0; letter-spacing:4px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
+            <p style="color: #00f2fe; font-size: 11px; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
 
             <button class="btn btn-primary" onclick="startGame()" style="font-size: 14px; padding: 12px 45px; letter-spacing: 1px; z-index: 20;">Iniciar Corrida</button>
             
-            <div style="margin-top: 20px; display:flex; gap:8px; z-index: 20; flex-wrap: wrap; justify-content: center;">
+            <div style="margin-top: 15px; display:flex; gap:8px; z-index: 20; flex-wrap: wrap; justify-content: center;">
                 <button class="btn btn-sm" onclick="openShop()">Lojinha Mutante</button>
                 <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
                 <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
@@ -233,7 +253,7 @@
             </div>
         </div>
 
-        <!-- Tela Game Over -->
+        <!-- Tela Game Over Comum -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 30px; margin-bottom: 5px;">Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 15px;">Distância percorrida: <span id="final-score" style="color:#ffe81f; font-size:20px; font-weight: bold;">0</span> metros</p>
@@ -241,6 +261,33 @@
             <div>
                 <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
                 <button class="btn" onclick="backToMenu()">Menu Principal</button>
+            </div>
+        </div>
+
+        <!-- Tela Game Over Exclusiva da Ferrovia de Trem -->
+        <div id="train-gameover-screen" class="screen hidden">
+            <h2 style="color: #ffaa00; font-size: 28px; margin-bottom: 5px;">💥 Você Bateu no Trem!</h2>
+            <p style="color:#fff; font-size: 13px; margin-bottom: 15px; text-align: center; max-width: 500px;">
+                Para continuar jogando nesta mesma fase ferroviária sem perder seu progresso atual, assista ao anúncio premiado!
+            </p>
+            <button class="btn" style="background:#ff007f; color:white; border:none; padding: 12px 35px; margin-bottom: 15px; font-size: 13px;" onclick="watchAdForTrainContinue()">🎬 Assistir Propaganda e Continuar</button>
+            <div>
+                <button class="btn btn-sm" onclick="backToMenuFromTrain()">Desistir e Voltar ao Menu</button>
+            </div>
+        </div>
+
+        <!-- Tela de Suporte -->
+        <div id="support-screen" class="screen hidden">
+            <div class="panel-box" style="justify-content: center; align-items: center; text-align: center;">
+                <h3 style="color: #00f2fe; margin-bottom: 15px; text-transform: uppercase;">Central de Suporte</h3>
+                <p style="font-size: 13px; color: #ffffff; max-width: 500px; line-height: 1.6; margin-bottom: 20px;">
+                    Para suporte, dúvidas, críticas, sugestões ou bugs, mande um email para:<br>
+                    <strong style="color: #ffe81f; font-size: 15px;">anjositalo200@gmail.com</strong>
+                </p>
+                <p style="font-size: 14px; color: #ff007f; font-weight: bold; margin-bottom: 25px;">
+                    Obrigado por utilizar nosso aplicativo!<br>Se divirta!
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="closeSupportScreen()">Voltar ao Menu</button>
             </div>
         </div>
 
@@ -269,7 +316,6 @@
             <p style="color: #8a8ab0; font-size: 12px; margin: 0;">Conversão: <strong style="color:#ffe81f">100 pontos = R$ 0,10</strong> | Mínimo: <strong style="color:#00f2fe">5.000 pontos (R$ 5,00)</strong></p>
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 25px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 16px;">Seu Saldo: <span id="withdraw-balance">0</span> pts</div>
             <input type="text" id="pix-key" placeholder="Insira sua Chave PIX destino">
-            <input type="password" id="pix-pass" style="display:none;" autocomplete="off"> <!-- Campo fantasma anti-bot -->
             <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 5px;">Solicitar Payout Instantâneo</button>
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px;">Voltar</button>
         </div>
@@ -307,7 +353,7 @@
 
         let canvas = null, ctx = null;
 
-        // PARÂMETROS DO MOTOR INFINITO
+        // PARAMETROS DO MOTOR INFINITO
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'star', currentShopTab = 'skins';
@@ -319,7 +365,15 @@
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['star'];
 
-        // FALBACK DE ARMAZENAMENTO ANTI-CRASH
+        // NOVAS ENTIDADES COLECIONÁVEIS
+        let itemsInGame = []; // Moedas e Escudos flutuantes
+
+        // AUDIO CONTEXT (PROCEDURAL WEB AUDIO API)
+        let audioCtx = null;
+        let musicInterval = null;
+        let beatCount = 0;
+
+        // BUFFER BACKUP BACKEND
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
             try { return localStorage.getItem(key) !== null ? localStorage.getItem(key) : fallback; } 
@@ -329,7 +383,7 @@
             try { localStorage.setItem(key, value); } catch (e) { storageBackup[key] = value; }
         }
 
-        // CARREGAMENTO SEGURO
+        // LEITURA INICIAL
         saldoPixAcumulado = Number(safeGetStorage('saldoPixAcumulado', 0));
         coins = Number(safeGetStorage('coins', 300));
         try {
@@ -352,8 +406,7 @@
         let platforms = [];
         let terrainList = [];
 
-        let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f" };
-        let parallaxScrollFar = 0, parallaxScrollMid = 0, parallaxScrollNear = 0;
+        let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
 
         function safeSetText(id, text) {
             const el = document.getElementById(id);
@@ -371,20 +424,89 @@
         }
         window.addEventListener('resize', fitGameToScreen);
 
-        // FUNÇÃO REDUNDANTE DE MONETIZAÇÃO DO BANNER
-        function callMonetagSmartlink() {
-            window.open(MONETAG_SMARTLINK, '_blank');
+        // --- SISTEMA PROCEDURAL DE ÁUDIO (NATIVO SINTETIZADO SEM ARQUIVOS) ---
+        function initAudioEngine() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            startProceduralMusic();
         }
 
-        // DISPARADOR DE ANÚNCIO DE ALTA CONVERSÃO PARA BOTÕES RECOMPENSADOS
+        function playSoundJump() {
+            if (!audioCtx || isMuted) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playSoundCoin() {
+            if (!audioCtx || isMuted) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987, audioCtx.currentTime); // Nota B5
+            osc.frequency.setValueAtTime(1318, audioCtx.currentTime + 0.07); // Nota E6
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function playSoundShield() {
+            if (!audioCtx || isMuted) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // MÚSICA DE FUNDO RETRÔ CHIPTUNE NÃO-ENJOATIVA
+        function startProceduralMusic() {
+            if (musicInterval) clearInterval(musicInterval);
+            const notes = [110, 130, 146, 165, 110, 130, 165, 196]; // Linha de baixo cyberpunk suave
+            musicInterval = setInterval(() => {
+                if (!gameActive || isMuted || !audioCtx) return;
+                try {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.type = 'triangle';
+                    let currentNote = notes[beatCount % notes.length];
+                    
+                    // Melodia randômica leve em compassos específicos para dar dinamismo
+                    if (beatCount % 4 === 2 && Math.random() > 0.4) {
+                        let mel = osc;
+                        mel.frequency.setValueAtTime(currentNote * 4, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    } else {
+                        osc.frequency.setValueAtTime(currentNote, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                    }
+                    
+                    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.38);
+                    beatCount++;
+                } catch(e){}
+            }, 220); // Andamento confortável de ~136 BPM
+        }
+
+        // MONETIZAÇÃO
+        function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
         function triggerRewardedAdCall(successCallback) {
             try {
                 let adWindow = window.open(MONETAG_SMARTLINK, '_blank');
-                if (!adWindow) {
-                    alert("Por favor, permita pop-ups no seu navegador para ver o anúncio e receber seu prêmio!");
-                }
+                if (!adWindow) { alert("Por favor, permita os anúncios pop-up para validar seu prêmio!"); }
             } catch(e) {}
-            // Executa a recompensa imediatamente após abrir o anúncio
             if(successCallback) successCallback();
         }
 
@@ -395,6 +517,7 @@
                 terrainList.push({ x: startX, w: 200, hStart: 336, hEnd: 336, type: 'flat' });
                 startX += 200;
             }
+            itemsInGame = [];
         }
 
         function updateAndGenerateTerrain() {
@@ -412,6 +535,12 @@
                 let hStart = lastSeg.hEnd;
                 let hEnd = hStart;
                 let nextType = 'flat';
+
+                // Se for bioma de trens, o chão básico se mantém plano para os trilhos
+                if (currentPhaseConfig.type === 'trains') {
+                    terrainList.push({ x: nextX, w: width, hStart: 336, hEnd: 336, type: 'flat' });
+                    return;
+                }
 
                 if (hStart === 336) {
                     if (rand < 0.22) { nextType = 'uphill'; hEnd = 260; width = 160; } 
@@ -439,6 +568,7 @@
             if (!gameActive) return;
             if (player.isJumping && !doubleJumpUnlocked) return;
             if (player.isJumping && doubleJumpUnlocked && player.jumpCount >= 2) return;
+            playSoundJump();
             if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; player.jumpCount = 1; player.onPlatform = false; } 
             else if (doubleJumpUnlocked && player.jumpCount === 1) { player.velocity = player.lift * 0.85; player.jumpCount = 2; }
         }
@@ -448,6 +578,7 @@
             player.isDucking = state; player.height = state ? 20 : 40;
         }
 
+        // CONTROLES
         window.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -457,41 +588,31 @@
             if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
         });
 
-        window.addEventListener('touchstart', (e) => {
-            if (!gameActive) return;
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear') || e.target.closest('#ad-banner-placement')) return;
-            let rect = canvas.getBoundingClientRect(); if(!rect || rect.width===0) return;
-            let touchX = e.touches[0].clientX - rect.left;
-            if ((touchX / rect.width) * 800 > 400) triggerJump(); else triggerDuck(true);
-        }, { passive: true });
-        window.addEventListener('touchend', () => { if(gameActive) triggerDuck(false); }, { passive: true });
-
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
-                { name: "Metrópole Cyber", top: "#1a0b36", bottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f" },
-                { name: "Retro Sunset", top: "#cf3d6c", bottom: "#300b20", ground: "#ffe81f", obs: "#fd1d1d" },
-                { name: "Matrix Digital", top: "#011204", bottom: "#000200", ground: "#00ff33", obs: "#ffffff" },
-                { name: "Deserto de Cristal", top: "#2c1654", bottom: "#120524", ground: "#ef4444", obs: "#ffe81f" },
-                { name: "Linhas Ferroviárias", top: "#010814", bottom: "#000105", ground: "#ffffff", obs: "#e2e8f0" },
-                { name: "Nuvem Cibernética", top: "#1f3c6d", bottom: "#ff7e5f", ground: "#00ffaa", obs: "#ff0055" },
-                { name: "Vale Vulcânico", top: "#3a0000", bottom: "#100000", ground: "#ff3300", obs: "#ffe81f" },
-                { name: "Órbita Espacial Alpha", top: "#0b001a", bottom: "#020005", ground: "#a020f0", obs: "#00f2fe" }
+                { name: "Metrópole Cyber", top: "#1a0b36", bottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" },
+                { name: "Retro Sunset", top: "#cf3d6c", bottom: "#300b20", ground: "#ffe81f", obs: "#fd1d1d", type: "mountains" },
+                { name: "Matrix Digital", top: "#011204", bottom: "#000200", ground: "#00ff33", obs: "#ffffff", type: "matrix" },
+                { name: "Deserto de Cristal", top: "#2c1654", bottom: "#120524", ground: "#ef4444", obs: "#ffe81f", type: "desert" },
+                { name: "Linhas Ferroviárias", top: "#020b1a", bottom: "#000205", ground: "#5a5a75", obs: "#e2e8f0", type: "trains" },
+                { name: "Nuvem Cibernética", top: "#1f3c6d", bottom: "#ff7e5f", ground: "#00ffaa", obs: "#ff0055", type: "clouds" }
             ];
             let index = (phase - 1) % baseBiomes.length;
             let cycle = Math.floor((phase - 1) / baseBiomes.length);
             let biome = Object.assign({}, baseBiomes[index]);
             if (cycle > 0) biome.name += ` [Hyper X${cycle + 1}]`;
             obstacleSpeed = 6.5 + (phase * 0.45);
-            if (obstacleSpeed > 16) obstacleSpeed = 16; 
+            if (obstacleSpeed > 15) obstacleSpeed = 15; 
             return biome;
         }
 
-        // --- CANVA CORE RENDERING ---
+        // --- LOOP GRÁFICO E MECÂNICO PRINCIPAL DO CANVAS ---
         function runGameLoop() {
             try {
                 if (!canvas || !ctx) {
                     canvas = document.getElementById('gameCanvas'); if (canvas) ctx = canvas.getContext('2d');
                 }
+
                 if (ctx) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     frameCount++;
@@ -507,8 +628,8 @@
                         }
 
                         updateAndGenerateTerrain();
-                        updatePlatformsAndCollisions();
-                        updateObstaclesAndCollisions();
+                        updateSpawningEngine(); // Gerencia Trens, Plataformas, Obstáculos e Itens
+                        updateEntitiesAndCollisions();
 
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
@@ -530,61 +651,148 @@
                         }
                     }
 
+                    // DRAW SKY
                     let bgGrad = ctx.createLinearGradient(0, 0, 0, 400);
                     bgGrad.addColorStop(0, currentPhaseConfig.skyTop || "#1a0b36");
                     bgGrad.addColorStop(1, currentPhaseConfig.skyBottom || "#0b0518");
                     ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 400);
 
+                    // DRAW TRACKS / CHÃO
                     if (terrainList.length > 0) {
                         ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe";
                         for (let seg of terrainList) {
                             if (seg.type !== 'hole') {
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
-                                ctx.lineTo(seg.x + seg.w, 400); ctx.lineTo(seg.x, 400); ctx.fillStyle = "rgba(5, 5, 18, 0.4)"; ctx.fill();
+                                if (currentPhaseConfig.type === 'trains') {
+                                    // Adiciona dormentes de ferrovia visuais
+                                    for(let rx = seg.x; rx < seg.x + seg.w; rx += 30) {
+                                        ctx.fillStyle = "#3e3e4f"; ctx.fillRect(rx, 336, 6, 12);
+                                    }
+                                }
                             }
                         } ctx.restore();
                     }
 
+                    // DRAW PLATFORMS / TRENS
                     platforms.forEach(plat => {
-                        ctx.save(); ctx.fillStyle = "#111126"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                        ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height); ctx.restore();
+                        ctx.save();
+                        if (plat.isTrain) {
+                            // Renderizador Estilizado de Trem Ferroviário
+                            ctx.fillStyle = "#5c0622"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                            ctx.fillStyle = "#a11241"; ctx.fillRect(plat.x + 4, plat.y + 4, plat.width - 8, plat.height - 12);
+                            // Janelas do Vagão
+                            ctx.fillStyle = "#ffe81f";
+                            for(let j=15; j < plat.width - 20; j += 40) {
+                                ctx.fillRect(plat.x + j, plat.y + 12, 18, 14);
+                            }
+                            // Frente da Locomotiva (Se for o vagão frontal)
+                            ctx.fillStyle = "#222"; ctx.fillRect(plat.x, plat.y + 6, 8, plat.height - 12);
+                        } else {
+                            ctx.fillStyle = "#111126"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                            ctx.strokeStyle = currentPhaseConfig.ground || "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+                        }
+                        ctx.restore();
                     });
 
+                    // DRAW ITEMS (MOEDAS E ESCUDOS)
+                    itemsInGame.forEach(item => {
+                        ctx.save();
+                        if (item.type === 'coin') {
+                            ctx.fillStyle = "#ffe81f"; ctx.beginPath();
+                            ctx.arc(item.x, item.y, 7, 0, Math.PI*2); ctx.fill();
+                            ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.stroke();
+                        } else if (item.type === 'shieldItem') {
+                            ctx.fillStyle = "#00f2fe"; ctx.beginPath();
+                            ctx.arc(item.x, item.y, 10, 0, Math.PI*2); ctx.fill();
+                            ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+                        }
+                        ctx.restore();
+                    });
+
+                    // DRAW OBSTACLES
                     obstacles.forEach(obs => {
                         ctx.save(); ctx.fillStyle = obs.color; ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.restore();
                     });
 
+                    // DRAW PLAYER
                     let pX = player.x + player.width / 2; let pY = player.y + player.height / 2;
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
 
                     if (shieldActive) {
                         ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width * 0.9, 0, Math.PI*2);
-                        ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+                        ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore();
                     }
                 }
             } catch (err) {}
             requestAnimationFrame(runGameLoop);
         }
 
-        function updatePlatformsAndCollisions() {
-            let spawnInterval = Math.max(25, 120 - (currentPhase * 5));
+        // --- GERENCIADOR DE SPAWN DINÂMICO ---
+        function updateSpawningEngine() {
+            let spawnInterval = Math.max(30, 120 - (currentPhase * 5));
             if (++obstacleTimer > spawnInterval) {
-                obstacleTimer = 0; let groundAhead = getGroundYAt(800);
-                if (groundAhead === 999 || Math.random() > 0.65) { platforms.push({ x: 800, y: 220, width: 140, height: 16 }); } 
-                else { let obsY = getGroundYAt(800) - 35; if(obsY < 400) obstacles.push({ x: 800, y: obsY, width: 20, height: 35, color: currentPhaseConfig.obs, passed: false }); }
-            }
-            player.onPlatform = false;
-            for (let i = platforms.length - 1; i >= 0; i--) {
-                let p = platforms[i]; p.x -= obstacleSpeed;
-                if (player.x + player.width > p.x && player.x < p.x + p.width) {
-                    let feetY = player.y + player.height;
-                    if (player.velocity >= 0 && feetY <= p.y + 6 && feetY + player.velocity >= p.y - 4) { player.onPlatform = true; player.platformTop = p.y; }
+                obstacleTimer = 0;
+                
+                if (currentPhaseConfig.type === 'trains') {
+                    // MÓDULO FERROVIÁRIO: Spawn de Trens Longos obriga corrida por cima
+                    platforms.push({
+                        x: 850, y: 260,
+                        width: 220, height: 76,
+                        isTrain: true
+                    });
+
+                    // Coloca moedas em cima do trem
+                    if(Math.random() > 0.3) {
+                        itemsInGame.push({ x: 900, y: 220, type: 'coin', collected: false });
+                        itemsInGame.push({ x: 960, y: 220, type: 'coin', collected: false });
+                    }
+                } else {
+                    // MÓDULO NORMAL: Plataformas e Obstáculos Padrões
+                    if (Math.random() > 0.6) { 
+                        platforms.push({ x: 800, y: 220, width: 140, height: 16, isTrain: false }); 
+                    } else { 
+                        let obsY = getGroundYAt(800) - 35; 
+                        if(obsY < 400) obstacles.push({ x: 800, y: obsY, width: 20, height: 35, color: currentPhaseConfig.obs, passed: false }); 
+                    }
+
+                    // Distribuição aleatória de moedas e escudos blindados
+                    if (Math.random() > 0.5) {
+                        itemsInGame.push({ x: 850, y: 190, type: 'coin', collected: false });
+                    }
+                    if (Math.random() > 0.93 && !shieldActive) {
+                        itemsInGame.push({ x: 900, y: 180, type: 'shieldItem', collected: false });
+                    }
                 }
-                if (p.x < -200) platforms.splice(i, 1);
             }
         }
 
-        function updateObstaclesAndCollisions() {
+        // --- SISTEMA FÍSICO DE COLISÕES CORRIGIDO ---
+        function updateEntitiesAndCollisions() {
+            player.onPlatform = false;
+
+            // 1. Processa Plataformas e Trens
+            for (let i = platforms.length - 1; i >= 0; i--) {
+                let p = platforms[i]; p.x -= obstacleSpeed;
+                
+                if (player.x + player.width > p.x && player.x < p.x + p.width) {
+                    let feetY = player.y + player.height;
+                    
+                    // Detecção de Pouso Seguro em Cima do Trem/Plataforma
+                    if (player.velocity >= 0 && feetY <= p.y + 10 && feetY + player.velocity >= p.y - 4) {
+                        player.onPlatform = true; player.platformTop = p.y;
+                    } 
+                    // Se bateu na frente ou lado do Trem -> Queda/Colisão Fatal
+                    else if (platOverlapsPlayer(p) && p.isTrain) {
+                        platforms.splice(i, 1);
+                        if (shieldActive) { shieldActive = false; updateHUD(); continue; }
+                        handleTrainCrashFatal();
+                        return;
+                    }
+                }
+                if (p.x < -300) platforms.splice(i, 1);
+            }
+
+            // 2. Processa Obstáculos Comuns
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i]; obs.x -= obstacleSpeed;
                 if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
@@ -594,6 +802,48 @@
                 if (!obs.passed && obs.x < player.x) { obs.passed = true; coins += 6; safeSetStorage('coins', coins); updateHUD(); }
                 if (obs.x < -100) obstacles.splice(i, 1);
             }
+
+            // 3. Processa Coleta de Moedas e Itens de Blindagem (Escudos)
+            for (let i = itemsInGame.length - 1; i >= 0; i--) {
+                let it = itemsInGame[i]; it.x -= obstacleSpeed;
+                // Colisão por Proximidade Circular
+                let pX = player.x + player.width/2; let pY = player.y + player.height/2;
+                let dist = Math.hypot(pX - it.x, pY - it.y);
+                if (dist < 28) {
+                    if (it.type === 'coin') {
+                        coins += 15; safeSetStorage('coins', coins); playSoundCoin();
+                    } else if (it.type === 'shieldItem') {
+                        shieldActive = true; playSoundShield();
+                    }
+                    itemsInGame.splice(i, 1); updateHUD(); continue;
+                }
+                if (it.x < -100) itemsInGame.splice(i, 1);
+            }
+        }
+
+        function platOverlapsPlayer(p) {
+            return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y);
+        }
+
+        // TRATAMENTO EXCLUSIVO DE IMPACTO NO TREM
+        function handleTrainCrashFatal() {
+            gameActive = false;
+            document.getElementById('train-gameover-screen').classList.remove('hidden');
+        }
+
+        function watchAdForTrainContinue() {
+            triggerRewardedAdCall(() => {
+                document.getElementById('train-gameover-screen').classList.add('hidden');
+                // Mantém a pontuação e reinicia imediatamente na mesma fase limpa
+                initTerrain();
+                player.y = 80; player.velocity = 0; player.isJumping = true;
+                gameActive = true; updateHUD();
+            });
+        }
+
+        function backToMenuFromTrain() {
+            document.getElementById('train-gameover-screen').classList.add('hidden');
+            backToMenu();
         }
 
         function handleLifeLoss() {
@@ -602,10 +852,15 @@
         }
 
         function startGame() {
+            initAudioEngine();
             document.getElementById('start-screen').classList.add('hidden');
             initTerrain(); gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0;
             obstacles = []; platforms = []; player.y = 120; player.velocity = 0; updateHUD();
         }
+
+        // --- SISTEMA DE TELAS AUXILIARES E MENUS ---
+        function openSupportScreen() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
+        function closeSupportScreen() { document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
 
         function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
@@ -639,16 +894,9 @@
         function buyPowerUpItem(id, cost) {
             if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if (id === 'shield') shieldActive = true; if (id === 'doublejump') doubleJumpUnlocked = true; if (id === 'heart') lifeBonusQueued++; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); }
         }
-
-        // ATUALIZADO: LIBERAR SKIN AGORA MONETIZA REAL COM SEU SMARTLINK
         function purchaseSkinItem(id, item) {
-            if (item.type === 'ad') {
-                triggerRewardedAdCall(() => {
-                    unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop();
-                });
-            } else { 
-                if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } 
-            }
+            if (item.type === 'ad') { triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); }); } 
+            else { if (coins >= item.cost) { coins -= item.cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; buildShop(); updateHUD(); } else { alert("Moedas insuficientes!"); } }
         }
 
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
@@ -671,20 +919,8 @@
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
-        // ATUALIZADO: ASSISTIR AD DE RESGATE DE VIDA AGORA ABRE ANÚNCIO REAL MONETAG
-        function watchAdForLife() {
-            triggerRewardedAdCall(() => {
-                lives = 1; adLifeUsed = true; player.y = 80; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true;
-            });
-        }
-
-        // ATUALIZADO: GANHO DE +1000 MOEDAS AD AGORA ABRE ANÚNCIO REAL MONETAG
-        function triggerCoinReload() {
-            triggerRewardedAdCall(() => {
-                coins += 1000; safeSetStorage('coins', coins); updateHUD();
-            });
-        }
-
+        function watchAdForLife() { triggerRewardedAdCall(() => { lives = 1; adLifeUsed = true; player.y = 80; player.velocity = 0; player.isJumping = true; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }); }
+        function triggerCoinReload() { triggerRewardedAdCall(() => { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }); }
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function verifyAdminLogin() {
@@ -706,7 +942,7 @@
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 120; player.velocity = 0; player.isJumping = true; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        // --- MODELADORES GRÁFICOS ---
+        // --- PINCEIS VETORIAIS DE RENDERING ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorDiamond(g, x, y, r, color) { g.save(); g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
@@ -735,7 +971,7 @@
             'heart': { name: '💖 Vida Extra', cost: 180, desc: 'Inicia a corrida com +1 Vida.' }
         };
 
-        // RUN ENGINE
+        // INICIALIZAÇÃO IMEDIATA DO MOTOR DE RUNTIME
         initTerrain();
         updateHUD();
         requestAnimationFrame(runGameLoop);
