@@ -22,13 +22,13 @@
         html, body {
             width: 100%; height: 100%;
             margin: 0; padding: 0;
-            background-color: var(--bg);
+            background-color: #030308;
             overflow: hidden;
             position: relative;
         }
 
         body {
-            color: var(--text);
+            color: #ffffff;
             font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
             user-select: none; -webkit-user-select: none;
         }
@@ -44,9 +44,10 @@
             border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 242, 254, 0.15);
             overflow: hidden;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) scale(1);
             transform-origin: center center;
             flex-shrink: 0;
+            display: block !important;
         }
 
         canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
@@ -83,7 +84,7 @@
 
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 3, 8, 0.88);
+            background: rgba(3, 3, 8, 0.92);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             border-radius: 16px; z-index: 10;
@@ -136,7 +137,7 @@
             100% { text-shadow: 0 0 2px #fff, 0 0 5px var(--primary); opacity: 0.5; }
         }
 
-        /* BANNER DE ANÚNCIOS REMANEJADO: FIXO ABSOLUTO SEM INTERFERIR NA INTERFACE */
+        /* BANNER DE ANÚNCIOS REMANEJADO COM SEGURANÇA NO RODAPÉ */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: #000; display: flex; align-items: center; justify-content: center;
@@ -155,9 +156,9 @@
                 <span id="hud-powerups-active" style="margin-left: 8px;"></span>
             </div>
             <div class="hud-group">
-                <div id="hud-phase-txt" style="color: var(--secondary)">Fase: 1 - Metrópole</div>
+                <div id="hud-phase-txt" style="color: #00f2fe">Fase: 1 - Metrópole Cyber</div>
                 <div>Metros: <span id="hud-score" class="hud-val">0</span>m</div>
-                <div>Banco Pix: <span id="hud-total-pix" class="hud-secondary">0</span> pts</div>
+                <div>Banco Pix: <span id="hud-total-pix" style="color:#00f2fe;">0</span> pts</div>
                 <div>Moedas: <span id="hud-coins" class="hud-accent">0</span></div>
             </div>
         </div>
@@ -172,23 +173,23 @@
 
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- BANNER MONETAG FIXO (Sem atrapalhar botões ou HUD) -->
+        <!-- BANNER MONETAG FIXO (Sem cobrir menus ou gameplay) -->
         <div id="ad-banner-placement">
             <iframe src="https://omg10.com/4/11110940" width="100%" height="50" frameborder="0" scrolling="no" style="border:none; overflow:hidden; background:#000;"></iframe>
         </div>
 
         <!-- Tela Inicial -->
         <div id="start-screen" class="screen">
-            <h1 style="font-size:48px; color:var(--accent); margin:0 0 5px 0; letter-spacing:6px; text-shadow: 0 0 15px rgba(255,232,31,0.3);">STAR RUNNER</h1>
-            <p style="color: var(--secondary); font-size: 13px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
+            <h1 style="font-size:48px; color:#ffe81f; margin:0 0 5px 0; letter-spacing:6px; text-shadow: 0 0 15px rgba(255,232,31,0.3);">STAR RUNNER</h1>
+            <p style="color: #00f2fe; font-size: 13px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 2px;">Endless Evolution</p>
 
-            <button class="btn btn-primary" onclick="startGame()" style="font-size: 16px; padding: 14px 50px; letter-spacing: 1px;">Iniciar Corrida</button>
+            <button class="btn btn-primary" onclick="startGame()" style="font-size: 16px; padding: 14px 50px; letter-spacing: 1px; z-index: 20;">Iniciar Corrida</button>
             
             <div style="margin-top: 25px; display:flex; gap:10px; z-index: 20;">
                 <button class="btn btn-sm" onclick="openShop()">Lojinha Ad-Shop</button>
                 <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
                 <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
-                <button class="btn btn-sm" onclick="triggerCoinReload()" style="border-color: var(--accent);">🎬 +1000 Moedas</button>
+                <button class="btn btn-sm" onclick="triggerCoinReload()" style="border-color: #ffe81f;">🎬 +1000 Moedas</button>
             </div>
 
             <div class="neon-notice">
@@ -198,8 +199,8 @@
 
         <!-- Tela Game Over -->
         <div id="gameover-screen" class="screen hidden">
-            <h2 style="color: var(--primary); font-size: 32px; margin-bottom: 5px;">Fim de Corrida!</h2>
-            <p style="color:#fff; margin-bottom: 20px;">Distância percorrida: <span id="final-score" style="color:var(--accent); font-size:22px; font-weight: bold;">0</span> metros</p>
+            <h2 style="color: #ff007f; font-size: 32px; margin-bottom: 5px;">Fim de Corrida!</h2>
+            <p style="color:#fff; margin-bottom: 20px;">Distância percorrida: <span id="final-score" style="color:#ffe81f; font-size:22px; font-weight: bold;">0</span> metros</p>
             <button class="btn" style="background:#28a745; color:white; border:none; padding: 12px 35px; margin-bottom: 15px;" onclick="watchAdForLife()">🎬 Resgatar Vida (Ver Anúncio)</button>
             <div>
                 <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
@@ -211,8 +212,8 @@
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h3 style="margin:0; text-transform: uppercase; color: var(--secondary); font-size: 16px;">Lojinha Mutante & Cenários</h3>
-                    <div style="font-weight:bold; color:var(--accent); font-size: 15px;">Moedas: <span id="shop-coins-txt">0</span> 🪙</div>
+                    <h3 style="margin:0; text-transform: uppercase; color: #00f2fe; font-size: 16px;">Lojinha Mutante & Cenários</h3>
+                    <div style="font-weight:bold; color:#ffe81f; font-size: 15px;">Moedas: <span id="shop-coins-txt">0</span> 🪙</div>
                 </div>
                 <div class="shop-tabs">
                     <button class="btn btn-sm" onclick="changeShopTab('skins')">Skins Criativas (Ads)</button>
@@ -229,9 +230,9 @@
         <!-- Tela de Saque Reestruturada -->
         <div id="withdraw-screen" class="screen hidden">
             <h2>Resgatar Recompensa Pix Automática</h2>
-            <p style="color: var(--text-dim);">Fórmula de Conversão: <strong style="color:var(--accent)">100 pontos = R$ 0,10</strong></p>
-            <p style="margin-top: -8px; color: var(--text-dim);">Mínimo para saque instantâneo: <strong style="color:var(--secondary)">5.000 pontos (R$ 5,00)</strong></p>
-            <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:10px 30px; border-radius:20px; color:var(--accent); font-weight:bold; margin-bottom:15px; font-size: 18px;">Seu Saldo: <span id="withdraw-balance">0</span> pts</div>
+            <p style="color: var(--text-dim);">Fórmula de Conversão: <strong style="color:#ffe81f">100 pontos = R$ 0,10</strong></p>
+            <p style="margin-top: -8px; color: var(--text-dim);">Mínimo para saque instantâneo: <strong style="color:#00f2fe">5.000 pontos (R$ 5,00)</strong></p>
+            <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:10px 30px; border-radius:20px; color:#ffe81f; font-weight:bold; margin-bottom:15px; font-size: 18px;">Seu Saldo: <span id="withdraw-balance">0</span> pts</div>
             <input type="text" id="pix-key" placeholder="Insira sua Chave PIX destinatária">
             <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 10px;">Solicitar Payout Instantâneo</button>
             <button class="btn" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 8px;">Voltar</button>
@@ -240,7 +241,7 @@
         <!-- Tela de Histórico -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="margin-top:0; color: var(--secondary)">Extrato de Transferências Pix</h3>
+                <h3 style="margin-top:0; color: #00f2fe">Extrato de Transferências Pix</h3>
                 <ul class="data-list" id="history-list-container"></ul>
                 <div style="text-align:center;"><button class="btn btn-sm" onclick="closePixHistory()">Voltar</button></div>
             </div>
@@ -257,7 +258,7 @@
 
         <div id="admin-dashboard-screen" class="screen hidden">
             <div class="panel-box" style="max-width:95%;">
-                <h3 style="margin:0 0 5px 0; color:var(--primary)">AUDITORIA AUTOMÁTICA DE PAYOUTS</h3>
+                <h3 style="margin:0 0 5px 0; color:#ff007f">AUDITORIA AUTOMÁTICA DE PAYOUTS</h3>
                 <ul class="data-list" id="admin-pending-list"></ul>
                 <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">Desconectar</button></div>
             </div>
@@ -268,8 +269,7 @@
         const MONETAG_SMARTLINK = "https://omg10.com/4/11110940";
         const URL_BACKEND_PIX = "https://estrella-premiadaofc.onrender.com/api/saque-pix";
 
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let canvas, ctx;
 
         // VARIÁVEIS DE OPERAÇÃO DO ENGINE
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
@@ -277,10 +277,7 @@
         let currentSkinId = 'star', currentShopTab = 'skins';
         let adLifeUsed = false, isMuted = false;
 
-        // ENGENHARIA DE FASES ENDLESS (A cada 500 metros uma nova fase)
         let currentPhase = 1;
-        
-        // POWER-UPS E LOJA
         let shieldActive = false;
         let doubleJumpUnlocked = false;
         let lifeBonusQueued = 0;
@@ -300,17 +297,27 @@
         let obstacles = [];
         let platforms = [];
 
-        // ESTILO PROCEDURAL DA FASE ATUAL
-        let currentPhaseConfig = { name: "Metrópole", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
+        let currentPhaseConfig = { name: "Metrópole Cyber", skyTop: "#1a0b36", skyBottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" };
 
         let parallaxScrollFar = 0;
         let parallaxScrollMid = 0;
         let parallaxScrollNear = 0;
 
-        // AUTO-ESCALA SEGURO DO CONTAINER PARA QUALQUER DISPOSITIVO/APLICATIVO
+        // AUTO-ESCALA SEGURO DO CONTAINER (Blindado contra retornos zerados/blackscreen)
         function fitGameToScreen() {
             const container = document.getElementById('game-container');
-            const scaleFactor = Math.min(window.innerWidth / 800, window.innerHeight / 400);
+            if (!container) return;
+            
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            
+            // Força fallbacks válidos caso o navegador não responda com os tamanhos a tempo
+            if (!w || w <= 0) w = 800;
+            if (!h || h <= 0) h = 400;
+
+            let scaleFactor = Math.min(w / 800, h / 400);
+            if (!scaleFactor || scaleFactor <= 0.1 || isNaN(scaleFactor)) scaleFactor = 1;
+            
             container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
         }
         window.addEventListener('resize', fitGameToScreen);
@@ -322,7 +329,11 @@
             else { document.exitFullscreen().catch(() => {}); }
         }
 
-        // MOTOR DE SINTETIZADOR DE ÁUDIO RESTRITO
+        // LEITURA DE CORES COM FALLBACK SEGURO CONTRA ATRASO VISUAL DO DOM
+        function varColor(name, fallback) { 
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; 
+        }
+
         let audioCtx = null;
         function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
         function playTone(freq, type, duration, volume = 0.04) {
@@ -336,9 +347,9 @@
         }
 
         const skinsDB = {
-            'star': { name: '⭐ Estrela Guia', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, varColor('--accent')) },
-            'diamond': { name: '💎 Diamante Ciano', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, varColor('--secondary')) },
-            'orb': { name: '🔮 Orbe de Rubi', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorOrb(g, x, y, r, varColor('--primary')) },
+            'star': { name: '⭐ Estrela Guia', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, varColor('--accent', '#ffe81f')) },
+            'diamond': { name: '💎 Diamante Ciano', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, varColor('--secondary', '#00f2fe')) },
+            'orb': { name: '🔮 Orbe de Rubi', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorOrb(g, x, y, r, varColor('--primary', '#ff007f')) },
             'ufo': { name: '🛸 Disco Alien', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorUFO(g, x, y, r, '#a020f0') },
             'bat': { name: '🦇 Morcego Sombrio', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorBat(g, x, y, r, '#ff0055') },
             'goat': { name: '🐐 Cabra Saltitante', type: 'coins', cost: 150, tab: 'bizarre', render: (g, x, y, r) => drawVectorGoat(g, x, y, r, '#d5d5d5') },
@@ -353,7 +364,6 @@
             'heart': { name: '💖 Coração Vital', cost: 180, desc: 'Inicia a corrida com +1 Vida Extra.' }
         };
 
-        // CONTROLE DE INPUTS E MOVIMENTOS DA ENGINE
         function triggerJump() {
             if (!gameActive) return;
             if (player.isJumping && !doubleJumpUnlocked) return;
@@ -387,19 +397,10 @@
             if (e.code === 'ArrowDown' || e.code === 'KeyS') triggerDuck(false);
         });
 
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            let rect = canvas.getBoundingClientRect();
-            let touchX = e.touches[0].clientX - rect.left;
-            let canvasX = (touchX / rect.width) * canvas.width;
-            if (canvasX > canvas.width / 2) triggerJump(); else triggerDuck(true);
-        });
-        canvas.addEventListener('touchend', () => { triggerDuck(false); });
-
         function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
 
-        // --- SISTEMA MATEMÁTICO DE FASES INFINITAS (CRIATIVIDADE PROCEDURAL) ---
+        // --- PROGRESSÃO DE FASES INFINITAS ---
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "Metrópole Cyber", top: "#1a0b36", bottom: "#0b0518", ground: "#00f2fe", obs: "#ff007f", type: "city" },
@@ -416,26 +417,21 @@
             let cycle = Math.floor((phase - 1) / baseBiomes.length);
             let biome = Object.assign({}, baseBiomes[index]);
 
-            if (cycle > 0) {
-                biome.name += ` [Hyper X${cycle + 1}]`;
-            }
-
-            // AJUSTE CRÍTICO DE ESCALA DE DIFICULDADE CONFORME O METRO AVANÇA
+            if (cycle > 0) biome.name += ` [Hyper X${cycle + 1}]`;
             obstacleSpeed = 6.5 + (phase * 0.45);
-            if (obstacleSpeed > 16) obstacleSpeed = 16; // Trava máxima de jogabilidade estável
+            if (obstacleSpeed > 16) obstacleSpeed = 16;
 
             return biome;
         }
 
-        // --- LAÇO DE ATUALIZAÇÃO DO JOGO GRÁFICO (RENDER ENGINE) ---
+        // --- RENDER ENGINE LOOP ---
         function runGameLoop() {
+            if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
 
             if (gameActive) {
                 score++;
-                
-                // Métrica exata exigida: 500 metros por fase
                 currentPhase = Math.floor(score / 500) + 1;
                 currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                 document.getElementById('hud-phase-txt').innerText = `Fase: ${currentPhase} - ${currentPhaseConfig.name}`;
@@ -446,7 +442,6 @@
                     updateHUD();
                 }
 
-                // Deslocamento Parallax adaptável à velocidade atual da fase
                 parallaxScrollFar -= (obstacleSpeed * 0.12);
                 parallaxScrollMid -= (obstacleSpeed * 0.35);
                 parallaxScrollNear -= obstacleSpeed;
@@ -456,7 +451,6 @@
                 if (parallaxScrollNear <= -800) parallaxScrollNear = 0;
             }
 
-            // Renderizar as camadas procedurais baseadas no bioma ativo
             drawProceduralParallaxBackground();
 
             if (gameActive) {
@@ -474,19 +468,17 @@
                 }
             }
 
-            // Renderizar Estruturas suspensas
             platforms.forEach(plat => {
                 ctx.save(); ctx.fillStyle = "rgba(12, 12, 36, 0.9)"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                 ctx.strokeStyle = currentPhaseConfig.ground; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
                 ctx.beginPath(); ctx.moveTo(plat.x, plat.y); ctx.lineTo(plat.x + plat.width, plat.y); ctx.strokeStyle = "#fff"; ctx.stroke(); ctx.restore();
             });
 
-            // Renderizar Barreiras e Trens Fixos
             obstacles.forEach(obs => {
                 ctx.save(); ctx.fillStyle = obs.color;
                 if (obs.type === 'train') {
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
-                    ctx.strokeRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 15); ctx.fillStyle = varColor('--accent');
+                    ctx.strokeRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 15); ctx.fillStyle = "#ffe81f";
                     for (let wx = obs.x + 15; wx < obs.x + obs.width - 10; wx += 25) { ctx.fillRect(wx, obs.y + 10, 12, 10); }
                 } else if (obs.isFlying) {
                     let wingAnimation = Math.sin(frameCount * 0.3) * 6; ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
@@ -498,17 +490,18 @@
             });
 
             let pX = player.x + player.width / 2; let pY = player.y + player.height / 2;
-            skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
+            if (skinsDB[currentSkinId]) {
+                skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
+            }
 
             if (shieldActive) {
                 ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width, 0, Math.PI*2);
-                ctx.strokeStyle = varColor('--secondary'); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+                ctx.strokeStyle = varColor('--secondary', '#00f2fe'); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
             }
 
             requestAnimationFrame(runGameLoop);
         }
 
-        // --- SISTEMA GRÁFICO PARALLAX BASEADO NO BIOMA DA FASE ATUAL ---
         function drawProceduralParallaxBackground() {
             let bgGrad = ctx.createRadialGradient(400, 200, 50, 400, 200, 500);
             bgGrad.addColorStop(0, currentPhaseConfig.skyTop); bgGrad.addColorStop(1, currentPhaseConfig.skyBottom);
@@ -516,7 +509,7 @@
 
             let type = currentPhaseConfig.type;
 
-            // Camada 1: Estruturas de Fundo Distantes
+            // Far Layer
             ctx.save(); ctx.fillStyle = "rgba(20, 20, 45, 0.35)";
             for (let offset of [parallaxScrollFar, parallaxScrollFar + 800]) {
                 if (type === "city" || type === "matrix") {
@@ -528,7 +521,7 @@
                 }
             } ctx.restore();
 
-            // Camada 2: Estruturas Intermediárias Média
+            // Mid Layer
             ctx.save(); ctx.fillStyle = "rgba(10, 10, 28, 0.65)";
             for (let offset of [parallaxScrollMid, parallaxScrollMid + 800]) {
                 if (type === "city" || type === "trains") {
@@ -547,7 +540,7 @@
                 }
             } ctx.restore();
 
-            // Camada 3: Detalhes Urbanos / Postes Próximos
+            // Near Layer
             ctx.save(); ctx.fillStyle = "rgba(5, 5, 15, 0.92)";
             for (let offset of [parallaxScrollNear, parallaxScrollNear + 800]) {
                 for (let hx = 0; hx < 800; hx += 200) {
@@ -559,10 +552,9 @@
                 }
             } ctx.restore();
 
-            // LINHA SÓLIDA DO CHÃO DO GAMEPLAY
+            // Chão fixo
             ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
             ctx.strokeStyle = currentPhaseConfig.ground; ctx.lineWidth = 4; ctx.stroke();
-            
             if (type === "trains") {
                 ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 2;
                 for (let tx = (parallaxScrollNear % 32); tx < 800; tx += 32) { ctx.beginPath(); ctx.moveTo(tx, 336); ctx.lineTo(tx - 6, 352); ctx.stroke(); }
@@ -572,7 +564,6 @@
 
         function updatePlatformsAndCollisions() {
             obstacleTimer++;
-            // Escalabilidade adaptada da taxa de surgimento baseada na fase infinita
             let spawnInterval = Math.max(22, 125 - (currentPhase * 6));
 
             if (obstacleTimer > spawnInterval) {
@@ -635,7 +626,7 @@
             }
         }
 
-        // --- SISTEMAS DE MENUS INTERATIVOS (AÇÕES LIMPAS E SEM TRAVAS) ---
+        // --- SISTEMAS DE MENUS ---
         function startGame() {
             if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
             document.getElementById('start-screen').classList.add('hidden');
@@ -778,7 +769,6 @@
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; document.getElementById('hud-lives').innerText = h || '💀';
         }
 
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
         function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
@@ -798,7 +788,7 @@
         }
         function drawVectorGoat(g, x, y, r, color) {
             g.save(); g.fillStyle = color; g.fillRect(x - r, y - r/2, r*1.6, r); g.fillRect(x + r/3, y - r, r/2, r);
-            ctx.fillStyle = '#444'; ctx.fillRect(x - r, y + r/2, 4, r/2); ctx.fillRect(x + r/2, y + r/2, 4, r/2);
+            g.fillStyle = '#444'; g.fillRect(x - r, y + r/2, 4, r/2); g.fillRect(x + r/2, y + r/2, 4, r/2);
             g.fillStyle = '#777'; g.beginPath(); g.moveTo(x + r/2, y - r); g.lineTo(x + r, y - r*1.3); g.lineTo(x + r/3, y - r); g.fill(); g.restore();
         }
         function drawVectorLog(g, x, y, r, color) {
@@ -815,7 +805,15 @@
             g.beginPath(); g.arc(x + r/2, y - r/2, r/1.6, 0, Math.PI*2); g.fill(); g.fillStyle = '#ff6600'; g.fillRect(x + r, y - r/2, 10, 5); g.restore();
         }
 
-        window.onload = () => { runGameLoop(); fitGameToScreen(); updateHUD(); };
+        // AMBIENTAÇÃO DE INICIALIZAÇÃO SEGURA (GARANTE CONTEXTO BINDADO APÓS CARREGAMENTO COMPLETO)
+        window.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('gameCanvas');
+            if (canvas) ctx = canvas.getContext('2d');
+            
+            fitGameToScreen();
+            updateHUD();
+            runGameLoop();
+        });
     </script>
 </body>
 </html>
