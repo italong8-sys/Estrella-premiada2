@@ -118,14 +118,14 @@
         .shop-tabs { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; flex-wrap: wrap; }
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 4px; }
         
-        /* ITEM DA LOJA ATUALIZADO COM DISPLAY DE PREVIEW */
+        /* ITEM DA LOJA COM DISPLAY DE PREVIEW */
         .shop-item { 
             background: #151530; border: 2px solid transparent; border-radius: 10px; 
             padding: 8px; display: flex; flex-direction: column; align-items: center; 
             text-align: center; justify-content: space-between; gap: 6px; 
         }
         .shop-item.selected { border-color: #ffe81f; background: rgba(255, 232, 31, 0.03); }
-        .preview-canvas-mini { background: rgba(0,0,0,0.4); border-radius: 6px; display: block; margin-bottom: 2px; }
+        .preview-canvas-mini { background: #000000; border-radius: 6px; display: block; margin-bottom: 2px; border: 1px solid rgba(255,255,255,0.1); }
 
         .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
@@ -501,15 +501,60 @@
             };
         }
 
-        // EXPANSÃO DA BASE DE CENÁRIOS COM AMBIENTES REALISTAS/CINEMATÁTICOS
+        // --- EXPANSÃO DE CENÁRIOS COM RENDERS DE PRÉVIA DE ALTA FIDELIDADE ---
         const scenariosDB = {
-            'scen_default': { name: 'Padrão Dinâmico', type: 'free', desc: 'Muda de acordo com as fases.' },
-            'scen_neon': { name: '🌌 Hiper-Espaço Neon', type: 'ad', desc: 'Fundo estelar galáctico roxo' },
-            'scen_matrix': { name: '🟢 Data Stream Alpha', type: 'ad', desc: 'Códigos binários persistentes' },
-            'scen_inferno': { name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante' },
-            'scen_cyberpunk_city': { name: '🌆 Megacidade Cyber (Realista)', type: 'ad', desc: 'Silhuetas de arranha-céus e neblina realista' },
-            'scen_aurora_boreal': { name: '🌌 Aurora Polar (Realista)', type: 'ad', desc: 'Ondas cósmicas luminescentes no céu' },
-            'scen_desert_sunset': { name: '🏜️ Deserto Quântico (Realista)', type: 'ad', desc: 'Dunas em degradê e sol poente' }
+            'scen_default': { 
+                name: 'Padrão Dinâmico', type: 'free', desc: 'Muda de acordo com as fases.',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#0a0518"); grad.addColorStop(1, "#020105");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "rgba(0,242,254,0.3)"; g.fillRect(5, h-12, w-10, 3);
+                }
+            },
+            'scen_neon': { 
+                name: '🌌 Hiper-Espaço Neon', type: 'ad', desc: 'Fundo estelar galáctico roxo',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#0b001a"); grad.addColorStop(1, "#26004d");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ffe81f"; g.fillRect(12,12,2,2); g.fillRect(32,28,1.5,1.5);
+                }
+            },
+            'scen_matrix': { 
+                name: '🟢 Data Stream Alpha', type: 'ad', desc: 'Códigos binários persistentes',
+                render: (g, w, h) => {
+                    g.fillStyle = "#000c02"; g.fillRect(0,0,w,h); g.fillStyle = "#00ff33"; g.font = "bold 8px monospace";
+                    g.fillText("10", 6, 16); g.fillText("01", 14, 32); g.fillText("11", 26, 44);
+                }
+            },
+            'scen_inferno': { 
+                name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ff5500"; g.beginPath(); g.arc(15,h,15,Math.PI,0); g.fill(); g.fillStyle = "#ffaa00"; g.fillRect(35,18,2,2);
+                }
+            },
+            'scen_cyberpunk_city': { 
+                name: '🌆 Megacidade Cyber', type: 'ad', desc: 'Silhuetas de arranha-céus e neblina realista',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#090314"); grad.addColorStop(1, "#0a0518");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "rgba(35, 15, 55, 1)"; g.fillRect(6, 18, 14, h-18); g.fillRect(24, 12, 18, h-12);
+                    g.fillStyle = "#00f2fe"; g.fillRect(10, 24, 2, 3); g.fillStyle = "#ffe81f"; g.fillRect(28, 20, 2, 3);
+                }
+            },
+            'scen_aurora_boreal': { 
+                name: '🌌 Aurora Polar', type: 'ad', desc: 'Ondas cósmicas luminescentes no céu',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#020514"); grad.addColorStop(1, "#01040d");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.strokeStyle = "rgba(0, 255, 150, 0.7)"; g.lineWidth = 2.5;
+                    g.beginPath(); g.moveTo(0,18); g.bezierCurveTo(15,6,35,26,w,12); g.stroke();
+                }
+            },
+            'scen_desert_sunset': { 
+                name: '🏜️ Deserto Quântico', type: 'ad', desc: 'Dunas em degradê e sol poente',
+                render: (g, w, h) => {
+                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#5c0c22"); grad.addColorStop(1, "#f2a104");
+                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ffffff"; g.beginPath(); g.arc(w*0.7, 26, 6, 0, Math.PI*2); g.fill();
+                    g.fillStyle = "#1c000a"; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(w/2, h-12, w, h-4); g.lineTo(w, h); g.closePath(); g.fill();
+                }
+            }
         };
 
         // CONTROLES DE ENTRADA CORRIGIDOS (APENAS PULO)
@@ -573,7 +618,7 @@
             }, 230);
         }
 
-        // --- ENGENHARIA DO TERRENO PROCEDURAL (SLOPES E ABISMOS) ---
+        // --- TERRENO PROCEDURAL ---
         function initTerrain() {
             if(!canvas) resizeEngineCanvas();
             terrainList = []; let startX = 0;
@@ -781,7 +826,7 @@
                                 ctx.closePath(); ctx.fill();
                                 
                                 ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
                             } else {
                                 ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x, canvas.height); ctx.stroke();
@@ -827,12 +872,9 @@
             requestAnimationFrame(runGameLoop);
         }
 
-        // --- ENGENHARIA VISUAL AVANÇADA: RENDERIZADOR DE CENÁRIOS REALISTAS ---
         function renderBackgroundScenariosLayer() {
             let activeScenario = currentScenarioId;
-            if (activeScenario === 'scen_default') {
-                activeScenario = currentPhaseConfig.type;
-            }
+            if (activeScenario === 'scen_default') activeScenario = currentPhaseConfig.type;
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
 
@@ -841,32 +883,24 @@
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.save(); ctx.fillStyle = "rgba(255, 232, 31, 0.4)";
                 for(let i=0; i<30; i++) ctx.fillRect((canvas.width*0.04*i + frameCount*1.5)%canvas.width, 30 + (i*17)%260, 2.5, 2.5);
-                ctx.restore();
-                return;
+                ctx.restore(); return;
             }
 
-            // SWITCH DE CENÁRIOS ATIVOS DURANTE A PARTIDA
             switch(activeScenario) {
                 case 'scen_cyberpunk_city':
-                    // Degradê atmosférico de metrópole real em neblina
                     grad.addColorStop(0, "#090314"); grad.addColorStop(0.5, "#1f0f33"); grad.addColorStop(1, "#0a0518");
                     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    ctx.save();
-                    // Camada Distante de Prédios (Paralaxe Lento)
-                    ctx.fillStyle = "rgba(20, 10, 35, 0.7)";
+                    ctx.save(); ctx.fillStyle = "rgba(20, 10, 35, 0.7)";
                     for(let i=0; i<15; i++) {
                         let w = 90; let h = 260 + (i * 13) % 110;
                         let x = (i * 110 - frameCount * 0.3) % (canvas.width + w) - w;
                         ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
                     }
-                    // Camada Próxima de Prédios com Janelas Realistas
                     ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
                     for(let i=0; i<12; i++) {
                         let w = 120; let h = 180 + (i * 29) % 140;
                         let x = (i * 160 - frameCount * 0.9) % (canvas.width + w) - w;
                         ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                        // Desenha pequenas janelas neon amarelas/azuis fixas nos prédios
                         ctx.fillStyle = (i % 2 === 0) ? "#00f2fe" : "#ffe81f";
                         for(let wx = x + 15; wx < x + w - 20; wx += 25) {
                             for(let wy = BASE_GROUND_Y - h + 20; wy < BASE_GROUND_Y - 10; wy += 35) {
@@ -875,85 +909,58 @@
                         }
                         ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
                     }
-                    ctx.restore();
-                    break;
+                    ctx.restore(); break;
 
                 case 'scen_aurora_boreal':
-                    // Céu estrelado polar profundo
                     grad.addColorStop(0, "#020514"); grad.addColorStop(0.7, "#051226"); grad.addColorStop(1, "#01040d");
                     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    ctx.save();
-                    // Render de estrelas fixas reais
-                    ctx.fillStyle = "rgba(255,255,255,0.6)";
+                    ctx.save(); ctx.fillStyle = "rgba(255,255,255,0.6)";
                     for(let i=0; i<40; i++) ctx.fillRect((i*47)%canvas.width, (i*31)%220, 1.5, 1.5);
-                    
-                    // Ondas orgânicas da Aurora Boreal ondulando com Math.sin
                     for(let layer=0; layer<3; layer++) {
                         let alpha = 0.06 - (layer * 0.015);
                         ctx.fillStyle = layer === 0 ? `rgba(0, 255, 150, ${alpha})` : (layer === 1 ? `rgba(0, 242, 254, ${alpha})` : `rgba(124, 0, 254, ${alpha})`);
-                        ctx.beginPath();
-                        ctx.moveTo(0, canvas.height);
+                        ctx.beginPath(); ctx.moveTo(0, canvas.height);
                         for(let x=0; x<=canvas.width; x+=40) {
                             let yOffset = Math.sin((x * 0.003) + (frameCount * 0.015) + layer) * 60;
                             ctx.lineTo(x, 100 + (layer * 40) + yOffset);
                         }
-                        ctx.lineTo(canvas.width, canvas.height);
-                        ctx.closePath(); ctx.fill();
+                        ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
                     }
-                    ctx.restore();
-                    break;
+                    ctx.restore(); break;
 
                 case 'scen_desert_sunset':
-                    // Pôr do sol realista em degradê escalonado
-                    grad.addColorStop(0, "#1f0314"); grad.addColorStop(0.3, "#5c0c22"); 
-                    grad.addColorStop(0.6, "#d9381e"); grad.addColorStop(0.8, "#f2a104"); grad.addColorStop(1, "#ffe81f");
+                    grad.addColorStop(0, "#1f0314"); grad.addColorStop(0.3, "#5c0c22"); grad.addColorStop(0.6, "#d9381e"); grad.addColorStop(0.8, "#f2a104"); grad.addColorStop(1, "#ffe81f");
                     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    ctx.save();
-                    // Sol Gigante Poente
-                    ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 40; ctx.shadowColor = "#ffaa00";
+                    ctx.save(); ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 40; ctx.shadowColor = "#ffaa00";
                     ctx.beginPath(); ctx.arc(canvas.width * 0.75, BASE_GROUND_Y + 10, 75, 0, Math.PI * 2); ctx.fill();
-                    ctx.shadowBlur = 0; // Reseta o blur do motor
-                    
-                    // Montanhas/Dunas procedurais de areia em camadas de silhueta
-                    ctx.fillStyle = "#3d0319";
+                    ctx.shadowBlur = 0; ctx.fillStyle = "#3d0319";
                     ctx.beginPath(); ctx.moveTo(0, canvas.height);
                     for(let x=0; x<=canvas.width; x+=50) {
                         ctx.lineTo(x, (BASE_GROUND_Y - 60) + Math.sin(x * 0.005 - frameCount * 0.01) * 20);
                     }
                     ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
-
-                    ctx.fillStyle = "#1c000a";
-                    ctx.beginPath(); ctx.moveTo(0, canvas.height);
+                    ctx.fillStyle = "#1c000a"; ctx.beginPath(); ctx.moveTo(0, canvas.height);
                     for(let x=0; x<=canvas.width; x+=50) {
                         ctx.lineTo(x, (BASE_GROUND_Y - 20) + Math.cos(x * 0.007 - frameCount * 0.03) * 15);
                     }
                     ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
-                    ctx.restore();
-                    break;
+                    ctx.restore(); break;
 
                 case 'scen_neon':
                     grad.addColorStop(0, "#0b001a"); grad.addColorStop(1, "#26004d");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
                 case 'matrix':
                     grad.addColorStop(0, "#000c02"); grad.addColorStop(1, "#000000");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
                 case 'volcano':
                     grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
                 case 'forest':
                     grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
-                default: // City comum / Padrão
-                    grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); 
-                    grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
+                default:
+                    grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
             }
         }
 
@@ -1030,21 +1037,13 @@
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
-        
-        function handleTrainCrashFatal() { 
-            gameActive = false; 
-            triggerRewardedAdCall(() => {
-                document.getElementById('train-gameover-screen').classList.remove('hidden');
-            }, true);
-        }
+        function handleTrainCrashFatal() { gameActive = false; triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.remove('hidden'); }, true); }
         
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
                 gameActive = false; safeSetText('final-score', score); 
-                triggerRewardedAdCall(() => {
-                    document.getElementById('gameover-screen').classList.remove('hidden');
-                }, true);
+                triggerRewardedAdCall(() => { document.getElementById('gameover-screen').classList.remove('hidden'); }, true);
             } 
         }
 
@@ -1104,7 +1103,7 @@
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
-        // --- ATUALIZAÇÃO DO CONSTRUTOR DA LOJA COM PREVIEWS VETORIAIS DE 50x50 EM CANVAS INDEPENDENTES ---
+        // --- SISTEMA CORRIGIDO E SINCRONIZADO DE MINI PREVIEWS (SKINS E CENÁRIOS) ---
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -1115,38 +1114,52 @@
             } else if (currentShopTab === 'scenarios') {
                 for (const [id, item] of Object.entries(scenariosDB)) {
                     let isUnlocked = unlockedScenarios.includes(id); let isEquipped = (currentScenarioId === id);
-                    grid.innerHTML += `<div class='shop-item'><div style='font-size:10px; font-weight:bold;'>${item.name}</div><button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}')">${isUnlocked?(isEquipped?'Uso':'Equipar'):'🎬 Liberar'}</button></div>`;
+                    grid.innerHTML += `
+                        <div class="shop-item">
+                            <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_scen_${id}"></canvas>
+                            <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
+                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}')">
+                                ${isUnlocked?(isEquipped?'Uso':'Equipar'):'🎬 Liberar'}
+                            </button>
+                        </div>`;
                 }
+                // Renderização imediata e segura dos cenários realistas em miniatura
+                setTimeout(() => {
+                    for (const [id, item] of Object.entries(scenariosDB)) {
+                        let miniC = document.getElementById(`mini_preview_scen_${id}`);
+                        if (miniC) {
+                            let mCtx = miniC.getContext('2d');
+                            mCtx.clearRect(0, 0, 50, 50);
+                            if (item.render) item.render(mCtx, 50, 50);
+                        }
+                    }
+                }, 20);
             } else {
-                // RENDERIZADOR DE SKINS COM ICONE DE IMAGEM ASSEMLHADA
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
                     let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
                     
-                    // Insere o container com a tag canvas de tamanho fixado para a prévia do ícone
                     grid.innerHTML += `
                         <div class="shop-item">
-                            <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_${id}"></canvas>
+                            <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_skin_${id}"></canvas>
                             <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
                             <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">
                                 ${isUnlocked?(isEquipped?'Uso':'Equipar'):(item.type==='ad'?'🎬 Ver':`🪙 ${item.cost}`)}
                             </button>
                         </div>`;
                 }
-
-                // Ciclo pós-DOM para desenhar as figuras idênticas dentro de cada mini preview icon
+                // Renderização imediata e segura dos vetores das figuras de skins
                 setTimeout(() => {
                     for (const [id, item] of Object.entries(skinsDB)) {
                         if (item.tab !== currentShopTab) continue;
-                        let miniC = document.getElementById(`mini_preview_${id}`);
+                        let miniC = document.getElementById(`mini_preview_skin_${id}`);
                         if (miniC) {
                             let mCtx = miniC.getContext('2d');
-                            mCtx.clearRect(0,0,50,50);
-                            // Executa a função vetorial nativa da skin centralizada no meio do canvas de ícone
+                            mCtx.clearRect(0, 0, 50, 50);
                             item.render(mCtx, 25, 25, 14);
                         }
                     }
-                }, 10);
+                }, 20);
             }
         }
 
