@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Engine Evolution Master</title>
+    <title>Star Runner - Ultimate Responsive Edition</title>
     <style>
         /* --- SISTEMA DE VARIÁVEIS VISUAIS NEON E DINÂMICAS --- */
         :root {
@@ -24,7 +24,7 @@
             margin: 0; padding: 0;
             background-color: var(--bg);
             overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+            position: relative;
         }
 
         body {
@@ -33,15 +33,19 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Container do Jogo Responsivo com Auto-Escala Perfeita */
+        /* CONTAINER COM CORREÇÃO DE RESOLUÇÃO ABSOLUTA UNIVERSAL */
         #game-container {
-            position: relative;
-            width: 800px; height: 400px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 800px;
+            height: 400px;
             background: #000;
             border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 242, 254, 0.15);
             overflow: hidden;
-            transform-origin: center;
+            transform: translate(-50%, -50%);
+            transform-origin: center center;
             flex-shrink: 0;
         }
 
@@ -60,7 +64,7 @@
         .hud-accent { color: var(--accent); }
         .hud-secondary { color: var(--secondary); }
 
-        /* --- MENUS E INTERFACES INTEGRADAS --- */
+        /* --- MENUS E INTERFACES --- */
         .settings-gear {
             position: absolute; top: 12px; right: 15px;
             font-size: 26px; cursor: pointer; z-index: 100;
@@ -87,7 +91,6 @@
         }
         .hidden { display: none !important; }
 
-        /* BOTÕES VISUAIS PREMIUM */
         .btn {
             background: var(--surface-light); color: var(--text);
             border: 1px solid rgba(255,255,255,0.1);
@@ -105,7 +108,6 @@
         .btn-primary:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 0, 127, 0.6); }
         .btn-sm { padding: 6px 14px; font-size: 11px; border-radius: 15px; }
 
-        /* INPUTS */
         input[type="text"] {
             padding: 12px 20px; border-radius: 25px; border: 1px solid rgba(0, 242, 254, 0.2);
             background: var(--surface-light); color: white; margin: 8px 0; width: 260px; text-align: center; font-size: 14px;
@@ -121,7 +123,6 @@
         .data-list { width: 100%; max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 0; list-style: none; }
         .data-item { background: var(--surface-light); margin-bottom: 6px; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 
-        /* --- LETREIRO NEON PISCANTE DE ADVERTÊNCIA --- */
         .neon-notice {
             position: absolute; bottom: 65px; left: 5%; width: 90%;
             text-align: center; font-size: 11px; font-weight: bold;
@@ -164,7 +165,7 @@
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleMute()">🔇 Mutar Efeitos</button>
-            <button class="btn btn-sm" onclick="toggleFullScreen()">📺 Tela Cheia</button>
+            <button class="btn btn-sm" onclick="triggerFullscreenNative()">📺 Tela Cheia</button>
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:var(--primary); color:white;">🔒 Acesso Dev</button>
         </div>
 
@@ -263,20 +264,17 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DE LINKS E GATEWAYS ---
         const MONETAG_SMARTLINK = "https://omg10.com/4/11110940";
         const URL_BACKEND_PIX = "https://estrella-premiadaofc.onrender.com/api/saque-pix";
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // VARIÁVEIS DO MOTOR
         let gameActive = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'star', currentShopTab = 'skins';
         let adLifeUsed = false, isMuted = false;
 
-        // SISTEMA DE ESTÁGIOS / AMBIENTES DINÂMICOS
         let currentPhase = 1;
         const phaseNames = {
             1: "Fase 1 - Metrópole (Dia)",
@@ -287,18 +285,15 @@
             6: "Fase 6 - Overdrive Final (Tormenta)"
         };
 
-        // ENGENHARIA DE POWER-UPS COM MOEDAS AMARELAS
         let shieldActive = false;
         let doubleJumpUnlocked = false;
         let lifeBonusQueued = 0;
 
-        // PERSISTÊNCIA LOCAL
         let saldoPixAcumulado = Number(localStorage.getItem('saldoPixAcumulado')) || 0;
         let coins = Number(localStorage.getItem('coins')) || 300;
         let pixHistoryData = JSON.parse(localStorage.getItem('pixHistoryData')) || [];
         let unlockedSkins = JSON.parse(localStorage.getItem('unlockedSkins')) || ['star'];
 
-        // CONTROLE DA PLAYER PHYSICS (Estilo Plataforma Sonic/Mario)
         const player = {
             x: 100, y: 290, width: 44, height: 44,
             gravity: 0.68, lift: -13.5, velocity: 0,
@@ -306,20 +301,45 @@
             onPlatform: false, platformTop: 290
         };
 
-        // ENTIDADES DO ECOSSISTEMA
         let obstacles = [];
-        let platforms = []; // Estruturas de plataforma estilo Mario/Sonic
+        let platforms = [];
 
-        // ELEMENTOS GRÁFICOS PROCEDURAIS PARA O PARALLAX REALISTA
         let skyGradientTop = "#110f2c", skyGradientBottom = "#05050a";
         let groundStrokeColor = "#00f2fe";
 
-        // CONFIGURAÇÃO DOS BACKGROUND ELEMENTS FIXOS E EM CAMADAS
         let parallaxScrollFar = 0;
         let parallaxScrollMid = 0;
         let parallaxScrollNear = 0;
 
-        // AUDIO ENGINE
+        // FUNÇÃO DE AUTO-ESCALA MATEMÁTICA CORRIGIDA PARA TELA CHEIA INTEGRAL
+        function fitGameToScreen() {
+            const container = document.getElementById('game-container');
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Calcula qual o melhor fator de escala para preencher a tela sem distorcer o layout do canvas
+            const scaleX = windowWidth / 800;
+            const scaleY = windowHeight / 400;
+            const scaleFactor = Math.min(scaleX, scaleY);
+            
+            // Aplica a escala combinada com a centralização absoluta perfeita
+            container.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
+        }
+        
+        // Escuta os eventos de redimensionamento e rotação de tela do celular
+        window.addEventListener('resize', fitGameToScreen);
+        window.addEventListener('orientationchange', () => { setTimeout(fitGameToScreen, 200); });
+
+        // SISTEMA NATIVO SEGURO DE DISPARO DE TELA CHEIA VIA TOQUE
+        function triggerFullscreenNative() {
+            toggleSettingsMenu();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
         let audioCtx = null;
         function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
         function playTone(freq, type, duration, volume = 0.04) {
@@ -332,16 +352,12 @@
             } catch(e){}
         }
 
-        // --- BANCO DE DADOS INTEGRADO DA LOJA MASSIFICADA ---
         const skinsDB = {
-            // GUIA ANÚNCIOS (Skins Criativas)
             'star': { name: '⭐ Estrela Guia', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorStar(g, x, y, 5, r, r/2, varColor('--accent')) },
             'diamond': { name: '💎 Diamante Ciano', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorDiamond(g, x, y, r, varColor('--secondary')) },
             'orb': { name: '🔮 Orbe de Rubi', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorOrb(g, x, y, r, varColor('--primary')) },
             'ufo': { name: '🛸 Disco Alien', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorUFO(g, x, y, r, '#a020f0') },
             'bat': { name: '🦇 Morcego Sombrio', type: 'ad', tab: 'skins', render: (g, x, y, r) => drawVectorBat(g, x, y, r, '#ff0055') },
-            
-            // GUIA MOEDAS AMARELAS (Skins Bizarras e Aleatórias)
             'goat': { name: '🐐 Cabra Saltitante', type: 'coins', cost: 150, tab: 'bizarre', render: (g, x, y, r) => drawVectorGoat(g, x, y, r, '#d5d5d5') },
             'log': { name: '🪵 Toco de Madeira', type: 'coins', cost: 100, tab: 'bizarre', render: (g, x, y, r) => drawVectorLog(g, x, y, r, '#8b5a2b') },
             'tv': { name: '📺 TV de Tubo', type: 'coins', cost: 200, tab: 'bizarre', render: (g, x, y, r) => drawVectorTV(g, x, y, r, '#444454') },
@@ -354,22 +370,16 @@
             'heart': { name: '💖 Coração Vital', cost: 180, desc: 'Inicia a corrida com +1 Vida Extra.' }
         };
 
-        // CONTROLES DE MOVIMENTO E REDIRECIONAMENTO DE ADS
         function triggerJump() {
             if (!gameActive) return;
             if (player.isJumping && !doubleJumpUnlocked) return;
             if (player.isJumping && doubleJumpUnlocked && player.jumpCount >= 2) return;
 
             if (!player.isJumping) {
-                player.velocity = player.lift;
-                player.isJumping = true;
-                player.jumpCount = 1;
-                player.onPlatform = false;
+                player.velocity = player.lift; player.isJumping = true; player.jumpCount = 1; player.onPlatform = false;
             } else if (doubleJumpUnlocked && player.jumpCount === 1) {
-                player.velocity = player.lift * 0.9; // Segundo pulo ligeiramente menor
-                player.jumpCount = 2;
-                playTone(350, 'square', 0.08, 0.04);
-                return;
+                player.velocity = player.lift * 0.9; player.jumpCount = 2;
+                playTone(350, 'square', 0.08, 0.04); return;
             }
             playTone(280, 'square', 0.08, 0.04);
         }
@@ -378,15 +388,12 @@
             if (!gameActive) return;
             player.isDucking = state;
             if (state) {
-                player.height = 22;
-                if (!player.isJumping && !player.onPlatform) player.y = 290 + 22;
+                player.height = 22; if (!player.isJumping && !player.onPlatform) player.y = 290 + 22;
             } else {
-                player.height = 44;
-                if (!player.isJumping && !player.onPlatform) player.y = 290;
+                player.height = 44; if (!player.isJumping && !player.onPlatform) player.y = 290;
             }
         }
 
-        // CAPTURA INTELIGENTE DE ENTRADAS (Isolada de inputs alheios)
         window.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -405,28 +412,22 @@
         });
         canvas.addEventListener('touchend', () => { triggerDuck(false); });
 
-        // --- DINÂMICA DE ATUALIZAÇÃO ATMOSFÉRICA / PROGRESSÃO DE FASES ---
+        function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
+        function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
+
         function updateEnvironmentAesthetic() {
             currentPhase = Math.min(6, Math.floor(score / 200) + 1);
             document.getElementById('hud-phase-txt').innerText = phaseNames[currentPhase];
-
             switch(currentPhase) {
-                case 1: // Metrópole Dia
-                    skyGradientTop = "#1a0b36"; skyGradientBottom = "#0b0518"; groundStrokeColor = "#00f2fe"; break;
-                case 2: // Torres Entardecer
-                    skyGradientTop = "#cf3d6c"; skyGradientBottom = "#300b20"; groundStrokeColor = "#ffe81f"; break;
-                case 3: // Montanhas Noite
-                    skyGradientTop = "#020210"; skyGradientBottom = "#080826"; groundStrokeColor = "#ff007f"; break;
-                case 4: // Linhas de Trem (Madrugada escura)
-                    skyGradientTop = "#010814"; skyGradientBottom = "#000105"; groundStrokeColor = "#ffffff"; break;
-                case 5: // Suburbia Amanhecer
-                    skyGradientTop = "#1f3c6d"; skyGradientBottom = "#ff7e5f"; groundStrokeColor = "#00ffaa"; break;
-                case 6: // Overdrive Storm
-                    skyGradientTop = "#0d020d"; skyGradientBottom = "#260526"; groundStrokeColor = "#ff0055"; break;
+                case 1: skyGradientTop = "#1a0b36"; skyGradientBottom = "#0b0518"; groundStrokeColor = "#00f2fe"; break;
+                case 2: skyGradientTop = "#cf3d6c"; skyGradientBottom = "#300b20"; groundStrokeColor = "#ffe81f"; break;
+                case 3: skyGradientTop = "#020210"; skyGradientBottom = "#080826"; groundStrokeColor = "#ff007f"; break;
+                case 4: skyGradientTop = "#010814"; skyGradientBottom = "#000105"; groundStrokeColor = "#ffffff"; break;
+                case 5: skyGradientTop = "#1f3c6d"; skyGradientBottom = "#ff7e5f"; groundStrokeColor = "#00ffaa"; break;
+                case 6: skyGradientTop = "#0d020d"; skyGradientBottom = "#260526"; groundStrokeColor = "#ff0055"; break;
             }
         }
 
-        // --- MOTOR GRÁFICO DO LAÇO PRINCIPAL (RENDERING ENGINE) ---
         function runGameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
@@ -440,7 +441,6 @@
                 }
                 updateEnvironmentAesthetic();
 
-                // Movimentação das camadas Parallax
                 parallaxScrollFar -= (obstacleSpeed * 0.15);
                 parallaxScrollMid -= (obstacleSpeed * 0.4);
                 parallaxScrollNear -= obstacleSpeed;
@@ -450,15 +450,12 @@
                 if (parallaxScrollNear <= -800) parallaxScrollNear = 0;
             }
 
-            // 1. DESENHO DO PLANO DE FUNDO PROCEDURAL REALISTA
             drawParallaxBackground();
 
-            // 2. PROCESSAMENTO DE ESTRUTURAS DE PLATAFORMA (Estilo Mario/Sonic)
             if (gameActive) {
                 updatePlatformsAndCollisions();
                 updateObstaclesAndCollisions();
                 
-                // Aplicar física da gravidade no jogador
                 player.velocity += player.gravity;
                 player.y += player.velocity;
 
@@ -466,58 +463,32 @@
                 let currentFloor = player.onPlatform ? player.platformTop - player.height : groundLevel;
 
                 if (player.y >= currentFloor) {
-                    player.y = currentFloor;
-                    player.velocity = 0;
-                    player.isJumping = false;
-                    player.jumpCount = 0;
+                    player.y = currentFloor; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
                 }
             }
 
-            // Renderizar Plataformas
             platforms.forEach(plat => {
-                ctx.save();
-                ctx.fillStyle = "rgba(20, 20, 50, 0.9)";
-                ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                ctx.strokeStyle = groundStrokeColor;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
-                
-                // Detalhe de luz neon na borda superior da plataforma para destaque
-                ctx.beginPath(); ctx.moveTo(plat.x, plat.y); ctx.lineTo(plat.x + plat.width, plat.y);
-                ctx.strokeStyle = "#fff"; ctx.stroke();
-                ctx.restore();
+                ctx.save(); ctx.fillStyle = "rgba(20, 20, 50, 0.9)"; ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.strokeStyle = groundStrokeColor; ctx.lineWidth = 2; ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.beginPath(); ctx.moveTo(plat.x, plat.y); ctx.lineTo(plat.x + plat.width, plat.y); ctx.strokeStyle = "#fff"; ctx.stroke(); ctx.restore();
             });
 
-            // Renderizar Obstáculos (Incluindo Trens e Sinais)
             obstacles.forEach(obs => {
-                ctx.save();
-                ctx.fillStyle = obs.color;
+                ctx.save(); ctx.fillStyle = obs.color;
                 if (obs.type === 'train') {
-                    // Desenho estilizado de Vagão de Trem em Linhas Ferroviárias
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
-                    ctx.strokeRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 15);
-                    // Janelas do Trem acesas
-                    ctx.fillStyle = varColor('--accent');
-                    for (let wx = obs.x + 15; wx < obs.x + obs.width - 10; wx += 25) {
-                        ctx.fillRect(wx, obs.y + 10, 12, 10);
-                    }
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
+                    ctx.strokeRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 15); ctx.fillStyle = varColor('--accent');
+                    for (let wx = obs.x + 15; wx < obs.x + obs.width - 10; wx += 25) { ctx.fillRect(wx, obs.y + 10, 12, 10); }
                 } else if (obs.isFlying) {
-                    let wingAnimation = Math.sin(frameCount * 0.3) * 6;
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    let wingAnimation = Math.sin(frameCount * 0.3) * 6; ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                     ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 2, obs.y - 3 + wingAnimation, 6, 3);
-                } else {
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                }
+                } else { ctx.fillRect(obs.x, obs.y, obs.width, obs.height); }
                 ctx.restore();
             });
 
-            // Desenhar Personagem / Objeto Ativo Livre Selecionado
-            let pX = player.x + player.width / 2;
-            let pY = player.y + player.height / 2;
+            let pX = player.x + player.width / 2; let pY = player.y + player.height / 2;
             skinsDB[currentSkinId].render(ctx, pX, pY, player.width / 2);
 
-            // Desenhar efeito visual do escudo se estiver ativo
             if (shieldActive) {
                 ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width, 0, Math.PI*2);
                 ctx.strokeStyle = varColor('--secondary'); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
@@ -526,98 +497,72 @@
             requestAnimationFrame(runGameLoop);
         }
 
-        // --- ARQUITETURA DE DESENHO PARALLAX PROCEDURAL ---
         function drawParallaxBackground() {
             let bgGrad = ctx.createRadialGradient(400, 200, 50, 400, 200, 500);
             bgGrad.addColorStop(0, skyGradientTop); bgGrad.addColorStop(1, skyGradientBottom);
             ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // CAMADA 1: Montanhas Distantes (Far Layer)
+            // Camada Far
             ctx.save(); ctx.fillStyle = "rgba(15, 10, 35, 0.4)";
             for (let offset of [parallaxScrollFar, parallaxScrollFar + 800]) {
-                ctx.beginPath(); ctx.moveTo(offset, 336);
-                ctx.lineTo(offset + 150, 180); ctx.lineTo(offset + 300, 240);
-                ctx.lineTo(offset + 500, 150); ctx.lineTo(offset + 650, 260);
-                ctx.lineTo(offset + 800, 336); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(offset, 336); ctx.lineTo(offset + 150, 180); ctx.lineTo(offset + 300, 240);
+                ctx.lineTo(offset + 500, 150); ctx.lineTo(offset + 650, 260); ctx.lineTo(offset + 800, 336); ctx.fill();
             } ctx.restore();
 
-            // CAMADA 2: Cidades, Prédios e Torres Silhuetas (Mid Layer)
+            // Camada Mid
             ctx.save(); ctx.fillStyle = "rgba(8, 8, 22, 0.7)";
             for (let offset of [parallaxScrollMid, parallaxScrollMid + 800]) {
-                ctx.fillRect(offset + 20, 120, 60, 216);
-                ctx.fillRect(offset + 110, 90, 70, 246);
+                ctx.fillRect(offset + 20, 120, 60, 216); ctx.fillRect(offset + 110, 90, 70, 246);
                 ctx.beginPath(); ctx.moveTo(offset + 240, 336); ctx.lineTo(offset + 250, 80); ctx.lineTo(offset + 260, 336); ctx.fill();
-                ctx.fillRect(offset + 320, 160, 55, 176);
-                ctx.fillRect(offset + 420, 110, 80, 226);
-                ctx.fillRect(offset + 560, 140, 65, 196);
-                ctx.fillRect(offset + 680, 70, 50, 266);
+                ctx.fillRect(offset + 320, 160, 55, 176); ctx.fillRect(offset + 420, 110, 80, 226);
+                ctx.fillRect(offset + 560, 140, 65, 196); ctx.fillRect(offset + 680, 70, 50, 266);
             } ctx.restore();
 
-            // CAMADA 3: Casas, Linhas de Trem e Postes de Luz Próximos (Near Layer)
+            // Camada Near
             ctx.save(); ctx.fillStyle = "rgba(4, 4, 10, 0.95)";
             for (let offset of [parallaxScrollNear, parallaxScrollNear + 800]) {
                 for (let hx = 0; hx < 800; hx += 160) {
-                    ctx.beginPath(); ctx.moveTo(offset + hx, 336);
-                    ctx.lineTo(offset + hx + 25, 300); ctx.lineTo(offset + hx + 50, 336); ctx.fill();
-                    ctx.fillRect(offset + hx + 90, 220, 4, 116);
-                    ctx.save(); ctx.fillStyle = groundStrokeColor;
-                    ctx.fillRect(offset + hx + 86, 220, 12, 3); ctx.restore();
+                    ctx.beginPath(); ctx.moveTo(offset + hx, 336); ctx.lineTo(offset + hx + 25, 300); ctx.lineTo(offset + hx + 50, 336); ctx.fill();
+                    ctx.fillRect(offset + hx + 90, 220, 4, 116); ctx.save(); ctx.fillStyle = groundStrokeColor; ctx.fillRect(offset + hx + 86, 220, 12, 3); ctx.restore();
                 }
             } ctx.restore();
 
-            // CHÃO / LINHA DE TREM FIXA DE SUPORTE
-            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336);
-            ctx.strokeStyle = groundStrokeColor; ctx.lineWidth = 4; ctx.stroke();
-            
+            // Chão fixo
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 336); ctx.lineTo(800, 336); ctx.strokeStyle = groundStrokeColor; ctx.lineWidth = 4; ctx.stroke();
             if (currentPhase === 4) {
                 ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2;
-                for (let tx = (parallaxScrollNear % 30); tx < 800; tx += 30) {
-                    ctx.beginPath(); ctx.moveTo(tx, 336); ctx.lineTo(tx - 5, 350); ctx.stroke();
-                }
+                for (let tx = (parallaxScrollNear % 30); tx < 800; tx += 30) { ctx.beginPath(); ctx.moveTo(tx, 336); ctx.lineTo(tx - 5, 350); ctx.stroke(); }
             }
             ctx.restore();
         }
 
-        // --- SISTEMA PROCEDURAL DE OBSTÁCULOS E EVENTOS DE PLATAFORMA ---
         function updatePlatformsAndCollisions() {
             obstacleTimer++;
             let spawnInterval = Math.max(45, 130 - (currentPhase * 10));
 
             if (obstacleTimer > spawnInterval) {
-                obstacleTimer = 0;
-                let randomSelector = Math.random();
-
+                obstacleTimer = 0; let randomSelector = Math.random();
                 if (randomSelector > 0.55) {
-                    let platH = 20;
-                    let platW = 120 + Math.random() * 80;
-                    let platY = 220 - Math.random() * 50;
+                    let platH = 20; let platW = 120 + Math.random() * 80; let platY = 220 - Math.random() * 50;
                     platforms.push({ x: 800, y: platY, width: platW, height: platH });
-                } else {
-                    generateDynamicObstacle();
-                }
+                } else { generateDynamicObstacle(); }
             }
 
             player.onPlatform = false;
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= obstacleSpeed;
-
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     if (player.y + player.height <= p.y + 8 && player.y + player.height + player.velocity >= p.y) {
-                        player.onPlatform = true;
-                        player.platformTop = p.y;
+                        player.onPlatform = true; player.platformTop = p.y;
                     }
                 }
-
                 if (p.x < -p.width) platforms.splice(i, 1);
             }
         }
 
         function generateDynamicObstacle() {
             if (currentPhase === 4 && Math.random() > 0.4) {
-                obstacles.push({
-                    x: 800, y: 266, width: 140, height: 70,
-                    type: 'train', color: '#1a1a2e', passed: false
-                });
+                obstacles.push({ x: 800, y: 266, width: 140, height: 70, type: 'train', color: '#1a1a2e', passed: false });
             } else {
                 let isFly = (currentPhase >= 2 && Math.random() > 0.5);
                 if (isFly) {
@@ -635,24 +580,15 @@
 
                 if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
                     obstacles.splice(i, 1);
-                    
-                    if (shieldActive) {
-                        shieldActive = false; updateHUD();
-                        playTone(520, 'sine', 0.2, 0.05);
-                        continue;
-                    }
-                    
-                    handleLifeLoss();
-                    continue;
+                    if (shieldActive) { shieldActive = false; updateHUD(); playTone(520, 'sine', 0.2, 0.05); continue; }
+                    handleLifeLoss(); continue;
                 }
 
                 if (!obs.passed && obs.x < player.x) {
-                    obs.passed = true; coins += 6;
-                    localStorage.setItem('coins', coins); updateHUD();
+                    obs.passed = true; coins += 6; localStorage.setItem('coins', coins); updateHUD();
                     playTone(580, 'sine', 0.03, 0.02);
                     if (score % 250 === 0) obstacleSpeed += 0.7;
                 }
-
                 if (obs.x < -150) obstacles.splice(i, 1);
             }
         }
@@ -660,15 +596,28 @@
         function handleLifeLoss() {
             lives--; updateHUD(); playTone(110, 'sawtooth', 0.3, 0.08);
             if (lives <= 0) {
-                gameActive = false;
-                document.getElementById('final-score').innerText = score;
+                gameActive = false; document.getElementById('final-score').innerText = score;
                 document.getElementById('gameover-screen').classList.remove('hidden');
                 window.open(MONETAG_SMARTLINK, "_blank");
             }
         }
 
-        // --- SISTEMA AD-SHOP DE PRODUTOS PREMIUM E MOEDAS ---
+        // --- GATILHO DE JOGO COMPLETO COM REQUISIÇÃO DE TELA CHEIA AUTOMÁTICA ---
+        function startGame() {
+            // Ativa o modo Fullscreen de forma imperceptível no clique do usuário
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+            window.open(MONETAG_SMARTLINK, "_blank"); 
+            setTimeout(() => {
+                document.getElementById('start-screen').classList.add('hidden');
+                gameActive = true; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0;
+                updateHUD();
+            }, 300);
+        }
+
         function openShop() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
             window.open(MONETAG_SMARTLINK, "_blank");
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('shop-screen').classList.remove('hidden');
@@ -693,8 +642,7 @@
             } else {
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
-                    let isUnlocked = unlockedSkins.includes(id);
-                    let isEquipped = (currentSkinId === id);
+                    let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
 
                     const card = document.createElement('div'); card.className = `shop-item ${isEquipped ? 'selected' : ''}`;
                     card.innerHTML = `<div style='font-size:12px; font-weight:bold; margin-bottom:8px;'>${item.name}</div>`;
@@ -706,10 +654,7 @@
                         btn.innerText = item.type === 'ad' ? '🎬 Desbloquear' : `🪙 ${item.cost}`;
                     }
 
-                    btn.onclick = () => {
-                        if (isUnlocked) { currentSkinId = id; buildShop(); } 
-                        else { purchaseSkinItem(id, item); }
-                    };
+                    btn.onclick = () => { if (isUnlocked) { currentSkinId = id; buildShop(); } else { purchaseSkinItem(id, item); } };
                     card.appendChild(btn); grid.appendChild(card);
                 }
             }
@@ -718,11 +663,11 @@
         function buyPowerUpItem(id, cost) {
             if (coins >= cost) {
                 coins -= cost; localStorage.setItem('coins', coins);
-                if (id === 'shield') { shieldActive = true; alert("Escudo Defletor ativo para a próxima partida!"); }
+                if (id === 'shield') { shieldActive = true; alert("Escudo Defletor ativo!"); }
                 if (id === 'doublejump') { doubleJumpUnlocked = true; alert("Salto Duplo permanente habilitado!"); }
-                if (id === 'heart') { lifeBonusQueued++; alert("Coração estocado! Você largará com vida bônus."); }
+                if (id === 'heart') { lifeBonusQueued++; alert("Vida bônus estocada!"); }
                 buildShop(); updateHUD();
-            } else { alert("Saldo de moedas amarelas insuficiente!"); }
+            } else { alert("Moedas insuficientes!"); }
         }
 
         function purchaseSkinItem(id, item) {
@@ -730,19 +675,23 @@
                 window.open(MONETAG_SMARTLINK, "_blank");
                 setTimeout(() => {
                     unlockedSkins.push(id); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins));
-                    currentSkinId = id; buildShop(); alert("Skin liberada com sucesso via Anúncio!");
+                    currentSkinId = id; buildShop(); alert("Skin liberada com sucesso!");
                 }, 1000);
             } else {
                 if (coins >= item.cost) {
                     coins -= item.cost; unlockedSkins.push(id);
                     localStorage.setItem('coins', coins); localStorage.setItem('unlockedSkins', JSON.stringify(unlockedSkins));
                     currentSkinId = id; buildShop(); updateHUD();
-                } else { alert("Moedas insuficientes para essa bizarrice!"); }
+                } else { alert("Moedas insuficientes!"); }
             }
         }
 
-        // --- SISTEMA AUTOMÁTICO DE SAQUES PIX PAYOUTS ---
-        function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('withdraw-balance').innerText = saldoPixAcumulado; document.getElementById('withdraw-screen').classList.remove('hidden'); }
+        function openWithdraw() { 
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
+            document.getElementById('start-screen').classList.add('hidden'); 
+            document.getElementById('withdraw-balance').innerText = saldoPixAcumulado; 
+            document.getElementById('withdraw-screen').classList.remove('hidden'); 
+        }
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
         function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
@@ -759,36 +708,27 @@
         }
 
         function requestPixPayout() {
-            const key = document.getElementById('pix-key').value;
-            const pontos = saldoPixAcumulado;
-
+            const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
             if (!key) { alert("Informe sua chave Pix destino."); return; }
-            if (pontos < 5000) { alert("Saque rejeitado! O montante mínimo exigido é de 5.000 pontos (R$ 5,00)."); return; }
+            if (pontos < 5000) { alert("Mínimo necessário é de 5.000 pontos (R$ 5,00)."); return; }
 
             let valorReal = ((pontos / 100) * 0.10).toFixed(2);
             let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
             pixHistoryData.push(newRequest); localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
 
-            alert("Disparando transação automatizada vinculada ao faturamento de anúncios...");
-
             fetch(URL_BACKEND_PIX, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ chavePix: key, pontos: pontos })
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    newRequest.status = 'Pago';
-                    alert(`✅ DEBITADO E PAGO COM SUCESSO!\nValor de R$ ${valorReal} caiu na conta via API automática.`);
-                } else {
-                    newRequest.status = 'Erro'; alert("Falha operacional no gateway: " + data.error);
-                }
+                if (data.success) { newRequest.status = 'Pago'; alert(`✅ PAGO COM SUCESSO!\nValor de R$ ${valorReal} liquidado.`); } 
+                else { newRequest.status = 'Erro'; alert("Falha: " + data.error); }
                 localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
             })
             .catch(() => {
                 newRequest.status = 'Pago'; localStorage.setItem('pixHistoryData', JSON.stringify(pixHistoryData));
-                alert(`✅ ENVIADO!\nDevido ao fluxo, o Payout automático de R$ ${valorReal} foi processado em segundo plano e liquidado.`);
+                alert(`✅ ENVIADO!\nO Payout automático de R$ ${valorReal} foi processado e liquidado.`);
             });
 
             saldoPixAcumulado = 0; localStorage.setItem('saldoPixAcumulado', 0);
@@ -817,24 +757,11 @@
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; document.getElementById('hud-lives').innerText = h || '💀';
         }
 
-        function toggleSettingsMenu() { document.getElementById('settings-dropdown').classList.toggle('hidden'); }
-        function toggleMute() { isMuted = !isMuted; }
         function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; runGameLoop(); }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; obstacles = []; platforms = []; adLifeUsed = false; player.y = 290; player.velocity = 0; player.isJumping = false; player.onPlatform = false; updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; }
 
-        function startGame() {
-            window.open(MONETAG_SMARTLINK, "_blank"); 
-            setTimeout(() => {
-                document.getElementById('start-screen').classList.add('hidden');
-                gameActive = true;
-                lives = 3 + lifeBonusQueued;
-                lifeBonusQueued = 0;
-                updateHUD();
-            }, 300);
-        }
-
-        // --- ARTISTAS VETORIAIS DAS SKINS BIZARRAS E PREMIUM ---
+        // --- ARTISTAS VETORIAIS ---
         function drawVectorStar(g, cx, cy, spikes, outerRadius, innerRadius, color) {
             g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius);
             for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; }
@@ -844,18 +771,14 @@
         function drawVectorOrb(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorUFO(g, x, y, r, color) { g.save(); g.beginPath(); g.arc(x, y - r/4, r/2, Math.PI, 0); g.fillStyle = '#00f2fe'; g.fill(); g.beginPath(); g.ellipse(x, y, r, r/3, 0, 0, Math.PI*2); g.fillStyle = color; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
         function drawVectorBat(g, x, y, r, color) {
-            g.save(); g.fillStyle = color; g.beginPath();
-            let flap = Math.sin(frameCount * 0.4) * (r * 0.8);
-            g.moveTo(x, y); g.lineTo(x - r, y - flap); g.lineTo(x - r/3, y + r/4);
-            g.lineTo(x, y + r/2); g.lineTo(x + r/3, y + r/4); g.lineTo(x + r, y - flap); g.closePath(); g.fill();
+            g.save(); g.fillStyle = color; g.beginPath(); let flap = Math.sin(frameCount * 0.4) * (r * 0.8);
+            g.moveTo(x, y); g.lineTo(x - r, y - flap); g.lineTo(x - r/3, y + r/4); g.lineTo(x, y + r/2); g.lineTo(x + r/3, y + r/4); g.lineTo(x + r, y - flap); g.closePath(); g.fill();
             g.fillStyle = '#fff'; g.beginPath(); g.arc(x - 3, y - 2, 2, 0, Math.PI*2); g.arc(x + 3, y - 2, 2, 0, Math.PI*2); g.fill(); g.restore();
         }
         function drawVectorGoat(g, x, y, r, color) {
-            g.save(); g.fillStyle = color; g.fillRect(x - r, y - r/2, r*1.6, r);
-            g.fillRect(x + r/3, y - r, r/2, r);
+            g.save(); g.fillStyle = color; g.fillRect(x - r, y - r/2, r*1.6, r); g.fillRect(x + r/3, y - r, r/2, r);
             ctx.fillStyle = '#444'; ctx.fillRect(x - r, y + r/2, 4, r/2); ctx.fillRect(x + r/2, y + r/2, 4, r/2);
-            g.fillStyle = '#777'; g.beginPath(); g.moveTo(x + r/2, y - r); g.lineTo(x + r, y - r*1.3); g.lineTo(x + r/3, y - r); g.fill();
-            g.restore();
+            g.fillStyle = '#777'; g.beginPath(); g.moveTo(x + r/2, y - r); g.lineTo(x + r, y - r*1.3); g.lineTo(x + r/3, y - r); g.fill(); g.restore();
         }
         function drawVectorLog(g, x, y, r, color) {
             g.save(); g.translate(x, y); g.rotate(frameCount * 0.08); g.fillStyle = color; g.beginPath(); g.arc(0, 0, r, 0, Math.PI*2); g.fill();
@@ -864,14 +787,11 @@
         function drawVectorTV(g, x, y, r, color) {
             g.save(); g.fillStyle = color; g.fillRect(x - r, y - r, r*2, r*1.6);
             g.fillStyle = Math.random() > 0.5 ? '#777' : '#999'; g.fillRect(x - r + 5, y - r + 5, r*1.4, r*1.2);
-            g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x - 15, y - r - 12); g.moveTo(x, y - r); g.lineTo(x + 15, y - r - 12); g.stroke();
-            g.restore();
+            g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x - 15, y - r - 12); g.moveTo(x, y - r); g.lineTo(x + 15, y - r - 12); g.stroke(); g.restore();
         }
         function drawVectorDuck(g, x, y, r, color) {
             g.save(); g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill();
-            g.beginPath(); g.arc(x + r/2, y - r/2, r/1.6, 0, Math.PI*2); g.fill();
-            g.fillStyle = '#ff6600'; g.fillRect(x + r, y - r/2, 10, 5);
-            g.restore();
+            g.beginPath(); g.arc(x + r/2, y - r/2, r/1.6, 0, Math.PI*2); g.fill(); g.fillStyle = '#ff6600'; g.fillRect(x + r, y - r/2, 10, 5); g.restore();
         }
 
         window.onload = () => { runGameLoop(); fitGameToScreen(); updateHUD(); };
