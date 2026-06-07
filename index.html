@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Star Runner - Optimized Master Engine</title>
+    <title>Star Runner - Ultimate Master Engine</title>
     <style>
         :root {
             --primary: #ff007f;
@@ -358,6 +358,7 @@
         let isBonusStageMode = false;
         let bonusStageTimer = 0;
         let preBonusPhaseConfig = null;
+        let pipeWarningActive = false; // Flag do aviso visual de aproximação
 
         // AUDIO CONTEXT
         let audioCtx = null, musicInterval = null, beatCount = 0;
@@ -515,12 +516,12 @@
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
             }
-            itemsInGame = []; obstacles = []; platforms = []; isBonusStageMode = false;
-            obstacleTimer = 0; // Reseta o timer para forçar novos spawns imediatos
+            itemsInGame = []; obstacles = []; platforms = []; isBonusStageMode = false; pipeWarningActive = false;
+            obstacleTimer = 0;
         }
 
-        function updateAndGenerateTerrain() {
-            for (let i = 0; i < terrainList.length; i++) { terrainList[i].x -= obstacleSpeed; }
+        function updateAndGenerateTerrain(speed) {
+            for (let i = 0; i < terrainList.length; i++) { terrainList[i].x -= speed; }
             if (terrainList[0] && terrainList[0].x + terrainList[0].w < -200) terrainList.shift();
             let lastSeg = terrainList[terrainList.length - 1];
             if (lastSeg && lastSeg.x + lastSeg.w < canvas.width + 600) {
@@ -570,10 +571,12 @@
             }
         }
 
-        // --- LOOP CRÍTICO DE PERFORMANCE FIXADO ---
+        // --- LOOP CRÍTICO DE EXECUÇÃO ---
         function runGameLoop() {
             try {
                 if (ctx) {
+                    let currentFrameSpeed = isBonusStageMode ? 9 : obstacleSpeed;
+
                     if (!isPaused && gameActive) {
                         frameCount++; score++;
                         
@@ -590,7 +593,18 @@
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
 
                             if (score % 20 === 0) { saldoPixAcumulado += 2; updateHUD(); }
-                            updateAndGenerateTerrain();
+
+                            // --- SISTEMA INTELIGENTE DE DETECÇÃO, DESACELERAÇÃO E ALERTA DO CANO ---
+                            pipeWarningActive = false;
+                            for (let p of platforms) {
+                                if (p.isPipe && p.x > player.x && p.x - player.x < 550) {
+                                    pipeWarningActive = true;
+                                    currentFrameSpeed = obstacleSpeed * 0.45; // Reduz a velocidade para 45% do normal
+                                    break;
+                                }
+                            }
+
+                            updateAndGenerateTerrain(currentFrameSpeed);
                             updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
@@ -601,10 +615,11 @@
                             if (frameCount % 12 === 0) {
                                 itemsInGame.push({ x: canvas.width + 20, y: BASE_GROUND_Y - 40 - (Math.random() * 120), type: 'coin' });
                             }
-                            for (let i = terrainList.length - 1; i >= 0; i--) { terrainList[i].x -= 9; }
+                            currentFrameSpeed = 9;
+                            for (let i = 0; i < terrainList.length; i++) { terrainList[i].x -= currentFrameSpeed; }
                         }
 
-                        updateEntitiesAndCollisions();
+                        updateEntitiesAndCollisions(currentFrameSpeed);
 
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
@@ -616,8 +631,37 @@
                         } else { player.y = nextY; }
                     }
 
-                    // RENDERIZAÇÃO ESTÁVEL DO CENÁRIO FIXADA (Mapeamento de degradê sem estouro)
+                    // RENDERIZAÇÃO DO CENÁRIO
                     renderBackgroundScenariosLayer();
+
+                    // RENDER VISUAL DO PAINEL DE AVISO DO CANO (NA PARTE SUPERIOR CENTRAL DO CANVAS)
+                    if (pipeWarningActive && gameActive && !isPaused) {
+                        ctx.save();
+                        ctx.fillStyle = "rgba(40, 167, 69, 0.9)"; // Verde Mario Sólido/Transparente
+                        ctx.strokeStyle = "#00ffaa";
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 10; ctx.shadowColor = "#00ffaa";
+                        
+                        let boxW = Math.min(canvas.width - 30, 440);
+                        let boxX = (canvas.width - boxW) / 2;
+                        let boxY = 70;
+                        
+                        ctx.beginPath();
+                        ctx.roundRect(boxX, boxY, boxW, 70, 10);
+                        ctx.fill(); ctx.stroke();
+
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.shadowBlur = 0;
+                        ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
+                        ctx.font = "10px 'Segoe UI', sans-serif";
+                        ctx.fillStyle = "#ffe81f";
+                        ctx.fillText("Pode colidir com segurança! NÃO PRECISA PULAR!", canvas.width / 2, boxY + 40);
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillText("Essa colisão não consome vidas e nem energia.", canvas.width / 2, boxY + 54);
+                        ctx.restore();
+                    }
 
                     // RAIO LASER
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
@@ -716,7 +760,6 @@
             }
             ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // PARALAX RENDER ELEMENTOS
             ctx.save();
             if (isBonusStageMode) {
                 ctx.fillStyle = "rgba(255,255,255,0.3)";
@@ -732,7 +775,6 @@
         }
 
         function updateSpawningEngine() {
-            // Acelera a cadência do gerador inicial diminuindo a janela vazia
             let interval = Math.max(30, 80 - (currentPhase * 4));
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
@@ -761,9 +803,8 @@
             }
         }
 
-        function updateEntitiesAndCollisions() {
+        function updateEntitiesAndCollisions(speed) {
             player.onPlatform = false;
-            let speed = isBonusStageMode ? 9 : obstacleSpeed;
 
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= speed;
@@ -775,6 +816,7 @@
                         if (p.isPipe) {
                             platforms.splice(i, 1); preBonusPhaseConfig = currentPhaseConfig;
                             isBonusStageMode = true; bonusStageTimer = 350;
+                            pipeWarningActive = false;
                             initTerrain(); return;
                         }
                         if (p.isTrain) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
