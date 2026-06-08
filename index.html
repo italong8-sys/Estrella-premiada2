@@ -65,7 +65,7 @@
             border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 101;
         }
 
-        /* TELAS INTERFACES */
+        /* TELAS INTERFACES AJUSTADAS PARA NÃO FICAREM DEBAIXO DO BANNER AD */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 50px);
             background: rgba(6, 6, 18, 0.96); display: flex; flex-direction: column;
@@ -80,7 +80,6 @@
             text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; line-height: 1.4;
         }
 
-        /* PAINEL EXPLICATIVO DE REGRAS/TUTORIAL INTERNO */
         .tutorial-card {
             width: 100%; max-width: 500px; background: #0a0a20; border: 1px solid rgba(0, 242, 254, 0.2);
             border-radius: 10px; padding: 12px; margin-bottom: 14px; font-size: 11px; line-height: 1.5;
@@ -96,7 +95,6 @@
         .btn-primary { background: linear-gradient(135deg, #ff007f 0%, #bd005b 100%); color: white; border: none; }
         .btn-sm { padding: 5px 12px; font-size: 10px; border-radius: 15px; }
 
-        /* BOTÃO DO SUPER RAIO LASER */
         #laser-action-btn {
             position: absolute; bottom: 70px; right: 20px; width: 56px; height: 56px;
             background: radial-gradient(circle, #ff007f 0%, #7c003c 100%);
@@ -118,19 +116,27 @@
         .shop-tabs { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; flex-wrap: wrap; }
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 4px; }
         
-        /* ITEM DA LOJA COM DISPLAY DE PREVIEW */
         .shop-item { 
             background: #151530; border: 2px solid transparent; border-radius: 10px; 
             padding: 8px; display: flex; flex-direction: column; align-items: center; 
             text-align: center; justify-content: space-between; gap: 6px; 
         }
         .shop-item.selected { border-color: #ffe81f; background: rgba(255, 232, 31, 0.03); }
-        .preview-canvas-mini { background: #000000; border-radius: 6px; display: block; margin-bottom: 2px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* CORREÇÃO DO MINI CANVAS PARA EVITAR ESTICAMENTO (ANTI-BUG DO ÍCONE GIGANTE) */
+        .preview-canvas-mini { 
+            width: 50px !important; 
+            height: 50px !important; 
+            background: #000000; 
+            border-radius: 6px; 
+            display: block; 
+            margin-bottom: 2px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
 
         .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
-        /* OVERLAY GLOBAL DE EXIBIÇÃO DE ANÚNCIO */
         #ad-processing-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.95); z-index: 500; display: flex; flex-direction: column;
@@ -142,7 +148,6 @@
         }
         @keyframes spinEngine { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* BALÃO TOAST NOTIFICAÇÃO DE PIX SUCESSO */
         #payout-toast {
             position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
@@ -153,12 +158,12 @@
         }
         #payout-toast.active { bottom: 80px; }
 
-        /* ÁREA DE ANÚNCIO BANNER DEBAIXO DA TELA */
+        /* BANNER INFERIOR COMPLETAMENTE ISOLADO DAS MENUS E JOGABILIDADE */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
             display: flex; align-items: center; justify-content: center;
-            border-top: 1px solid rgba(0, 242, 254, 0.25); z-index: 99; overflow: hidden; cursor: pointer;
+            border-top: 1px solid rgba(0, 242, 254, 0.25); z-index: 999; overflow: hidden; cursor: pointer;
         }
         .banner-link-wrapper {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -169,7 +174,6 @@
 <body>
 
     <div id="game-container">
-        <!-- TELA DE PROCESSAMENTO FORÇADO DE PROPAGANDAS -->
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
             <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 22px; letter-spacing: 1px;">CARREGANDO ANÚNCIO PREMIADO</h2>
@@ -177,12 +181,10 @@
             <p id="ad-countdown-txt" style="color: #ffe81f; font-weight: bold; font-size: 18px;">3s</p>
         </div>
 
-        <!-- BALÃO CONFIRMAÇÃO DE CONTA PIX -->
         <div id="payout-toast">
             <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
         </div>
 
-        <!-- CONTROLADORES DA VIEWPORT SUPERIOR -->
         <div class="pause-btn" onclick="togglePauseGame()">⏸️</div>
 
         <div class="hud">
@@ -207,13 +209,11 @@
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
-        <!-- INTERFACE GRÁFICA DO MOTOR -->
         <canvas id="gameCanvas"></canvas>
 
-        <!-- BOTÃO ACIONADOR DO RAIO LASER -->
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- FIXED BANNER MONETAG CONTEXTUALIZADO -->
+        <!-- BANNER MONETAG INALTERADO E SEGURO NO BOTTOM -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
@@ -226,15 +226,14 @@
                 Quando abrir o anúncio em outra guia do seu navegador apenas deixe carregar e feche! Não clique em baixar nada da propaganda! Nós não nos responsabilizamos pelas propagandas dentro do jogo!
             </div>
 
-            <!-- EXPLICATIVO COMPLETO DO JOGO -->
             <div class="tutorial-card">
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
-                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se você optar por colidir de frente com o tubo, seu personagem será teleportado para uma dimensão bônus espacial escura. Lá, você poderá coletar dezenas de moedas e estrelas de forma totalmente segura e livre de perigos por tempo limitado, retornando depois exatamente para a fase em que parou!
+                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se você optar com segurança colidir com o tubo, seu personagem será teleportado para uma dimensão bônus.
                 </div>
                 <div class="tut-title" style="color:#ff007f;">⚡ Botão de Poder (Raio de Plasma)</div>
                 <div style="color:#d1d1f0;">
-                    A partir da **Fase 4 (Vale Vulcânico)**, o jogo fica muito mais difícil. Para te ajudar, um botão flutuante de raio (⚡) surgirá no canto inferior direito, junto com uma barra de energia (Mana) no topo. Toque nele para disparar um laser retilíneo que pulveriza e quebra os caixotes de madeira e obstáculos físicos à sua frente instantaneamente! Use com estratégia, pois o poder gasta energia, que recarrega sozinha ao longo do tempo.
+                    A partir da **Fase 4 (Vale Vulcânico)**, toque no botão flutuante de raio (⚡) para disparar um laser retilíneo que pulveriza e quebra obstáculos à sua frente instantaneamente!
                 </div>
             </div>
 
@@ -243,7 +242,7 @@
             <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">Iniciar Corrida</button>
             
             <div style="margin-top: 10px; display:flex; gap:6px; flex-direction: column; width: 100%; max-width: 250px;">
-                <button class="btn btn-sm" onclick="openShop()">Lojinha Mutante</button>
+                <button class="btn btn-sm" onclick="openShop()">Lojinha Cyber</button>
                 <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
                 <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
                 <button class="btn btn-sm" style="border-color: #ffe81f;" onclick="triggerCoinReload()">🎬 +1000 Moedas</button>
@@ -322,11 +321,17 @@
             </div>
         </div>
 
-        <!-- FINANCEIRO SAQUES PIX -->
+        <!-- FINANCEIRO SAQUES PIX (AVISO DE PROCESSAMENTO CONFIGURADO) -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">Resgatar Recompensa Pix</h3>
             <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 15px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 14px; text-align:center; width:100%; max-width:240px;">Saldo: <span id="withdraw-balance">0</span> pts</div>
+            
+            <!-- AVISO DE PROCESSAMENTO SOLICITADO -->
+            <p style="color: #ffe81f; font-size: 10px; margin: 4px 0 10px 0; text-align: center; max-width: 240px; background: rgba(255, 232, 31, 0.12); padding: 8px; border-radius: 8px; line-height: 1.4; border: 1px solid rgba(255, 232, 31, 0.3);">
+                ⚠️ <strong>Aviso Importante:</strong> O Pix pode demorar até <strong>1 dia útil</strong> para cair devido ao processamento de segurança entre o jogo, nosso banco intermediário e o seu banco de destino.
+            </p>
+
             <input type="text" id="pix-key" placeholder="Insira sua Chave PIX">
             <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 6px; width:100%; max-width:240px;">Solicitar Payout</button>
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">Voltar</button>
@@ -441,7 +446,6 @@
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
-        // --- ENGENHARIA PROCEDURAL: NOMES COM IDENTIDADE EXCLUSIVA ---
         const skinsDB = {};
 
         const normalNamesArray = [
@@ -501,7 +505,6 @@
             };
         }
 
-        // --- EXPANSÃO DE CENÁRIOS COM RENDERS DE PRÉVIA DE ALTA FIDELIDADE ---
         const scenariosDB = {
             'scen_default': { 
                 name: 'Padrão Dinâmico', type: 'free', desc: 'Muda de acordo com as fases.',
@@ -557,7 +560,6 @@
             }
         };
 
-        // CONTROLES DE ENTRADA CORRIGIDOS (APENAS PULO)
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
@@ -577,7 +579,6 @@
             document.getElementById('pause-screen').classList.toggle('hidden', !isPaused);
         }
 
-        // MOTOR DE ANÚNCIOS PREMIADOS E AUTO-INTERSTITIALS
         function triggerRewardedAdCall(onCompleteCallback, isInterstitial = false) {
             let prePauseState = isPaused; isPaused = true;
             const overlay = document.getElementById('ad-processing-overlay');
@@ -599,7 +600,6 @@
             }, 1000);
         }
 
-        // ELEMENTOS DE ÁUDIO PROCEDURAL
         function initAudioEngine() { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startProceduralMusic(); } catch(e){} }
         function playSoundJump() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(550, audioCtx.currentTime + 0.12); g.gain.setValueAtTime(0.12, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12); osc.start(); osc.stop(audioCtx.currentTime + 0.12); }
         function playSoundCoin() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); g.gain.setValueAtTime(0.06, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); osc.start(); osc.stop(audioCtx.currentTime + 0.15); }
@@ -618,7 +618,6 @@
             }, 230);
         }
 
-        // --- TERRENO PROCEDURAL ---
         function initTerrain() {
             if(!canvas) resizeEngineCanvas();
             terrainList = []; let startX = 0;
@@ -826,7 +825,7 @@
                                 ctx.closePath(); ctx.fill();
                                 
                                 ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke(); // CORRIGIDO: prefixo ctx adicionado com sucesso
                             } else {
                                 ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x, canvas.height); ctx.stroke();
@@ -1103,7 +1102,7 @@
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
-        // --- SISTEMA CORRIGIDO E SINCRONIZADO DE MINI PREVIEWS (SKINS E CENÁRIOS) ---
+        // --- SISTEMA REESTRUTURADO DE MINI PREVIEWS SEM ENCOLHIMENTO OU CRESCIMENTO ---
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -1123,7 +1122,6 @@
                             </button>
                         </div>`;
                 }
-                // Renderização imediata e segura dos cenários realistas em miniatura
                 setTimeout(() => {
                     for (const [id, item] of Object.entries(scenariosDB)) {
                         let miniC = document.getElementById(`mini_preview_scen_${id}`);
@@ -1148,7 +1146,6 @@
                             </button>
                         </div>`;
                 }
-                // Renderização imediata e segura dos vetores das figuras de skins
                 setTimeout(() => {
                     for (const [id, item] of Object.entries(skinsDB)) {
                         if (item.tab !== currentShopTab) continue;
