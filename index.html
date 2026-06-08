@@ -405,7 +405,6 @@
         let itemsInGame = []; 
         let smokeParticles = []; 
 
-        // RASTREADOR DE DIREÇÃO PARA JOGABILIDADE MANUAL
         let controlKeys = { Left: false, Right: false };
 
         let playerMana = 100;
@@ -625,14 +624,13 @@
             currentScenarioId = 'scen_default';
         }
 
-        // FUNÇÃO GLOBAL DE REDIRECIONAMENTO AUTOMÁTICO DE ANÚNCIO (SEM CONFIRMAÇÃO DE CLIQUE)
+        let activeRewardedAdCallback = null;
         function triggerRewardedAdCall(callback) {
             activeRewardedAdCallback = callback;
             let overlay = document.getElementById('ad-processing-overlay');
             if (overlay) overlay.classList.remove('hidden');
             
-            // Abre de forma automatizada e instantânea
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueador impediu pop-up direto."); }
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas automáticas restritas pelo pop-up blocker."); }
             
             let count = 3;
             let txtCounter = document.getElementById('ad-countdown-txt');
@@ -770,7 +768,6 @@
         function runGameLoop() {
             try {
                 if (ctx) {
-                    // CONFIGURAÇÃO DA VELOCIDADE DO MAPA BASEADA NO CONTROLE MANUAL DO JOGADOR
                     let currentFrameSpeed = 0;
                     if (gameActive && !isPaused) {
                         if (controlKeys.Right) {
@@ -809,7 +806,6 @@
                         }
 
                         if (!isBonusStageMode) {
-                            // SCORE SÓ SOMA SE O JOGADOR ESTIVER ANDANDO MANUALMENTE PARA A DIREITA
                             if (controlKeys.Right) score++;
                             else if (controlKeys.Left) score = Math.max(0, score - 1);
 
@@ -895,7 +891,7 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe"); groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height); ctx.closePath(); ctx.fill();
-                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             }
                         }
                         ctx.restore();
@@ -933,7 +929,7 @@
                     
                     if (shieldActive) { ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width*0.85, 0, Math.PI*2); ctx.strokeStyle="#00f2fe"; ctx.lineWidth=2; ctx.stroke(); ctx.restore(); }
                 }
-            } catch(e){}
+            } catch(e){ console.error("Erro interno detectado no loop:", e); }
             requestAnimationFrame(runGameLoop);
         }
 
@@ -1085,7 +1081,6 @@
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
         
-        // DISPAROS AUTOMÁTICOS DE ANÚNCIOS DURANTE EVENTOS DE MORTE DO JOGADOR
         function handleTrainCrashFatal() { 
             gameActive = false; 
             updatePauseButtonVisibility(); 
@@ -1215,7 +1210,7 @@
                     for (const [id, item] of Object.entries(skinsDB)) {
                         if (item.tab !== currentShopTab) continue;
                         let miniC = document.getElementById(`mini_preview_skin_${id}`);
-                        if (miniC) { mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); item.render(mCtx, 25, 25, 14); }
+                        if (miniC) { let mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); item.render(mCtx, 25, 25, 14); }
                     }
                 }, 25);
             }
@@ -1320,7 +1315,6 @@
             }
         }
 
-        // CAPTURA DOS DIRECIONAIS DO TECLADO PARA MOVIMENTO MANUAL
         window.addEventListener('keydown', (e) => {
             if (e.code === 'ArrowLeft' || e.code === 'KeyA') controlKeys.Left = true;
             if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = true;
@@ -1335,20 +1329,27 @@
             if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = false;
         });
 
-        // CAPTURA DOS DIRECIONAIS TÁTEIS NA TELA (MOBILE-FRIENDLY D-PAD)
         const setupMobileControls = () => {
             const padLeft = document.getElementById('ctrl-left');
             const padRight = document.getElementById('ctrl-right');
             const padJump = document.getElementById('ctrl-jump');
 
             if (padLeft && padRight && padJump) {
+                // Toque mobile
                 padLeft.addEventListener('touchstart', (e) => { controlKeys.Left = true; e.preventDefault(); });
                 padLeft.addEventListener('touchend', (e) => { controlKeys.Left = false; e.preventDefault(); });
-                
                 padRight.addEventListener('touchstart', (e) => { controlKeys.Right = true; e.preventDefault(); });
                 padRight.addEventListener('touchend', (e) => { controlKeys.Right = false; e.preventDefault(); });
-                
                 padJump.addEventListener('touchstart', (e) => { playerJump(); e.preventDefault(); });
+
+                // Clique de mouse (para testes e acessibilidade desktop)
+                padLeft.addEventListener('mousedown', () => { controlKeys.Left = true; });
+                padLeft.addEventListener('mouseup', () => { controlKeys.Left = false; });
+                padLeft.addEventListener('mouseleave', () => { controlKeys.Left = false; });
+                padRight.addEventListener('mousedown', () => { controlKeys.Right = true; });
+                padRight.addEventListener('mouseup', () => { controlKeys.Right = false; });
+                padRight.addEventListener('mouseleave', () => { controlKeys.Right = false; });
+                padJump.addEventListener('mousedown', () => { playerJump(); });
             }
         };
 
@@ -1359,7 +1360,6 @@
         setupMobileControls();
         requestAnimationFrame(runGameLoop);
 
-        // DISPARO AUTOMÁTICO IMEDIATO ASSIM QUE O JOGADOR ABRE O JOGO
         window.addEventListener('load', () => {
             try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
         });
