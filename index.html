@@ -35,8 +35,9 @@
 
         canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
+        /* HUD DESLOCADO PARA A DIREITA PARA DAR ESPAÇO AO BOTÃO DE PAUSA FIEL */
         .hud {
-            position: absolute; top: env(safe-area-inset-top, 12px); left: 20px; right: 20px;
+            position: absolute; top: env(safe-area-inset-top, 12px); left: 70px; right: 20px;
             display: flex; justify-content: space-between; align-items: center;
             font-size: 11px; font-weight: bold; pointer-events: none; z-index: 5;
             text-shadow: 0 2px 6px rgba(0,0,0,0.9); flex-wrap: wrap; gap: 4px;
@@ -45,13 +46,13 @@
         .hud-val { color: #ff007f; font-size: 13px; }
         .hud-accent { color: #ffe81f; }
 
-        /* ARVORE DE FIXAÇÃO: BOTÃO DE PAUSA ABSOLUTAMENTE CENTRALIZADO E ISOLADO */
+        /* BOTÃO DE PAUSA NO CANTO LIVRE (SUPERIOR ESQUERDO) - OCULTO POR PADRÃO NOS MENUS */
         .pause-btn {
-            position: absolute; top: env(safe-area-inset-top, 10px); left: 50% !important;
-            transform: translateX(-50%) !important; font-size: 16px; cursor: pointer; z-index: 99999; 
+            position: absolute; top: env(safe-area-inset-top, 10px); left: 15px;
+            font-size: 16px; cursor: pointer; z-index: 99999; 
             background: linear-gradient(135deg, #0a0a20 0%, #151530 100%); border-radius: 50%; 
-            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; 
-            border: 2px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.7); margin: 0 auto;
+            width: 42px; height: 42px; display: none; align-items: center; justify-content: center; 
+            border: 2px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.7);
         }
 
         .settings-gear {
@@ -182,7 +183,7 @@
             <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
         </div>
 
-        <div class="pause-btn" onclick="togglePauseGame()">⏸️</div>
+        <div id="main-pause-btn" class="pause-btn" onclick="togglePauseGame()">⏸️</div>
 
         <div class="hud">
             <div>
@@ -231,7 +232,7 @@
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
                     Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas sem perigos.
                 </div>
-                <div class="tut-title" style="color:#ff007f;">%">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
+                <div class="tut-title" style="color:#ff007f;">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
                 <div style="color:#d1d1f0;">
                     Pistas circulares surgirão na pista! Entre nelas para realizar um looping completo de 360 graus por dentro do círculo com aceleração total!
                 </div>
@@ -504,7 +505,6 @@
             }
         };
 
-        // ENGENHARIA DE MATRIZ DE EMBLEMAS: GARANTE SIMBOLOS UNICOS E VISIVEIS PARA TODAS AS SKINS
         for (let i = 2; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
             let name = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
@@ -513,7 +513,6 @@
                 render: (g, x, y, r) => {
                     g.save();
                     if (i % 5 === 0) { 
-                        // SÍMBOLO: ESTRELA DE ENERGIA QUÂNTICA
                         let rot = Math.PI / 2 * 3; let step = Math.PI / 5; g.beginPath(); g.moveTo(x, y - r);
                         for (let k = 0; k < 5; k++) {
                             g.lineTo(x + Math.cos(rot) * r, y + Math.sin(rot) * r); rot += step;
@@ -521,18 +520,14 @@
                         }
                         g.closePath(); g.fillStyle = colorHex; g.fill(); g.strokeStyle = "#fff"; g.stroke();
                     } else if (i % 5 === 1) {
-                        // SÍMBOLO: CRISTAL DIAMANTE NEON
                         g.fillStyle = colorHex; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fill();
                         g.strokeStyle = "#fff"; g.lineWidth = 1.5; g.stroke();
                     } else if (i % 5 === 2) {
-                        // SÍMBOLO: FEIXES DE LASER CRUZADOS
                         g.strokeStyle = colorHex; g.lineWidth = 4; g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x + r, y + r); g.moveTo(x + r, y - r); g.lineTo(x - r, y + r); g.stroke();
                     } else if (i % 5 === 3) {
-                        // SÍMBOLO: MATRIZ DE DADOS CYBER (QUADRADO TECNOLÓGICO)
                         g.fillStyle = "#151530"; g.fillRect(x - r, y - r, r * 2, r * 2); g.strokeStyle = colorHex; g.lineWidth = 2; g.strokeRect(x - r, y - r, r * 2, r * 2);
                         g.fillStyle = colorHex; g.fillRect(x - r/3, y - r/3, (r*2)/3, (r*2)/3);
                     } else {
-                        // SÍMBOLO: ASA DELTA SPEEDRUNNER
                         g.fillStyle = colorHex; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y + r); g.lineTo(x, y + r/2); g.lineTo(x - r, y + r); g.closePath(); g.fill();
                         g.strokeStyle = "#fff"; g.stroke();
                     }
@@ -550,25 +545,20 @@
                 render: (g, x, y, r) => {
                     g.save();
                     if (i % 5 === 0) {
-                        // SÍMBOLO: OLHO ABERRANTE CTHULHU
                         g.fillStyle = "#ffffff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
                         g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r / 1.6, 0, Math.PI * 2); g.fill();
                         g.fillStyle = "#000000"; g.beginPath(); g.arc(x, y, r / 3, 0, Math.PI * 2); g.fill();
                     } else if (i % 5 === 1) {
-                        // SÍMBOLO: TENTÁCULOS SQUISHY / GOSMA DRIP
                         g.fillStyle = bizarroColor; g.fillRect(x - r/2, y - r, r, r * 1.6);
                         g.beginPath(); g.arc(x, y - r/2, r/2, 0, Math.PI * 2); g.fill();
                         g.fillStyle = "#fff"; g.fillRect(x - 3, y - r, 6, 4);
                     } else if (i % 5 === 2) {
-                        // SÍMBOLO: EMBLEMA BIO-HAZARD INFECTADO
                         g.strokeStyle = bizarroColor; g.lineWidth = 3; g.beginPath(); g.arc(x, y, r/1.5, 0, Math.PI*2); g.stroke();
                         g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/3, 0, Math.PI*2); g.fill();
                     } else if (i % 5 === 3) {
-                        // SÍMBOLO: FRACTURA DO VAZIO MUTANTE
                         g.strokeStyle = bizarroColor; g.lineWidth = 2; g.beginPath();
                         g.moveTo(x, y - r); g.lineTo(x + r/2, y + r); g.lineTo(x - r, y - r/2); g.lineTo(x + r, y); g.closePath(); g.stroke();
                     } else {
-                        // SÍMBOLO: GOLE DE MATÉRIA ESCURA (TRIÂNGULO INVERTIDO)
                         g.fillStyle = bizarroColor; g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x + r, y - r); g.lineTo(x, y + r); g.closePath(); g.fill();
                         g.fillStyle = "#000"; g.beginPath(); g.arc(x, y - r/3, 4, 0, Math.PI*2); g.fill();
                     }
@@ -631,6 +621,7 @@
             itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
             isLoopingAnimationMode = false; loopingObjectX = -999;
+            updatePauseButtonVisibility();
         }
 
         function triggerBonusStageActivation() {
@@ -1025,22 +1016,27 @@
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
-        function handleTrainCrashFatal() { gameActive = false; triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.remove('hidden'); }, true); }
+        function handleTrainCrashFatal() { gameActive = false; updatePauseButtonVisibility(); triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.remove('hidden'); }, true); }
         
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
-                gameActive = false; safeSetText('final-score', score); 
+                gameActive = false; updatePauseButtonVisibility(); safeSetText('final-score', score); 
                 triggerRewardedAdCall(() => { document.getElementById('gameover-screen').classList.remove('hidden'); }, true);
             } 
         }
 
-        function watchAdForTrainContinue() { triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.add('hidden'); initTerrain(); player.y = BASE_GROUND_Y - 100; player.velocity = 0; gameActive = true; }); }
+        function watchAdForTrainContinue() { triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.add('hidden'); initTerrain(); player.y = BASE_GROUND_Y - 100; player.velocity = 0; gameActive = true; updatePauseButtonVisibility(); }); }
         function backToMenuFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); backToMenu(); }
-        function watchAdForLife() { triggerRewardedAdCall(() => { lives = 1; player.y = BASE_GROUND_Y - 100; player.velocity = 0; document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; updateHUD(); }); }
+        function watchAdForLife() { triggerRewardedAdCall(() => { lives = 1; player.y = BASE_GROUND_Y - 100; player.velocity = 0; document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; updateHUD(); updatePauseButtonVisibility(); }); }
         function triggerCoinReload() { triggerRewardedAdCall(() => { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }); }
 
-        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); }
+        function updatePauseButtonVisibility() {
+            const btn = document.getElementById('main-pause-btn');
+            if (btn) btn.style.display = gameActive ? 'flex' : 'none';
+        }
+
+        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
@@ -1159,23 +1155,21 @@
                 currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; 
             }
             
+            /* BLOQUEIO TOTAL E CRÍTICO DE BYPASS DO MERCADO PAGO */
             if (type === 'premium_link') {
-                let textAlert = "O tanque de guerra custa 1 real e o pagamento é processado pelo Mercado Pago com 100% de segurança!\n\nEste tanque de guerra valerá apenas para UMA FASE INTEIRA após a confirmação.\n\nVocê será redirecionado para concluir o pagamento.";
+                let textAlert = "O tanque de guerra custa 1 real e o pagamento é processado pelo Mercado Pago com segurança!\n\nEste tanque valerá por uma fase inteira.\n\nVocê será redirecionado para concluir o pagamento.";
                 alert(textAlert); window.open("https://mpago.la/1WMeWCp", "_blank");
                 
                 let overlay = document.getElementById('ad-processing-overlay');
                 let title = document.getElementById('ad-overlay-title');
                 let txtCounter = document.getElementById('ad-countdown-txt');
-                title.innerText = "VERIFICANDO PAGAMENTO MERCADO PAGO";
-                txtCounter.innerText = "Aguardando API..."; overlay.classList.remove('hidden');
+                title.innerText = "AGUARDANDO PAGAMENTO IPN";
+                txtCounter.innerText = "Consultando Webhook..."; overlay.classList.remove('hidden');
                 
+                // NOTA: Removido o push automático. O item NÃO é liberado por tempo para impedir fraudes do jogador.
                 setTimeout(() => {
-                    overlay.classList.add('hidden'); unlockedSkins.push('premium_tank');
-                    safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
-                    tankPhaseLifespan = currentPhase + 1; safeSetStorage('tankPhaseLifespan', tankPhaseLifespan);
-                    currentSkinId = 'premium_tank'; safeSetStorage('currentSkinId', 'premium_tank');
-                    buildShop(); updateHUD();
-                    alert("Pagamento Confirmado! Seu Tanque de Guerra Premium está liberado para uso!");
+                    overlay.classList.add('hidden');
+                    alert("Aviso: O pagamento foi aberto na outra guia. A skin só será liberada em seu inventário assim que a API do Mercado Pago confirmar a compensação do Pix/Cartão.");
                 }, 4000); return;
             }
 
@@ -1223,8 +1217,8 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
@@ -1236,6 +1230,38 @@
             'turbo': { name: '⚡ Super Rush', cost: 400 }
         };
 
+        /* MECÂNICA DE PULO GLOBAL (RESTAURADA E 100% FUNCIONAL) */
+        function playerJump() {
+            if (!gameActive || isPaused || isLoopingAnimationMode) return;
+            if (!player.isJumping || (doubleJumpUnlocked && player.jumpCount < 2)) {
+                player.velocity = player.lift;
+                player.isJumping = true;
+                player.jumpCount++;
+                player.onPlatform = false;
+                playSoundJump();
+            }
+        }
+
+        // Eventos de teclado (Desktop)
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                playerJump();
+                e.preventDefault();
+            }
+        });
+
+        // Eventos de toque (Mobile) - Evita pular ao clicar nos botões de controle reais
+        window.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button') || 
+                e.target.closest('.pause-btn') || 
+                e.target.closest('.settings-gear') || 
+                e.target.closest('#laser-action-btn') || 
+                e.target.closest('#ad-banner-placement')) {
+                return;
+            }
+            playerJump();
+        });
+
         resizeEngineCanvas();
         ctx = document.getElementById('gameCanvas').getContext('2d');
         initTerrain();
@@ -1244,4 +1270,3 @@
     </script>
 </body>
 </html>
- 
