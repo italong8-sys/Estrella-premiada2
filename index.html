@@ -577,6 +577,12 @@
             };
         }
 
+        // VALIDAÇÃO DE SEGURANÇA DA SKIN INICIAL CONTRA ARMAZENAMENTO CORROMPIDO DO NAVEGADOR
+        if (!skinsDB[currentSkinId]) {
+            currentSkinId = 'skin_1';
+            safeSetStorage('currentSkinId', 'skin_1');
+        }
+
         const scenariosDB = {
             'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" },
             'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,4,0,Math.PI*2); g.fill(); } },
@@ -600,6 +606,10 @@
             'scen_glitchdim': { name: '👾 Dimensão Glitch', type: 'ad', phaseRequired: 8, top: "#1a0000", bottom: "#001a1a", render: (g,w,h)=> { g.fillStyle="#1a0000"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(10,10,15,15); g.fillStyle="#00f2fe"; g.fillRect(20,20,15,15); } },
             'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(15,15,20,20); } }
         };
+
+        if (!scenariosDB[currentScenarioId]) {
+            currentScenarioId = 'scen_default';
+        }
 
         let activeRewardedAdCallback = null;
         function triggerRewardedAdCall(callback) {
@@ -934,8 +944,15 @@
                         ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore();
                     });
 
+                    // DESENHO DO PERSONAGEM COM COBERTURA BALÍSTICA DE CONTINGÊNCIA
                     let pX = player.x + player.width/2; let pY = player.y + player.height/2;
-                    if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, pX, pY, player.width/2);
+                    if (skinsDB[currentSkinId]) {
+                        skinsDB[currentSkinId].render(ctx, pX, pY, player.width/2);
+                    } else {
+                        // Se houver qualquer falha de carregamento, renderiza a estrela amarela padrão imediatamente
+                        drawVectorGeometricShape(ctx, pX, pY, 5, player.width/2, player.width/4, '#ffe81f');
+                    }
+                    
                     if (shieldActive) { ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width*0.85, 0, Math.PI*2); ctx.strokeStyle="#00f2fe"; ctx.lineWidth=2; ctx.stroke(); ctx.restore(); }
                 }
             } catch(e){}
