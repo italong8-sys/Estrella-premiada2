@@ -170,7 +170,6 @@
 <body>
 
     <div id="game-container">
-        <!-- DETECTOR INTERATIVO DE ANÚNCIOS PREMIADOS -->
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
             <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">SISTEMA DE RECOMPENSAS AD</h2>
@@ -210,7 +209,6 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- BANNER DE ANÚNCIOS DO RODAPÉ PERSISTENTE -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
                 ⚡ [ANÚNCIO CYBER] TOQUE AQUI PARA VISITAR O PATROCINADOR E MULTIPLICAR SEUS GANHOS ⚡
@@ -603,7 +601,6 @@
             'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(15,15,20,20); } }
         };
 
-        /* INTERCEPTOR PREMIUM CONTRA POPUP BLOCKERS */
         let activeRewardedAdCallback = null;
         function triggerRewardedAdCall(callback) {
             activeRewardedAdCallback = callback;
@@ -622,7 +619,6 @@
             if (overlay) overlay.classList.remove('hidden');
         }
 
-        /* DISPARO EXPEDIDO APÓS CLIQUE REAL DO USUÁRIO */
         function userExplicitAdActionGate() {
             try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas restritas."); }
             
@@ -909,7 +905,7 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe"); groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height); ctx.closePath(); ctx.fill();
-                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             }
                         }
                         ctx.restore();
