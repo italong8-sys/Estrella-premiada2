@@ -64,6 +64,7 @@
             border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 101;
         }
 
+        /* AJUSTE COESO DE TELAS PARA DEIXAR O ESPAÇO DO BANNER LIVRE */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 50px);
             background: rgba(6, 6, 18, 0.96); display: flex; flex-direction: column;
@@ -135,7 +136,7 @@
 
         #ad-processing-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.95); z-index: 500; display: flex; flex-direction: column;
+            background: rgba(0, 0, 0, 0.96); z-index: 1000000; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; color: #ffffff;
         }
         .spinner {
@@ -154,15 +155,17 @@
         }
         #payout-toast.active { bottom: 80px; }
 
+        /* BANNER TOTALMENTE ISOLADO COM ALTURA CONSOLIDADA E PREENCHIMENTO COMPACTO */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
-            background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
-            display: flex; align-items: center; justify-content: center;
-            border-top: 1px solid rgba(0, 242, 254, 0.25); z-index: 999; overflow: hidden; cursor: pointer;
+            background: #050510; display: flex; align-items: center; justify-content: center;
+            border-top: 2px solid #00f2fe; box-shadow: 0 -4px 15px rgba(0, 242, 254, 0.2);
+            z-index: 999999; overflow: hidden; cursor: pointer;
         }
         .banner-link-wrapper {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            text-decoration: none; color: #00f2fe; font-size: 11px; font-weight: bold; text-align: center; padding: 0 10px;
+            text-decoration: none; color: #ffe81f; font-size: 10px; font-weight: bold; text-align: center; padding: 0 10px;
+            letter-spacing: 0.5px; text-shadow: 0 0 8px rgba(255, 232, 31, 0.4);
         }
     </style>
 </head>
@@ -171,9 +174,9 @@
     <div id="game-container">
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
-            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 22px; letter-spacing: 1px;">CARREGANDO ANÚNCIO PREMIADO</h2>
-            <p style="color: #00f2fe; font-size: 13px; margin: 0 0 5px 0;">Por favor, aguarde a reprodução completa do patrocinador...</p>
-            <p id="ad-countdown-txt" style="color: #ffe81f; font-weight: bold; font-size: 18px;">3s</p>
+            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">CARREGANDO ANÚNCIO PREMIADO</h2>
+            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 5px 0;">O anúncio foi aberto em outra guia. Aguarde a validação da recompensa...</p>
+            <p id="ad-countdown-txt" style="color: #ffe81f; font-weight: bold; font-size: 20px;">4s</p>
         </div>
 
         <div id="payout-toast">
@@ -208,10 +211,11 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
+        <!-- BANNER DO RODAPÉ PERSISTENTE - CONECTADO DIRETAMENTE AO SMARTLINK -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
-            <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
-                ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
-            </a>
+            <div class="banner-link-wrapper">
+                ⚡ [ANÚNCIO CYBER] TOQUE AQUI PARA VISITAR O PATROCINADOR E MULTIPLICAR SEUS GANHOS ⚡
+            </div>
         </div>
 
         <!-- LOBBY INICIAL -->
@@ -368,7 +372,7 @@
         let canvas = null, ctx = null;
 
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
-        let obstacleSpeed = 4.5, obstacleTimer = 0;
+        let obstacleSpeed = 4.5, obstacleSpeedMultiplier = 1.0, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
         let adLifeUsed = false, isMuted = false;
 
@@ -438,10 +442,11 @@
 
         function safeSetText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
 
+        /* AJUSTE ESTRUTURAL DA ALTURA DO CHÃO PARA NÃO PERMITIR CLIPS ATRÁS DO BANNER DO RODAPÉ */
         function resizeEngineCanvas() {
             canvas = document.getElementById('gameCanvas'); if (!canvas) return;
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            BASE_GROUND_Y = canvas.height - 130;
+            BASE_GROUND_Y = canvas.height - 165; 
             player.x = Math.floor(canvas.width * 0.16);
             if(player.x < 40) player.x = 40;
             if(!gameActive) player.y = BASE_GROUND_Y - player.height;
@@ -600,15 +605,21 @@
             'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(15,15,20,20); } }
         };
 
-        /* CENTRALIZADOR DE ANÚNCIOS REWARDED - EVITA CONTEXT FREEZE E TRAVAMENTOS */
-        function triggerRewardedAdCall(callback, isFatal) {
+        /* ENGENHARIA DE DISPARO REWARDED AD CORRIGIDA: ATIVA A IMPRESSÃO E DISPARA O CALLBACK */
+        function triggerRewardedAdCall(callback) {
+            // Abre o Smartlink em segundo plano para forçar a contabilização no painel
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueador impediu popunder."); }
+            
             let overlay = document.getElementById('ad-processing-overlay');
             let title = document.getElementById('ad-overlay-title');
             let txtCounter = document.getElementById('ad-countdown-txt');
-            if (title) title.innerText = "EXIBINDO PROPAGANDA PATROCINADA";
+            
+            if (title) title.innerText = "CONTABILIZANDO IMPRESSÃO PREMIADA";
             if (overlay) overlay.classList.remove('hidden');
-            let count = 3;
+            
+            let count = 4;
             if (txtCounter) txtCounter.innerText = count + "s";
+            
             let interval = setInterval(() => {
                 count--;
                 if (txtCounter) txtCounter.innerText = count + "s";
@@ -1011,7 +1022,6 @@
         function updateEntitiesAndCollisions(speed) {
             player.onPlatform = false;
 
-            /* FILTRO DE ENTRADA DO CANO EXECUTADO DE FORMA SEGURA SEM TRAVAR O GAME LOOP */
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= speed;
                 
@@ -1048,7 +1058,6 @@
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
                 let it = itemsInGame[i]; 
                 
-                /* MECÂNICA ATIVA DE ÍMÃ MAGNÉTICO CÓSMICO */
                 if (magnetActiveTimer > 0) {
                     let dx = (player.x + player.width/2) - it.x;
                     let dy = (player.y + player.height/2) - it.y;
@@ -1070,13 +1079,21 @@
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
-        function handleTrainCrashFatal() { gameActive = false; updatePauseButtonVisibility(); triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.remove('hidden'); }, true); }
+        
+        /* O ANÚNCIO AGORA SÓ DISPARA QUANDO O JOGADOR SOLICITA O CONTINUAR COERENTEMENTE */
+        function handleTrainCrashFatal() { 
+            gameActive = false; 
+            updatePauseButtonVisibility(); 
+            document.getElementById('train-gameover-screen').classList.remove('hidden');
+        }
         
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
-                gameActive = false; updatePauseButtonVisibility(); safeSetText('final-score', score); 
-                triggerRewardedAdCall(() => { document.getElementById('gameover-screen').classList.remove('hidden'); }, true);
+                gameActive = false; 
+                updatePauseButtonVisibility(); 
+                safeSetText('final-score', score); 
+                document.getElementById('gameover-screen').classList.remove('hidden');
             } 
         }
 
@@ -1261,6 +1278,7 @@
         function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando.</li>"; } else alert("Acesso negado."); }
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
+        
         function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
 
         function updateHUD() {
