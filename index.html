@@ -94,12 +94,24 @@
         .btn-sm { padding: 5px 12px; font-size: 10px; border-radius: 15px; }
 
         #laser-action-btn {
-            position: absolute; bottom: 70px; right: 20px; width: 56px; height: 56px;
+            position: absolute; bottom: 135px; right: 20px; width: 50px; height: 50px;
             background: radial-gradient(circle, #ff007f 0%, #7c003c 100%);
             border: 2px solid #ffffff; border-radius: 50%; z-index: 90;
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
             box-shadow: 0 0 15px #ff007f; cursor: pointer; display: none;
         }
+
+        #manual-hud-controls {
+            position: absolute; bottom: 65px; left: 0; width: 100%; padding: 0 20px;
+            display: none; justify-content: space-between; align-items: center; z-index: 95; pointer-events: none;
+        }
+        .dpad-group { display: flex; gap: 14px; pointer-events: auto; }
+        .control-arrow-btn {
+            width: 54px; height: 54px; background: rgba(10, 10, 26, 0.9); border: 2px solid #00f2fe;
+            border-radius: 50%; color: #ffffff; font-size: 22px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+        .control-arrow-btn:active { background: #00f2fe; color: #000; }
 
         input[type="text"], input[type="password"] {
             padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(0, 242, 254, 0.2);
@@ -173,8 +185,8 @@
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
             <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">SISTEMA DE RECOMPENSAS AD</h2>
-            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 20px 0; max-width: 280px; line-height: 1.4;">Clique no botão abaixo para carregar o anúncio do patrocinador e liberar seu prêmio.</p>
-            <div id="ad-countdown-txt"></div>
+            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 20px 0; max-width: 280px; line-height: 1.4;">Carregando anúncio obrigatório do patrocinador...</p>
+            <div id="ad-countdown-txt" style="color:#ffe81f; font-size:14px; font-weight:bold;">Aguarde redirecionamento...</div>
         </div>
 
         <div id="payout-toast">
@@ -199,16 +211,28 @@
 
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
-            <button class="btn btn-sm" onclick="toggleMute()">🔇 Áudio</button>
-            <button class="btn btn-sm" onclick="openRankingMenu()">🏆 Ranking</button>
-            <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte</button>
+            <button class="btn btn-sm" onclick="toggleMute()">🔇 Alternar Áudio</button>
+            <button class="btn btn-sm" onclick="openRankingMenu()">🏆 Ver Ranking</button>
+            <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte Técnico</button>
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
         </div>
 
         <canvas id="gameCanvas"></canvas>
 
-        <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
+        <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Disparar Especial</div>
 
+        <!-- CONTROLES DPAD DA JOGABILIDADE MANUAL -->
+        <div id="manual-hud-controls">
+            <div class="dpad-group">
+                <div class="control-arrow-btn" id="ctrl-left">⬅️</div>
+                <div class="control-arrow-btn" id="ctrl-right">➡️</div>
+            </div>
+            <div class="dpad-group">
+                <div class="control-arrow-btn" id="ctrl-jump">🔼</div>
+            </div>
+        </div>
+
+        <!-- BANNER DE PUBLICAÇÃO FIXO NO RODAPÉ -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
                 ⚡ [ANÚNCIO CYBER] TOQUE AQUI PARA VISITAR O PATROCINADOR E MULTIPLICAR SEUS GANHOS ⚡
@@ -223,46 +247,41 @@
 
             <div class="tutorial-card">
                 <div style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-align: center; color: #00f2fe; margin-bottom: 10px;">
-                    📢 AVISO DE JOGABILIDADE: Você pode pular nas plataformas azuis flutuantes que elas não gerarão danos ao seu corredor!
+                    📢 AVISO DE JOGABILIDADE: Controle o corredor segurando as setas na tela ou teclado. Pule nas plataformas azuis flutuantes sem sofrer dano!
                 </div>
 
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
                     Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas sem perigos.
                 </div>
-                <div class="tut-title" style="color:#ff007f;">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
-                <div style="color:#d1d1f0;">
-                    Pistas circulares surgirão na pista! Entre nelas para realizar um looping completo de 360 graus por dentro do círculo com aceleração total!
-                </div>
             </div>
 
             <h1 style="font-size:28px; color:#ffe81f; margin:0 0 10px 0; letter-spacing:3px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">STAR RUNNER</h1>
 
-            <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">Iniciar Corrida</button>
+            <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">🏃‍♂️ Iniciar Corrida</button>
             
             <div style="margin-top: 10px; display:flex; gap:6px; flex-direction: column; width: 100%; max-width: 250px;">
-                <button class="btn btn-sm" onclick="openShop()">Lojinha Cyber</button>
-                <button class="btn btn-sm" onclick="openWithdraw()">Sacar Pix</button>
-                <button class="btn btn-sm" onclick="openPixHistory()">Histórico</button>
-                <button class="btn btn-sm" style="border-color: #ffe81f;" onclick="triggerCoinReload()">🎬 +1000 Moedas</button>
+                <button class="btn btn-sm" onclick="openShop()">🏪 Lojinha Cyber</button>
+                <button class="btn btn-sm" onclick="openWithdraw()">💸 Sacar Recompensa Pix</button>
+                <button class="btn btn-sm" onclick="openPixHistory()">📜 Histórico Extrato</button>
+                <button class="btn btn-sm" style="border-color: #ffe81f;" onclick="triggerCoinReload()">🎬 +1000 Moedas Grátis</button>
             </div>
         </div>
 
         <!-- PAUSA OVERLAY SCREEN -->
         <div id="pause-screen" class="screen hidden" style="background:rgba(5,5,15,0.85);">
-            <h2 style="color:#00f2fe; letter-spacing:3px; font-size:28px;">JOGO PAUSADO</h2>
+            <h2 style="color:#00f2fe; letter-spacing:3px; font-size:28px;">⏸️ JOGO PAUSADO</h2>
             <p style="color:#8a8ab0; font-size:12px; margin-bottom:20px;">Sua corrida está congelada de forma segura.</p>
-            <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">Retornar</button>
+            <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">▶️ Retornar</button>
         </div>
 
         <!-- GAME OVER COMUM -->
         <div id="gameover-screen" class="screen hidden">
-            <h2 style="color: #ff007f; font-size: 26px;">Fim de Corrida!</h2>
+            <h2 style="color: #ff007f; font-size: 26px;">💀 Fim de Corrida!</h2>
             <p style="color:#fff; margin-bottom: 12px;">Metros percorridos: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span></p>
-            <button class="btn" style="background:#28a745; color:white; border:none; padding: 10px 20px; margin-bottom: 12px; width: 100%; max-width: 250px;" onclick="watchAdForLife()">🎬 Resgatar Vida (Ver Anúncio)</button>
             <div style="display:flex; flex-direction:column; gap:6px; width:100%; max-width:250px;">
-                <button class="btn btn-primary" onclick="resetGame()">Tentar Novamente</button>
-                <button class="btn" onclick="backToMenu()">Menu Principal</button>
+                <button class="btn btn-primary" onclick="resetGame()">🔄 Tentar Novamente</button>
+                <button class="btn" onclick="backToMenu()">🏠 Menu Principal</button>
             </div>
         </div>
 
@@ -270,10 +289,10 @@
         <div id="train-gameover-screen" class="screen hidden">
             <h2 style="color: #ffaa00; font-size: 24px;">💥 Colisão de Trem Ferroviário!</h2>
             <p style="color:#fff; font-size: 12px; margin-bottom: 15px; text-align: center; max-width: 260px;">
-                Para continuar jogando nesta mesma fase ferroviária sem perder seu progresso, assista ao anúncio premiado!
+                O trem interrompeu seu avanço. Reinicie a rodada de corrida na malha metroviária.
             </p>
-            <button class="btn" style="background:#ff007f; color:white; border:none; padding: 12px 20px; margin-bottom: 12px; width:100%; max-width:250px;" onclick="watchAdForTrainContinue()">🎬 Assistir Propaganda e Continuar</button>
-            <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">Voltar ao Menu</button>
+            <button class="btn btn-primary" style="width:100%; max-width:250px;" onclick="resetGameFromTrain()">🔄 Tentar Novamente</button>
+            <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">🏠 Voltar ao Menu</button>
         </div>
 
         <!-- MENU RANKING -->
@@ -281,14 +300,14 @@
             <div class="panel-box">
                 <h3 style="color:#00f2fe; margin-top:0; text-transform: uppercase; font-size: 14px;">🏆 RECORDES MUNDIAIS STAR RUNNER</h3>
                 <ul class="data-list" id="ranking-list-container"></ul>
-                <button class="btn btn-sm" style="margin-top:5px;" onclick="closeRankingMenu()">Fechar</button>
+                <button class="btn btn-sm" style="margin-top:5px;" onclick="closeRankingMenu()">❌ Fechar Ranking</button>
             </div>
         </div>
 
         <!-- CENTRAL DE SUPORTE -->
         <div id="support-screen" class="screen hidden">
             <div class="panel-box" style="justify-content: center; align-items: center; text-align: center;">
-                <h3 style="color: #00f2fe; margin-bottom: 10px; text-transform: uppercase; font-size: 14px;">Central de Suporte</h3>
+                <h3 style="color: #00f2fe; margin-bottom: 10px; text-transform: uppercase; font-size: 14px;">ℹ️ Central de Suporte</h3>
                 <p style="font-size: 12px; color: #ffffff; max-width: 260px; line-height: 1.5; margin-bottom: 12px;">
                     Para suporte, dúvidas, críticas, sugestões ou bugs, mande um email para:<br>
                     <strong style="color: #ffe81f; font-size: 13px; word-break: break-all;">anjositalo200@gmail.com</strong>
@@ -296,7 +315,7 @@
                 <p style="font-size: 12px; color: #ff007f; font-weight: bold; margin-bottom: 15px;">
                     Obrigado por utilizar nosso aplicativo!<br>Se divirta!
                 </p>
-                <button class="btn btn-primary btn-sm" style="width:100%; max-width:160px;" onclick="closeSupportScreen()">Voltar</button>
+                <button class="btn btn-primary btn-sm" style="width:100%; max-width:160px;" onclick="closeSupportScreen()">⬅️ Voltar ao Lobby</button>
             </div>
         </div>
 
@@ -304,25 +323,25 @@
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap: wrap; gap:4px;">
-                    <h3 style="margin:0; text-transform: uppercase; color: #00f2fe; font-size: 12px;">Lojinha Cyber</h3>
+                    <h3 style="margin:0; text-transform: uppercase; color: #00f2fe; font-size: 12px;">🏪 Lojinha Cyber</h3>
                     <div style="font-weight:bold; color:#ffe81f; font-size: 12px;">Saldo: <span id="shop-coins-txt">0</span> 🪙</div>
                 </div>
                 <div class="shop-tabs">
-                    <button class="btn btn-sm" onclick="changeShopTab('skins')">Skins Ads</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('bizarre')">Skins Bizarras</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('scenarios')">Cenários Épicos</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">Poderes Personalizados</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('skins')">🎭 Skins Ads</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('bizarre')">👾 Skins Bizarras</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('scenarios')">🌌 Cenários Épicos</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">⚡ Poderes Úteis</button>
                 </div>
                 <div class="shop-grid" id="shop-items-container"></div>
                 <div style="text-align: center; margin-top: 10px;">
-                    <button class="btn btn-sm" style="background:#333; width:100%; max-width:140px;" onclick="closeShop()">Voltar</button>
+                    <button class="btn btn-sm" style="background:#333; width:100%; max-width:140px;" onclick="closeShop()">⬅️ Voltar ao Lobby</button>
                 </div>
             </div>
         </div>
 
         <!-- FINANCEIRO SAQUES PIX -->
         <div id="withdraw-screen" class="screen hidden">
-            <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">Resgatar Recompensa Pix</h3>
+            <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">💸 Resgatar Recompensa Pix</h3>
             <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 15px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 14px; text-align:center; width:100%; max-width:240px;">Saldo: <span id="withdraw-balance">0</span> pts</div>
             
@@ -331,33 +350,33 @@
             </p>
 
             <input type="text" id="pix-key" placeholder="Insira sua Chave PIX">
-            <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 6px; width:100%; max-width:240px;">Solicitar Payout</button>
-            <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">Voltar</button>
+            <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 6px; width:100%; max-width:240px;">💰 Solicitar Payout</button>
+            <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">⬅️ Voltar ao Lobby</button>
         </div>
 
         <!-- EXTRATO HISTÓRICO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="margin-top:0; color: #00f2fe; font-size: 12px; text-transform: uppercase;">Extrato Pix</h3>
+                <h3 style="margin-top:0; color: #00f2fe; font-size: 12px; text-transform: uppercase;">📜 Extrato Operações Pix</h3>
                 <ul class="data-list" id="history-list-container"></ul>
-                <div style="text-align:center; margin-top:4px;"><button class="btn btn-sm" style="width:100%; max-width:130px;" onclick="closePixHistory()">Voltar</button></div>
+                <div style="text-align:center; margin-top:4px;"><button class="btn btn-sm" style="width:100%; max-width:130px;" onclick="closePixHistory()">⬅️ Voltar ao Lobby</button></div>
             </div>
         </div>
 
         <!-- PAINEL DEV -->
         <div id="admin-login-screen" class="screen hidden">
-            <h3>Acesso Restrito Developer</h3>
+            <h3>🔒 Acesso Restrito Developer</h3>
             <input type="text" id="admin-user-field" placeholder="Usuário Admin">
             <input type="password" id="admin-pass-field" placeholder="Senha Administrativa">
-            <button class="btn btn-primary" style="width:100%; max-width:240px;" onclick="verifyAdminLogin()">Autenticar</button>
-            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:6px; width:100%; max-width:240px;">Cancelar</button>
+            <button class="btn btn-primary" style="width:100%; max-width:240px;" onclick="verifyAdminLogin()">🔑 Autenticar</button>
+            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:6px; width:100%; max-width:240px;">❌ Cancelar</button>
         </div>
 
         <div id="admin-dashboard-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="margin:0 0 5px 0; color:#ff007f; font-size: 12px;">AUDITORIA DE PAYOUTS</h3>
+                <h3 style="margin:0 0 5px 0; color:#ff007f; font-size: 12px;">📊 AUDITORIA DE PAYOUTS ADM</h3>
                 <ul class="data-list" id="admin-pending-list"></ul>
-                <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">Desconectar</button></div>
+                <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">🚪 Desconectar Sistema</button></div>
             </div>
         </div>
     </div>
@@ -386,12 +405,8 @@
         let itemsInGame = []; 
         let smokeParticles = []; 
 
-        let isLoopingAnimationMode = false;
-        let loopingAngleTrack = 0;
-        let loopingCenterX = 0;
-        let loopingCenterY = 0;
-        let loopingRadiusSize = 65;
-        let loopingObjectX = -999;
+        // RASTREADOR DE DIREÇÃO PARA JOGABILIDADE MANUAL
+        let controlKeys = { Left: false, Right: false };
 
         let playerMana = 100;
         let activeLaserFrame = 0;
@@ -577,7 +592,6 @@
             };
         }
 
-        // VALIDAÇÃO DE SEGURANÇA DA SKIN INICIAL CONTRA ARMAZENAMENTO CORROMPIDO DO NAVEGADOR
         if (!skinsDB[currentSkinId]) {
             currentSkinId = 'skin_1';
             safeSetStorage('currentSkinId', 'skin_1');
@@ -611,40 +625,23 @@
             currentScenarioId = 'scen_default';
         }
 
-        let activeRewardedAdCallback = null;
+        // FUNÇÃO GLOBAL DE REDIRECIONAMENTO AUTOMÁTICO DE ANÚNCIO (SEM CONFIRMAÇÃO DE CLIQUE)
         function triggerRewardedAdCall(callback) {
             activeRewardedAdCallback = callback;
             let overlay = document.getElementById('ad-processing-overlay');
-            let title = document.getElementById('ad-overlay-title');
-            let txtCounter = document.getElementById('ad-countdown-txt');
-            
-            if (title) title.innerText = "SISTEMA DE RECOMPENSAS AD";
-            if (txtCounter) {
-                txtCounter.innerHTML = `
-                    <button class="btn btn-primary" style="padding: 14px 28px; font-size: 12px; box-shadow: 0 0 15px #ff007f;" onclick="userExplicitAdActionGate()">
-                        ⚡ ASSISTIR PROPAGANDA AGORA ⚡
-                    </button>
-                `;
-            }
             if (overlay) overlay.classList.remove('hidden');
-        }
-
-        function userExplicitAdActionGate() {
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas restritas."); }
             
-            let title = document.getElementById('ad-overlay-title');
+            // Abre de forma automatizada e instantânea
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueador impediu pop-up direto."); }
+            
+            let count = 3;
             let txtCounter = document.getElementById('ad-countdown-txt');
-            if (title) title.innerText = "VALIDANDO VISUALIZAÇÃO...";
-            
-            let count = 4;
-            if (txtCounter) txtCounter.innerText = count + "s";
             
             let interval = setInterval(() => {
                 count--;
-                if (txtCounter) txtCounter.innerText = count + "s";
+                if (txtCounter) txtCounter.innerText = "Processando recompensa em " + count + "s...";
                 if (count <= 0) {
                     clearInterval(interval);
-                    let overlay = document.getElementById('ad-processing-overlay');
                     if (overlay) overlay.classList.add('hidden');
                     if (activeRewardedAdCallback) {
                         activeRewardedAdCallback();
@@ -683,8 +680,8 @@
             }
             itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
-            isLoopingAnimationMode = false; loopingObjectX = -999;
             updatePauseButtonVisibility();
+            updateManualControlsUIVisibility();
         }
 
         function triggerBonusStageActivation() {
@@ -773,7 +770,16 @@
         function runGameLoop() {
             try {
                 if (ctx) {
-                    let currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
+                    // CONFIGURAÇÃO DA VELOCIDADE DO MAPA BASEADA NO CONTROLE MANUAL DO JOGADOR
+                    let currentFrameSpeed = 0;
+                    if (gameActive && !isPaused) {
+                        if (controlKeys.Right) {
+                            currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
+                        } else if (controlKeys.Left) {
+                            currentFrameSpeed = isBonusStageMode ? -6.0 : -obstacleSpeed;
+                        }
+                    }
+
                     if (timeflowActiveTimer > 0 && !isBonusStageMode) currentFrameSpeed *= 0.5;
 
                     if (!isPaused && gameActive) {
@@ -789,24 +795,12 @@
                             safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
                         }
 
-                        if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0) {
+                        if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0 && currentFrameSpeed !== 0) {
                             smokeParticles.push({
                                 x: player.x + player.width * 0.8, y: player.y - 4,
                                 size: 5 + Math.random() * 8, opacity: 1.0,
                                 vx: -1.5 - Math.random() * 2, vy: -1.0 - Math.random() * 1
                             });
-                        }
-
-                        if (isLoopingAnimationMode) {
-                            loopingAngleTrack += 0.08; 
-                            player.x = loopingCenterX + Math.cos(loopingAngleTrack) * loopingRadiusSize - player.width / 2;
-                            player.y = loopingCenterY + Math.sin(loopingAngleTrack) * loopingRadiusSize - player.height / 2;
-                            player.velocity = 0;
-                            
-                            if (loopingAngleTrack >= Math.PI * 2.5) {
-                                isLoopingAnimationMode = false;
-                                player.x = 70; player.y = BASE_GROUND_Y - player.height;
-                            }
                         }
 
                         for (let i = smokeParticles.length - 1; i >= 0; i--) {
@@ -815,27 +809,22 @@
                         }
 
                         if (!isBonusStageMode) {
-                            if (!isLoopingAnimationMode) score++;
+                            // SCORE SÓ SOMA SE O JOGADOR ESTIVER ANDANDO MANUALMENTE PARA A DIREITA
+                            if (controlKeys.Right) score++;
+                            else if (controlKeys.Left) score = Math.max(0, score - 1);
+
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
 
-                            if (loopingObjectX > -200) {
-                                loopingObjectX -= currentFrameSpeed;
-                                if (!isLoopingAnimationMode && loopingObjectX < player.x + 20 && loopingObjectX > player.x - 40 && Math.abs(player.y - (BASE_GROUND_Y - player.height)) < 40) {
-                                    isLoopingAnimationMode = true; loopingAngleTrack = Math.PI; 
-                                    loopingCenterX = player.x + loopingRadiusSize; loopingCenterY = BASE_GROUND_Y - loopingRadiusSize;
-                                    coins += 50; updateHUD(); 
-                                }
-                            }
-
-                            updateAndGenerateTerrain(currentFrameSpeed); updateSpawningEngine();
+                            updateAndGenerateTerrain(currentFrameSpeed); 
+                            if (currentFrameSpeed > 0) updateSpawningEngine();
                         } else {
-                            bonusStageTimer--;
+                            if (currentFrameSpeed !== 0) bonusStageTimer--;
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
-                            if (frameCount % 30 === 0) {
+                            if (currentFrameSpeed > 0 && frameCount % 30 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 80);
                                 platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false });
                                 itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
@@ -843,39 +832,30 @@
                             updateAndGenerateTerrain(currentFrameSpeed);
                         }
 
-                        if (!isLoopingAnimationMode) {
-                            updateEntitiesAndCollisions(currentFrameSpeed);
-                            if (jetpackActiveTimer > 0) {
-                                player.velocity += 0.1; if (player.y < 40) player.y = 40;
-                            } else {
-                                player.velocity += player.gravity;
-                            }
-                            let nextY = player.y + player.velocity;
-                            let floorY = getGroundYAt(player.x + player.width/2);
-                            if (player.onPlatform) floorY = player.platformTop;
-
-                            if (isBonusStageMode && nextY > BASE_GROUND_Y - player.height) {
-                                nextY = BASE_GROUND_Y - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
-                            }
-
-                            if (player.y > canvas.height + 15) {
-                                if (isBonusStageMode) { player.y = BASE_GROUND_Y - player.height; player.velocity = 0; } else {
-                                    handleLifeLoss(); if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
-                                }
-                            } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
-                                player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
-                            } else { player.y = nextY; }
+                        updateEntitiesAndCollisions(currentFrameSpeed);
+                        if (jetpackActiveTimer > 0) {
+                            player.velocity += 0.1; if (player.y < 40) player.y = 40;
+                        } else {
+                            player.velocity += player.gravity;
                         }
+                        let nextY = player.y + player.velocity;
+                        let floorY = getGroundYAt(player.x + player.width/2);
+                        if (player.onPlatform) floorY = player.platformTop;
+
+                        if (isBonusStageMode && nextY > BASE_GROUND_Y - player.height) {
+                            nextY = BASE_GROUND_Y - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
+                        }
+
+                        if (player.y > canvas.height + 15) {
+                            if (isBonusStageMode) { player.y = BASE_GROUND_Y - player.height; player.velocity = 0; } else {
+                                handleLifeLoss(); if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
+                            }
+                        } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
+                            player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
+                        } else { player.y = nextY; }
                     }
 
                     renderBackgroundScenariosLayer();
-
-                    if (loopingObjectX > -150 && !isBonusStageMode) {
-                        ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 8; ctx.shadowBlur = 15; ctx.shadowColor = "#ff007f";
-                        ctx.beginPath(); ctx.arc(loopingObjectX + loopingRadiusSize, BASE_GROUND_Y - loopingRadiusSize, loopingRadiusSize, 0, Math.PI * 2); ctx.stroke();
-                        ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2; ctx.strokeRect(loopingObjectX + loopingRadiusSize - 2, BASE_GROUND_Y - loopingRadiusSize * 2, 4, loopingRadiusSize * 2);
-                        ctx.restore();
-                    }
 
                     smokeParticles.forEach(p => {
                         ctx.save(); ctx.fillStyle = `rgba(180, 180, 180, ${p.opacity})`;
@@ -915,7 +895,7 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe"); groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height); ctx.closePath(); ctx.fill();
-                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
                             }
                         }
                         ctx.restore();
@@ -944,12 +924,10 @@
                         ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore();
                     });
 
-                    // DESENHO DO PERSONAGEM COM COBERTURA BALÍSTICA DE CONTINGÊNCIA
                     let pX = player.x + player.width/2; let pY = player.y + player.height/2;
                     if (skinsDB[currentSkinId]) {
                         skinsDB[currentSkinId].render(ctx, pX, pY, player.width/2);
                     } else {
-                        // Se houver qualquer falha de carregamento, renderiza a estrela amarela padrão imediatamente
                         drawVectorGeometricShape(ctx, pX, pY, 5, player.width/2, player.width/4, '#ffe81f');
                     }
                     
@@ -1025,9 +1003,6 @@
                 let currentGroundY = getGroundYAt(sX);
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
-                if (frameCount > 150 && loopingObjectX < -100 && Math.random() > 0.78 && currentPhaseConfig.type !== 'trains' && !isBonusStageMode) {
-                    loopingObjectX = sX + 100; return;
-                }
                 if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
                     platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false }); return;
                 }
@@ -1071,7 +1046,7 @@
                         }
                     }
                 }
-                if (p.x < -300) platforms.splice(i, 1);
+                if (p.x < -300 || p.x > canvas.width + 500) platforms.splice(i, 1);
             }
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -1082,7 +1057,7 @@
                     handleLifeLoss(); continue;
                 }
                 if (!o.passed && o.x < player.x) { o.passed = true; if(!isBonusStageMode) coins += 6; updateHUD(); }
-                if (o.x < -100) obstacles.splice(i, 1);
+                if (o.x < -100 || o.x > canvas.width + 500) obstacles.splice(i, 1);
             }
 
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
@@ -1104,16 +1079,19 @@
                     coins += 15; safeSetStorage('coins', coins); playSoundCoin();
                     itemsInGame.splice(i, 1); updateHUD(); continue;
                 }
-                if (it.x < -100) itemsInGame.splice(i, 1);
+                if (it.x < -100 || it.x > canvas.width + 500) itemsInGame.splice(i, 1);
             }
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
         
+        // DISPAROS AUTOMÁTICOS DE ANÚNCIOS DURANTE EVENTOS DE MORTE DO JOGADOR
         function handleTrainCrashFatal() { 
             gameActive = false; 
             updatePauseButtonVisibility(); 
+            updateManualControlsUIVisibility();
             document.getElementById('train-gameover-screen').classList.remove('hidden');
+            triggerRewardedAdCall(() => { console.log("Ad pós-morte ferroviária concluído."); });
         }
         
         function handleLifeLoss() { 
@@ -1121,14 +1099,15 @@
             if (lives <= 0) { 
                 gameActive = false; 
                 updatePauseButtonVisibility(); 
+                updateManualControlsUIVisibility();
                 safeSetText('final-score', score); 
                 document.getElementById('gameover-screen').classList.remove('hidden');
+                triggerRewardedAdCall(() => { console.log("Ad pós-game over concluído."); });
             } 
         }
 
-        function watchAdForTrainContinue() { triggerRewardedAdCall(() => { document.getElementById('train-gameover-screen').classList.add('hidden'); initTerrain(); player.y = BASE_GROUND_Y - 100; player.velocity = 0; gameActive = true; updatePauseButtonVisibility(); }); }
+        function resetGameFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); resetGame(); }
         function backToMenuFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); backToMenu(); }
-        function watchAdForLife() { triggerRewardedAdCall(() => { lives = 1; player.y = BASE_GROUND_Y - 100; player.velocity = 0; document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; updateHUD(); updatePauseButtonVisibility(); }); }
         function triggerCoinReload() { triggerRewardedAdCall(() => { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }); }
 
         function updatePauseButtonVisibility() {
@@ -1136,9 +1115,14 @@
             if (btn) btn.style.display = gameActive ? 'flex' : 'none';
         }
 
+        function updateManualControlsUIVisibility() {
+            const pad = document.getElementById('manual-hud-controls');
+            if (pad) pad.style.display = gameActive ? 'flex' : 'none';
+        }
+
         function togglePauseGame() { if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
 
-        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
+        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
 
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
@@ -1231,7 +1215,7 @@
                     for (const [id, item] of Object.entries(skinsDB)) {
                         if (item.tab !== currentShopTab) continue;
                         let miniC = document.getElementById(`mini_preview_skin_${id}`);
-                        if (miniC) { let mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); item.render(mCtx, 25, 25, 14); }
+                        if (miniC) { mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); item.render(mCtx, 25, 25, 14); }
                     }
                 }, 25);
             }
@@ -1262,18 +1246,7 @@
             if (type === 'premium_link') {
                 alert("O tanque de guerra custa 1 real e o pagamento é processado pelo Mercado Pago com segurança!\n\nVocê será redirecionado.");
                 window.open("https://mpago.la/1WMeWCp", "_blank");
-                
-                let overlay = document.getElementById('ad-processing-overlay');
-                let title = document.getElementById('ad-overlay-title');
-                let txtCounter = document.getElementById('ad-countdown-txt');
-                if (title) title.innerText = "AGUARDANDO COMPENSAÇÃO MERCADO PAGO";
-                if (txtCounter) txtCounter.innerText = "Consultando Gateway..."; 
-                if (overlay) overlay.classList.remove('hidden');
-                
-                setTimeout(() => {
-                    if (overlay) overlay.classList.add('hidden');
-                    alert("Aviso: Assim que a API do Mercado Pago confirmar a compensação do Pix, o Tanque de Guerra será liberado em seu inventário.");
-                }, 4000); return;
+                return;
             }
 
             if (type === 'ad' || type === 'free') {
@@ -1321,8 +1294,8 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; controlKeys.Left = false; controlKeys.Right = false; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; controlKeys.Left = false; controlKeys.Right = false; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
@@ -1337,7 +1310,7 @@
         };
 
         function playerJump() {
-            if (!gameActive || isPaused || isLoopingAnimationMode) return;
+            if (!gameActive || isPaused) return;
             if (!player.isJumping || (doubleJumpUnlocked && player.jumpCount < 2)) {
                 player.velocity = player.lift;
                 player.isJumping = true;
@@ -1347,29 +1320,49 @@
             }
         }
 
+        // CAPTURA DOS DIRECIONAIS DO TECLADO PARA MOVIMENTO MANUAL
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') controlKeys.Left = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = true;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
                 playerJump();
                 e.preventDefault();
             }
         });
 
-        window.addEventListener('touchstart', (e) => {
-            if (e.target.closest('button') || 
-                e.target.closest('.pause-btn') || 
-                e.target.closest('.settings-gear') || 
-                e.target.closest('#laser-action-btn') || 
-                e.target.closest('#ad-banner-placement')) {
-                return;
-            }
-            playerJump();
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') controlKeys.Left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = false;
         });
+
+        // CAPTURA DOS DIRECIONAIS TÁTEIS NA TELA (MOBILE-FRIENDLY D-PAD)
+        const setupMobileControls = () => {
+            const padLeft = document.getElementById('ctrl-left');
+            const padRight = document.getElementById('ctrl-right');
+            const padJump = document.getElementById('ctrl-jump');
+
+            if (padLeft && padRight && padJump) {
+                padLeft.addEventListener('touchstart', (e) => { controlKeys.Left = true; e.preventDefault(); });
+                padLeft.addEventListener('touchend', (e) => { controlKeys.Left = false; e.preventDefault(); });
+                
+                padRight.addEventListener('touchstart', (e) => { controlKeys.Right = true; e.preventDefault(); });
+                padRight.addEventListener('touchend', (e) => { controlKeys.Right = false; e.preventDefault(); });
+                
+                padJump.addEventListener('touchstart', (e) => { playerJump(); e.preventDefault(); });
+            }
+        };
 
         resizeEngineCanvas();
         ctx = document.getElementById('gameCanvas').getContext('2d');
         initTerrain();
         updateHUD();
+        setupMobileControls();
         requestAnimationFrame(runGameLoop);
+
+        // DISPARO AUTOMÁTICO IMEDIATO ASSIM QUE O JOGADOR ABRE O JOGO
+        window.addEventListener('load', () => {
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
+        });
     </script>
 </body>
 </html>
