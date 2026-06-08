@@ -36,7 +36,7 @@
         canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
         .hud {
-            position: absolute; top: env(safe-area-inset-top, 12px); left: 65px; right: 75px;
+            position: absolute; top: env(safe-area-inset-top, 12px); left: 20px; right: 20px;
             display: flex; justify-content: space-between; align-items: center;
             font-size: 11px; font-weight: bold; pointer-events: none; z-index: 5;
             text-shadow: 0 2px 6px rgba(0,0,0,0.9); flex-wrap: wrap; gap: 4px;
@@ -45,11 +45,13 @@
         .hud-val { color: #ff007f; font-size: 13px; }
         .hud-accent { color: #ffe81f; }
 
+        /* BOTÃO DE PAUSA PERFEITAMENTE CENTRALIZADO SEM AFETAR OUTRAS ÁREAS */
         .pause-btn {
-            position: absolute; top: env(safe-area-inset-top, 10px); left: 15px;
-            font-size: 20px; cursor: pointer; z-index: 100; padding: 4px;
-            background: rgba(10,10,26,0.8); border-radius: 50%; width: 36px; height: 36px;
-            display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);
+            position: absolute; top: env(safe-area-inset-top, 10px); left: 50%;
+            transform: translateX(-50%); font-size: 18px; cursor: pointer; z-index: 9999; padding: 4px;
+            background: rgba(10,10,26,0.9); border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center; border: 2px solid #00f2fe;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
         }
 
         .settings-gear {
@@ -221,13 +223,17 @@
             </div>
 
             <div class="tutorial-card">
+                <div style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-align: center; color: #00f2fe; margin-bottom: 10px;">
+                    📢 AVISO DE JOGABILIDADE: Você pode pular nas plataformas azuis flutuantes que elas não gerarão danos ao seu corredor!
+                </div>
+
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
-                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas.
+                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas sem perigos.
                 </div>
-                <div class="tut-title" style="color:#ff007f;">⚡ Botão de Poder (Raio ou Fumaça Densa)</div>
+                <div class="tut-title" style="color:#ff007f;">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
                 <div style="color:#d1d1f0;">
-                    A partir da **Fase 4**, use o poder para estourar caixotes! Se jogar com a **Maria Fumaça**, ela disparará uma fumaça densa destruidora com som real!
+                    Pistas circulares surgirão na pista! Entre nelas para realizar um looping completo de 360 graus por dentro do círculo com aceleração total!
                 </div>
             </div>
 
@@ -364,25 +370,34 @@
         let canvas = null, ctx = null;
 
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
-        let obstacleSpeed = 6.5, obstacleTimer = 0;
+        // VELOCIDADE CORRIGIDA (MAIS LENTA E CONFORTÁVEL)
+        let obstacleSpeed = 4.5, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
         let adLifeUsed = false, isMuted = false;
 
         let currentPhase = 1;
         let shieldActive = false, doubleJumpUnlocked = false, lifeBonusQueued = 0;
         
-        // NOVOS TIMERS DOS PODERES ESTILO SUBWAY SURFERS
         let jetpackActiveTimer = 0;
         let turboActiveTimer = 0;
+        let tankPhaseLifespan = 0; 
 
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca'], unlockedScenarios = ['scen_default'];
         let itemsInGame = []; 
-        let smokeParticles = []; // SISTEMA DE PARTÍCULAS EXCLUSIVO DO TREM E DA FUMAÇA DENSA
+        let smokeParticles = []; 
+
+        // VARIÁVEIS DE CONTROLE DO LOOPING (ESTILO SONIC)
+        let isLoopingAnimationMode = false;
+        let loopingAngleTrack = 0;
+        let loopingCenterX = 0;
+        let loopingCenterY = 0;
+        let loopingRadiusSize = 65;
+        let loopingObjectX = -999;
 
         let playerMana = 100;
         let activeLaserFrame = 0;
-        let activeSmokeBlastFrame = 0; // CONTROLE GRÁFICO DO ATAQUE DA MARIA FUMAÇA
+        let activeSmokeBlastFrame = 0; 
 
         let isBonusStageMode = false;
         let bonusStageTimer = 0; 
@@ -405,6 +420,7 @@
         coins = Number(safeGetStorage('coins', 300));
         currentSkinId = safeGetStorage('currentSkinId', 'skin_1');
         currentScenarioId = safeGetStorage('currentScenarioId', 'scen_default');
+        tankPhaseLifespan = Number(safeGetStorage('tankPhaseLifespan', 0));
         
         try {
             let h = safeGetStorage('pixHistoryData', null); pixHistoryData = h ? JSON.parse(h) : [];
@@ -414,9 +430,10 @@
             pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca']; unlockedScenarios = ['scen_default'];
         }
 
+        // SALTO CORRIGIDO (UM POUCO MAIS ALTO PARA DEIXAR A JOGABILIDADE FLUIDA)
         const player = {
             x: 70, y: 150, width: 36, height: 36,
-            gravity: 0.65, lift: -12.0, velocity: 0,
+            gravity: 0.60, lift: -13.5, velocity: 0,
             isJumping: false, jumpCount: 0, onPlatform: false, platformTop: 290
         };
 
@@ -435,7 +452,6 @@
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
-        // --- SISTEMA DE SKINS ATUALIZADO COM ÍCONES ESPECÍFICOS PARA O TÍTULO ---
         const skinsDB = {};
 
         const normalNamesArray = [
@@ -464,28 +480,33 @@
             "Cérbero Red", "Medusa Matrix", "Minotauro Cyber", "Quimera Glitch", "Gorgona Bit"
         ];
         
-        // CONFIGURAÇÃO INICIAL DA ESTRELA DA GUIA DE GRAÇA
         skinsDB['skin_1'] = {
             name: '⭐ Estrela Guia', type: 'free', tab: 'skins',
             render: (g, cx, cy, r) => { drawVectorGeometricShape(g, cx, cy, 5, r, r/2, '#ffe81f'); }
         };
 
-        // NOVO PERSONAGEM EXCLUSIVO DE GRAÇA: MARIA FUMAÇA
         skinsDB['maria_fumaca'] = {
             name: '🚂 Maria Fumaça', type: 'free', tab: 'skins',
             render: (g, cx, cy, r) => {
-                g.save();
-                g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1);
+                g.save(); g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1);
                 g.fillStyle = "#222222"; g.fillRect(cx + r/3, cy - r, r/2, r * 0.8);
                 g.fillStyle = "#ff0033"; g.fillRect(cx - r, cy - r, r * 1.1, r * 0.8);
                 g.fillStyle = "#ffe81f"; g.beginPath(); g.arc(cx - r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
                 g.beginPath(); g.arc(cx + r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
-                g.fillStyle = "#ffffff"; g.fillRect(cx - r/1.5, cy - r * 0.7, r/2, r/3);
-                g.restore();
+                g.fillStyle = "#ffffff"; g.fillRect(cx - r/1.5, cy - r * 0.7, r/2, r/3); g.restore();
             }
         };
 
-        // INICIALIZAÇÃO PROCEDURAL DE SKINS COM ICONOGRAFIA COMBINANDO COM O TÍTULO
+        skinsDB['premium_tank'] = {
+            name: '🪖 Tanque de Guerra', type: 'premium_link', cost: 1.00, tab: 'skins',
+            render: (g, cx, cy, r) => {
+                g.save(); g.fillStyle = "#3e5c32"; g.fillRect(cx - r, cy, r*2, r*0.8);
+                g.fillStyle = "#1e3315"; g.fillRect(cx - r/1.5, cy - r/2, r * 1.3, r/2);
+                g.fillStyle = "#526e46"; g.fillRect(cx, cy - r/3, r * 1.2, r/4);
+                g.fillStyle = "#111111"; g.fillRect(cx - r, cy + r*0.7, r*2, 4); g.restore();
+            }
+        };
+
         for (let i = 2; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
             let name = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
@@ -493,10 +514,10 @@
                 name: name, type: 'ad', tab: 'skins', cost: 0,
                 render: (g, x, y, r) => {
                     g.save();
-                    if(name.includes("Lâmina")) { g.strokeStyle = colorHex; g.lineWidth = 4; g.beginPath(); g.moveTo(x-r, y-r); g.lineTo(x+r, y+r); g.stroke(); }
-                    else if(name.includes("Laser") || name.includes("Luz")) { g.fillStyle = colorHex; g.fillRect(x-4, y-r, 8, r*2); g.shadowBlur = 10; g.shadowColor = colorHex; }
-                    else if(name.includes("Sombra") || name.includes("Cyber")) { g.fillStyle = "#111"; g.fillRect(x-r, x-r, r*2, r*2); g.strokeStyle = colorHex; g.strokeRect(x-r, x-r, r*2, r*2); }
-                    else { g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fillStyle = colorHex; g.fill(); }
+                    if(name.includes("Lâmina") || name.includes("Zênite")) { g.strokeStyle = colorHex; g.lineWidth = 3; g.beginPath(); g.moveTo(x-r, y); g.lineTo(x+r, y); g.stroke(); g.beginPath(); g.arc(x,y,4,0,Math.PI*2); g.fillStyle="#fff"; g.fill(); }
+                    else if(name.includes("Laser") || name.includes("Luz") || name.includes("Faísca")) { g.fillStyle = colorHex; g.fillRect(x-3, y-r, 6, r*2); g.fillStyle="#fff"; g.fillRect(x-6, y-3, 12, 6); }
+                    else if(name.includes("Sombra") || name.includes("Cyber") || name.includes("Hacker")) { g.fillStyle = "#151530"; g.fillRect(x-r, y-r, r*2, r*2); g.strokeStyle = colorHex; g.lineWidth=2; g.strokeRect(x-r, y-r, r*2, r*2); g.fillStyle=colorHex; g.font="9px sans-serif"; g.fillText("X", x-4, y+3); }
+                    else { g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fillStyle = colorHex; g.fill(); g.fillStyle="#fff"; g.beginPath(); g.arc(x,y,r/3,0,Math.PI*2); g.fill(); }
                     g.restore();
                 }
             };
@@ -510,95 +531,44 @@
                 name: name, type: 'coins', cost: costScale, tab: 'bizarre',
                 render: (g, x, y, r) => {
                     g.save();
-                    if (name.includes("Olho")) { g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/2, 0, Math.PI*2); g.fill(); }
-                    else if (name.includes("Tentáculo") || name.includes("Gosma")) { g.fillStyle = bizarroColor; g.fillRect(x-r/2, y-r, r, r*2); g.beginPath(); g.arc(x, y-r, r/2, 0, Math.PI*2); g.fill(); }
-                    else { g.fillStyle = bizarroColor; g.fillRect(x - r, y - r, r*2, r*2); g.fillStyle = "#fff"; g.fillRect(x - r/2, y - r/2, 4, 4); g.fillRect(x + r/4, y - r/2, 4, 4); }
+                    if (name.includes("Olho") || name.includes("Cthulhu")) { g.fillStyle = "#ffffff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/1.8, 0, Math.PI*2); g.fill(); g.fillStyle="#000"; g.beginPath(); g.arc(x,y,r/4,0,Math.PI*2); g.fill(); }
+                    else if (name.includes("Tentáculo") || name.includes("Gosma") || name.includes("Geleia")) { g.fillStyle = bizarroColor; g.fillRect(x-r/1.5, y-r/2, r*1.3, r); g.beginPath(); g.arc(x-r/4, y-r/3, 4, 0, Math.PI*2); g.fillStyle="#fff"; g.fill(); g.beginPath(); g.arc(x+r/4, y-r/3, 4, 0, Math.PI*2); g.fill(); }
+                    else { g.fillStyle = bizarroColor; g.beginPath(); g.moveTo(x, y-r); g.lineTo(x+r, y+r); g.lineTo(x-r, y+r); g.closePath(); g.fill(); g.fillStyle="#fff"; g.fillRect(x-2, y, 4, 4); }
                     g.restore();
                 }
             };
         }
 
-        // --- ENGENHARIA DE 20 CENÁRIOS COM DESBLOQUEIO POR REQUISITO DE FASE ---
+        // SISTEMA ATUALIZADO DE CENÁRIOS COM 20 ESTILOS ÚNICOS E REQUISITOS DE PROGRESSÃO DE FASES
         const scenariosDB = {
-            'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", render: (g,w,h)=> { g.fillStyle="#0a0518"; g.fillRect(0,0,w,h); } },
-            'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,10,4,4); } },
-            'scen_matrix': { name: '🟢 Data Stream', type: 'ad', phaseRequired: 2, top: "#000c02", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#000c02"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.font="9px monospace"; g.fillText("10",10,20); } },
-            'scen_inferno': { name: '🌋 Vale Vulcânico', type: 'ad', phaseRequired: 2, top: "#2f0505", bottom: "#0a0101", render: (g,w,h)=> { g.fillStyle="#2f0505"; g.fillRect(0,0,w,h); g.fillStyle="#ff5500"; g.fillRect(5,35,15,15); } },
-            'scen_cyberpunk_city': { name: '🌆 Cidade Cyber', type: 'ad', phaseRequired: 3, top: "#090314", bottom: "#0a0518", render: (g,w,h)=> { g.fillStyle="#090314"; g.fillRect(0,0,w,h); g.fillStyle="#222"; g.fillRect(10,20,30,30); } },
-            'scen_aurora_boreal': { name: '🌌 Aurora Polar', type: 'ad', phaseRequired: 3, top: "#020514", bottom: "#01040d", render: (g,w,h)=> { g.fillStyle="#020514"; g.fillRect(0,0,w,h); g.fillStyle="#00ffaa"; g.fillRect(5,10,40,5); } },
-            'scen_desert_sunset': { name: '🏜️ Sol Quântico', type: 'ad', phaseRequired: 4, top: "#5c0c22", bottom: "#f2a104", render: (g,w,h)=> { g.fillStyle="#5c0c22"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,8,0,Math.PI*2); g.fill(); } },
-            // NOVOS CENÁRIOS EXCLUSIVOS ATÉ COMPLETAR OS 20 REQUISITADOS
-            'scen_atlantis': { name: '🔱 Atlantis Sub', type: 'coins', cost: 350, phaseRequired: 4, top: "#021c38", bottom: "#000714", render: (g,w,h)=> { g.fillStyle="#021c38"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(15,30,20,2); } },
-            'scen_temple': { name: '⛩️ Templo Sagrado', type: 'coins', cost: 400, phaseRequired: 4, top: "#4a1204", bottom: "#140300", render: (g,w,h)=> { g.fillStyle="#4a1204"; g.fillRect(0,0,w,h); g.fillStyle="#ffaa00"; g.fillRect(20,10,10,25); } },
+            'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", render: (g,w,h)=> { g.fillStyle="#0a0518"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,h-10,30,2); } },
+            'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,4,0,Math.PI*2); g.fill(); } },
+            'scen_matrix': { name: '🟢 Data Stream', type: 'ad', phaseRequired: 2, top: "#000c02", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#000c02"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.font="9px monospace"; g.fillText("101",10,25); } },
+            'scen_inferno': { name: '🌋 Vale Vulcânico', type: 'ad', phaseRequired: 2, top: "#2f0505", bottom: "#0a0101", render: (g,w,h)=> { g.fillStyle="#2f0505"; g.fillRect(0,0,w,h); g.fillStyle="#ff5500"; g.fillRect(10,30,20,5); } },
+            'scen_cyberpunk_city': { name: '🌆 Cidade Cyber', type: 'ad', phaseRequired: 3, top: "#090314", bottom: "#0a0518", render: (g,w,h)=> { g.fillStyle="#090314"; g.fillRect(0,0,w,h); g.fillStyle="#333"; g.fillRect(15,15,20,35); } },
+            'scen_aurora_boreal': { name: '🌌 Aurora Polar', type: 'ad', phaseRequired: 3, top: "#020514", bottom: "#01040d", render: (g,w,h)=> { g.fillStyle="#020514"; g.fillRect(0,0,w,h); g.fillStyle="#00ffaa"; g.fillRect(5,15,40,4); } },
+            'scen_desert_sunset': { name: '🏜️ Sol Quântico', type: 'ad', phaseRequired: 4, top: "#5c0c22", bottom: "#f2a104", render: (g,w,h)=> { g.fillStyle="#5c0c22"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,7,0,Math.PI*2); g.fill(); } },
+            'scen_atlantis': { name: '🔱 Atlantis Sub', type: 'coins', cost: 350, phaseRequired: 4, top: "#021c38", bottom: "#000714", render: (g,w,h)=> { g.fillStyle="#021c38"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,35,30,2); } },
+            'scen_temple': { name: '⛩️ Templo Sagrado', type: 'coins', cost: 400, phaseRequired: 4, top: "#4a1204", bottom: "#140300", render: (g,w,h)=> { g.fillStyle="#4a1204"; g.fillRect(0,0,w,h); g.fillStyle="#ff5500"; g.fillRect(15,10,20,5); } },
             'scen_crystal': { name: '🔮 Nebula Cristal', type: 'ad', phaseRequired: 5, top: "#3a0242", bottom: "#0b000d", render: (g,w,h)=> { g.fillStyle="#3a0242"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(20,20,10,10); } },
-            'scen_mines': { name: '⚙️ Minas de Vapor', type: 'coins', cost: 500, phaseRequired: 5, top: "#2b1f13", bottom: "#0d0905", render: (g,w,h)=> { g.fillStyle="#2b1f13"; g.fillRect(0,0,w,h); g.fillStyle="#bc6c25"; g.beginPath(); g.arc(25,25,12,0,Math.PI*2); g.stroke(); } },
-            'scen_glass': { name: '💎 Selva de Vidro', type: 'ad', phaseRequired: 5, top: "#023e42", bottom: "#001112", render: (g,w,h)=> { g.fillStyle="#023e42"; g.fillRect(0,0,w,h); g.strokeStyle="#fff"; g.strokeRect(15,15,20,20); } },
-            'scen_mecha': { name: '🤖 Distopia Mecha', type: 'coins', cost: 650, phaseRequired: 6, top: "#22252a", bottom: "#0b0c0d", render: (g,w,h)=> { g.fillStyle="#22252a"; g.fillRect(0,0,w,h); g.fillStyle="#ff0055"; g.fillRect(10,25,5,5); g.fillRect(35,25,5,5); } },
-            'scen_electric': { name: '⚡ Núcleo Elétrico', type: 'ad', phaseRequired: 6, top: "#02123a", bottom: "#00030d", render: (g,w,h)=> { g.fillStyle="#02123a"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(5,22,40,4); } },
-            'scen_glacier': { name: '❄️ Glaciar Estelar', type: 'coins', cost: 800, phaseRequired: 6, top: "#1a3a4b", bottom: "#050f14", render: (g,w,h)=> { g.fillStyle="#1a3a4b"; g.fillRect(0,0,w,h); g.fillStyle="#ffffff"; g.fillRect(10,40,30,10); } },
-            'scen_bones': { name: '☠️ Vale dos Ossos', type: 'ad', phaseRequired: 7, top: "#1c1c1c", bottom: "#050505", render: (g,w,h)=> { g.fillStyle="#1c1c1c"; g.fillRect(0,0,w,h); g.fillStyle="#eeeeee"; g.font="14px sans-serif"; g.fillText("💀",18,32); } },
-            'scen_clones': { name: '🧪 Fabrica Clones', type: 'coins', cost: 1000, phaseRequired: 7, top: "#033b1e", bottom: "#000f06", render: (g,w,h)=> { g.fillStyle="#033b1e"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.beginPath(); g.arc(25,25,10,0,Math.PI); g.stroke(); } },
-            'scen_retrowave': { name: '🌴 Sol Retrowave', type: 'ad', phaseRequired: 7, top: "#2d0036", bottom: "#ff007f", render: (g,w,h)=> { g.fillStyle="#2d0036"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.fillRect(0,35,50,15); } },
-            'scen_zerog': { name: '🛰️ Gravidade Zero', type: 'coins', cost: 1200, phaseRequired: 8, top: "#05050f", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#05050f"; g.fillRect(0,0,w,h); g.fillStyle="#fff"; g.fillRect(10,12,2,2); g.fillRect(35,38,3,3); } },
-            'scen_glitchdim': { name: '👾 Dimensão Glitch', type: 'ad', phaseRequired: 8, top: "#1a0000", bottom: "#001a1a", render: (g,w,h)=> { g.fillStyle="#1a0000"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(5,15,15,10); g.fillStyle="#00f2fe"; g.fillRect(25,25,15,15); } },
-            'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(10,10,30,30); } }
+            'scen_mines': { name: '⚙️ Minas de Vapor', type: 'coins', cost: 500, phaseRequired: 5, top: "#2b1f13", bottom: "#0d0905", render: (g,w,h)=> { g.fillStyle="#2b1f13"; g.fillRect(0,0,w,h); g.strokeStyle="#ffe81f"; g.strokeRect(15,15,20,20); } },
+            'scen_glass': { name: '💎 Vidro Espelhado', type: 'ad', phaseRequired: 5, top: "#023e42", bottom: "#001112", render: (g,w,h)=> { g.fillStyle="#023e42"; g.fillRect(0,0,w,h); g.strokeStyle="#fff"; g.strokeRect(10,10,30,30); } },
+            'scen_mecha': { name: '🤖 Distopia Mecha', type: 'coins', cost: 650, phaseRequired: 6, top: "#22252a", bottom: "#0b0c0d", render: (g,w,h)=> { g.fillStyle="#22252a"; g.fillRect(0,0,w,h); g.fillStyle="#ff0055"; g.fillRect(20,20,10,10); } },
+            'scen_electric': { name: '⚡ Núcleo Elétrico', type: 'ad', phaseRequired: 6, top: "#02123a", bottom: "#00030d", render: (g,w,h)=> { g.fillStyle="#02123a"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(5,25,40,2); } },
+            'scen_glacier': { name: '❄️ Glaciar Estelar', type: 'coins', cost: 800, phaseRequired: 6, top: "#1a3a4b", bottom: "#050f14", render: (g,w,h)=> { g.fillStyle="#1a3a4b"; g.fillRect(0,0,w,h); g.fillStyle="#fff"; g.fillRect(10,35,30,8); } },
+            'scen_bones': { name: '☠️ Vale dos Ossos', type: 'ad', phaseRequired: 7, top: "#1c1c1c", bottom: "#050505", render: (g,w,h)=> { g.fillStyle="#1c1c1c"; g.fillRect(0,0,w,h); g.fillStyle="#fff"; g.font="11px sans-serif"; g.fillText("💀",18,30); } },
+            'scen_clones': { name: '🧪 Fábrica Clones', type: 'coins', cost: 1000, phaseRequired: 7, top: "#033b1e", bottom: "#000f06", render: (g,w,h)=> { g.fillStyle="#033b1e"; g.fillRect(0,0,w,h); g.strokeStyle="#00ff33"; g.strokeRect(15,15,20,20); } },
+            'scen_retrowave': { name: '🌴 Sol Retrowave', type: 'ad', phaseRequired: 7, top: "#2d0036", bottom: "#ff007f", render: (g,w,h)=> { g.fillStyle="#2d0036"; g.fillRect(0,0,w,h); g.fillStyle="#f2a104"; g.fillRect(0,35,50,15); } },
+            'scen_zerog': { name: '🛰️ Gravidade Zero', type: 'coins', cost: 1200, phaseRequired: 8, top: "#05050f", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#05050f"; g.fillRect(0,0,w,h); g.fillStyle="#fff"; g.fillRect(15,15,2,2); g.fillRect(30,35,2,2); } },
+            'scen_glitchdim': { name: '👾 Dimensão Glitch', type: 'ad', phaseRequired: 8, top: "#1a0000", bottom: "#001a1a", render: (g,w,h)=> { g.fillStyle="#1a0000"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(10,10,15,15); g.fillStyle="#00f2fe"; g.fillRect(20,20,15,15); } },
+            'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(15,15,20,20); } }
         };
-
-        document.addEventListener('keydown', (e) => {
-            if (document.activeElement.tagName === 'INPUT') return;
-            if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); triggerJump(); }
-        });
-        document.addEventListener('touchstart', (e) => {
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            else if (!audioCtx) initAudioEngine();
-            if (!gameActive || isPaused) return;
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.dropdown-menu') || e.target.closest('.settings-gear') || e.target.closest('#ad-banner-placement') || e.target.closest('.pause-btn') || e.target.closest('#laser-action-btn')) return;
-            e.preventDefault();
-            triggerJump();
-        }, { passive: false });
-
-        function togglePauseGame() {
-            if (!gameActive) return;
-            isPaused = !isPaused;
-            document.getElementById('pause-screen').classList.toggle('hidden', !isPaused);
-        }
-
-        function triggerRewardedAdCall(onCompleteCallback, isInterstitial = false) {
-            let prePauseState = isPaused; isPaused = true;
-            const overlay = document.getElementById('ad-processing-overlay');
-            const title = document.getElementById('ad-overlay-title');
-            const txtCounter = document.getElementById('ad-countdown-txt');
-            
-            title.innerText = isInterstitial ? "EXIBINDO ANÚNCIO DE FIM DE PARTIDA" : "CARREGANDO ANÚNCIO PREMIADO";
-            txtCounter.innerText = "3s"; overlay.classList.remove('hidden');
-
-            window.open(MONETAG_SMARTLINK, '_blank');
-
-            let timerSeconds = 3;
-            let adCounterInterval = setInterval(() => {
-                timerSeconds--; txtCounter.innerText = timerSeconds + "s";
-                if (timerSeconds <= 0) {
-                    clearInterval(adCounterInterval); overlay.classList.add('hidden');
-                    isPaused = prePauseState; if (onCompleteCallback) onCompleteCallback();
-                }
-            }, 1000);
-        }
 
         function initAudioEngine() { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startProceduralMusic(); } catch(e){} }
         function playSoundJump() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(550, audioCtx.currentTime + 0.12); g.gain.setValueAtTime(0.12, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12); osc.start(); osc.stop(audioCtx.currentTime + 0.12); }
         function playSoundCoin() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); g.gain.setValueAtTime(0.06, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); osc.start(); osc.stop(audioCtx.currentTime + 0.15); }
         function playSoundShield() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.22); g.gain.setValueAtTime(0.04, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.22); osc.start(); osc.stop(audioCtx.currentTime + 0.22); }
-        
-        // APITO DE TREM DA MARIA FUMAÇA
-        function playSoundMariaFumacaWhistle() {
-            if (!audioCtx || isMuted) return;
-            let osc1 = audioCtx.createOscillator(); let osc2 = audioCtx.createOscillator();
-            let g = audioCtx.createGain(); osc1.connect(g); osc2.connect(g); g.connect(audioCtx.destination);
-            osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(660, audioCtx.currentTime);
-            osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(690, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.08, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-            osc1.start(); osc2.start(); osc1.stop(audioCtx.currentTime + 0.4); osc2.stop(audioCtx.currentTime + 0.4);
-        }
+        function playSoundMariaFumacaWhistle() { if (!audioCtx || isMuted) return; let osc1 = audioCtx.createOscillator(); let osc2 = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc1.connect(g); osc2.connect(g); g.connect(audioCtx.destination); osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(660, audioCtx.currentTime); osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(690, audioCtx.currentTime); g.gain.setValueAtTime(0.08, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.4); osc1.start(); osc2.start(); osc1.stop(audioCtx.currentTime + 0.4); osc2.stop(audioCtx.currentTime + 0.4); }
 
         function startProceduralMusic() {
             if (musicInterval) clearInterval(musicInterval);
@@ -623,15 +593,20 @@
             }
             itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
+            isLoopingAnimationMode = false; loopingObjectX = -999;
         }
 
         function triggerBonusStageActivation() {
             preBonusPhaseConfig = currentPhaseConfig; isBonusStageMode = true; bonusStageTimer = 600; pipeWarningActive = false;
             obstacles = []; platforms = []; itemsInGame = [];
-            platforms.push({ x: player.x + 80, y: BASE_GROUND_Y - 50, width: 140, isTrain: false, isPipe: false });
-            platforms.push({ x: player.x + 290, y: BASE_GROUND_Y - 110, width: 140, isTrain: false, isPipe: false });
-            itemsInGame.push({ x: player.x + 150, y: BASE_GROUND_Y - 80, type: 'coin' });
-            itemsInGame.push({ x: player.x + 360, y: BASE_GROUND_Y - 140, type: 'coin' });
+            
+            // ADICIONADO: MAIS PLATAFORMAS COMPLETAS EM ALTURA ESCALONADA EVITANDO QUEDA NO LIMBO
+            for (let k = 0; k < 12; k++) {
+                let hY = BASE_GROUND_Y - 50 - (k % 3 * 35);
+                platforms.push({ x: player.x + 60 + (k * 140), y: hY, width: 110, isTrain: false, isPipe: false });
+                itemsInGame.push({ x: player.x + 100 + (k * 140), y: hY - 30, type: 'coin' });
+                itemsInGame.push({ x: player.x + 120 + (k * 140), y: hY - 60, type: 'coin' });
+            }
         }
 
         function updateAndGenerateTerrain(speed) {
@@ -641,7 +616,9 @@
             let lastSeg = terrainList[terrainList.length - 1];
             if (lastSeg && lastSeg.x + lastSeg.w < canvas.width + 600) {
                 let nextX = lastSeg.x + lastSeg.w;
-                if (isBonusStageMode) { terrainList.push({ x: nextX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' }); return; }
+                if (isBonusStageMode) {
+                    terrainList.push({ x: nextX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' }); return;
+                }
                 
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
                 if (currentPhaseConfig.type === 'trains') { type = 'flat'; } else {
@@ -655,6 +632,7 @@
         }
 
         function getGroundYAt(px) {
+            if (isBonusStageMode) return BASE_GROUND_Y;
             for (let seg of terrainList) {
                 if (px >= seg.x && px <= seg.x + seg.w) {
                     if (seg.type === 'hole') return canvas.height + 999;
@@ -662,16 +640,6 @@
                 }
             }
             return BASE_GROUND_Y;
-        }
-
-        function triggerJump() {
-            if (!gameActive || isPaused) return;
-            // SE O JETPACK TIVER ATIVO, O PULO EMPURRA PRA CIMA SUAVE
-            if (jetpackActiveTimer > 0) { player.velocity = -6; return; }
-            if (player.isJumping && (!doubleJumpUnlocked || player.jumpCount >= 2)) return;
-            playSoundJump();
-            if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; player.jumpCount = 1; player.onPlatform = false; } 
-            else { player.velocity = player.lift * 0.85; player.jumpCount = 2; }
         }
 
         function calculateInfinitePhaseStyle(phase) {
@@ -682,32 +650,33 @@
                 { name: "Vale Vulcânico", top: "#2d0505", bottom: "#0a0101", ground: "#ff5500", obs: "#ffaa00", type: "volcano" },
                 { name: "Linhas Ferroviárias", top: "#020b1a", bottom: "#000205", ground: "#5a5a75", obs: "#e2e8f0", type: "trains" }
             ];
+            
+            if (currentSkinId === 'premium_tank' && phase > tankPhaseLifespan) {
+                currentSkinId = 'skin_1'; safeSetStorage('currentSkinId', 'skin_1');
+                alert("O período de uso do seu Tanque de Guerra Premium expirou após 1 fase completa!");
+            }
+
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
-            obstacleSpeed = 6.5 + (phase * 0.45);
-            if (turboActiveTimer > 0) obstacleSpeed = 16; // VELOCIDADE ULTRA DO TURBO
-            if (obstacleSpeed > 18) obstacleSpeed = 18;
+            // VELOCIDADE AJUSTADA PROGRESSIVAMENTE PARA MANTER RITMO MAIS LEVE
+            obstacleSpeed = 4.5 + (phase * 0.35);
+            if (turboActiveTimer > 0) obstacleSpeed = 14;
+            if (obstacleSpeed > 16) obstacleSpeed = 16;
             return biome;
         }
 
         function fireLaserBeamPower() {
             if (!gameActive || isPaused || playerMana < 35) return;
             playerMana -= 35;
-            
             if (currentSkinId === 'maria_fumaca') {
                 activeSmokeBlastFrame = 16; playSoundMariaFumacaWhistle();
-                // Destrói caixotes na frente com a fumaça
                 for (let i = obstacles.length - 1; i >= 0; i--) {
-                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 280) {
-                        if (obstacles[i].isBreakable) obstacles.splice(i, 1);
-                    }
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 280) { if (obstacles[i].isBreakable) obstacles.splice(i, 1); }
                 }
             } else {
                 activeLaserFrame = 12; playSoundShield();
                 for (let i = obstacles.length - 1; i >= 0; i--) {
-                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) {
-                        if (obstacles[i].isBreakable) obstacles.splice(i, 1);
-                    }
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) { if (obstacles[i].isBreakable) obstacles.splice(i, 1); }
                 }
             }
         }
@@ -715,12 +684,11 @@
         function runGameLoop() {
             try {
                 if (ctx) {
-                    let currentFrameSpeed = isBonusStageMode ? 7.5 : obstacleSpeed;
+                    let currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
 
                     if (!isPaused && gameActive) {
                         frameCount++; 
                         
-                        // GERENCIAMENTO DE TIMERS DOS SUPER PODERES SUBWAY SURFERS
                         if (jetpackActiveTimer > 0) jetpackActiveTimer--;
                         if (turboActiveTimer > 0) turboActiveTimer--;
 
@@ -729,26 +697,35 @@
                             safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
                         }
 
-                        // ANIMAÇÃO DE FUMAÇA CONSTANTE SE FOR A MARIA FUMAÇA
                         if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0) {
                             smokeParticles.push({
-                                x: player.x + player.width * 0.8,
-                                y: player.y - 4,
-                                size: 5 + Math.random() * 8,
-                                opacity: 1.0,
-                                vx: -1.5 - Math.random() * 2,
-                                vy: -1.0 - Math.random() * 1
+                                x: player.x + player.width * 0.8, y: player.y - 4,
+                                size: 5 + Math.random() * 8, opacity: 1.0,
+                                vx: -1.5 - Math.random() * 2, vy: -1.0 - Math.random() * 1
                             });
                         }
 
-                        // ATUALIZAÇÃO DA FUMAÇA
+                        // MOVIMENTAÇÃO DO LOOPING DE SONIC ATIVA SE ENTRAR NO GATILHO
+                        if (isLoopingAnimationMode) {
+                            loopingAngleTrack += 0.08; // VELOCIDADE ANGULAR DO PULO DENTRO DO CÍRCULO
+                            player.x = loopingCenterX + Math.cos(loopingAngleTrack) * loopingRadiusSize - player.width / 2;
+                            player.y = loopingCenterY + Math.sin(loopingAngleTrack) * loopingRadiusSize - player.height / 2;
+                            player.velocity = 0;
+                            
+                            if (loopingAngleTrack >= Math.PI * 2.5) {
+                                isLoopingAnimationMode = false;
+                                player.x = 70; player.y = BASE_GROUND_Y - player.height;
+                            }
+                        }
+
                         for (let i = smokeParticles.length - 1; i >= 0; i--) {
                             let p = smokeParticles[i]; p.x += p.vx; p.y += p.vy; p.opacity -= 0.02;
                             if (p.opacity <= 0) smokeParticles.splice(i, 1);
                         }
 
                         if (!isBonusStageMode) {
-                            score++; currentPhase = Math.floor(score / 500) + 1;
+                            if (!isLoopingAnimationMode) score++;
+                            currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
@@ -763,46 +740,73 @@
                                 }
                             }
 
+                            // MOVIMENTAÇÃO PROCEDURAL DO ELEMENTO LOOPING DO MAPA
+                            if (loopingObjectX > -200) {
+                                loopingObjectX -= currentFrameSpeed;
+                                // Gatilho de Entrada de Colisão com o Looping do Sonic
+                                if (!isLoopingAnimationMode && loopingObjectX < player.x + 20 && loopingObjectX > player.x - 40 && Math.abs(player.y - (BASE_GROUND_Y - player.height)) < 40) {
+                                    isLoopingAnimationMode = true;
+                                    loopingAngleTrack = Math.PI; // Inicia na base traseira do círculo
+                                    loopingCenterX = player.x + loopingRadiusSize;
+                                    loopingCenterY = BASE_GROUND_Y - loopingRadiusSize;
+                                    coins += 50; updateHUD(); // Recompensa por completar o Looping
+                                }
+                            }
+
                             updateAndGenerateTerrain(currentFrameSpeed);
                             updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
-                            if (frameCount % 45 === 0) {
-                                let hY = BASE_GROUND_Y - 50 - (Math.random() * 90);
-                                platforms.push({ x: canvas.width + 10, y: hY, width: 130, isTrain: false, isPipe: false });
+                            if (frameCount % 30 === 0) {
+                                let hY = BASE_GROUND_Y - 50 - (Math.random() * 80);
+                                platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false });
                                 itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
-                                itemsInGame.push({ x: canvas.width + 80, y: hY - 30, type: 'coin' });
                             }
                             updateAndGenerateTerrain(currentFrameSpeed);
                         }
 
-                        updateEntitiesAndCollisions(currentFrameSpeed);
-
-                        // MODIFICAÇÃO DE GRAVIDADE CASO O JETPACK ESTEJA ATIVO
-                        if (jetpackActiveTimer > 0) {
-                            player.velocity += 0.1; // GRAVIDADE QUASE NULA PARA VOAR
-                            if (player.y < 40) player.y = 40;
-                        } else {
-                            player.velocity += player.gravity;
-                        }
-
-                        let nextY = player.y + player.velocity;
-                        let floorY = getGroundYAt(player.x + player.width/2);
-                        if (player.onPlatform) floorY = player.platformTop;
-
-                        if (player.y > canvas.height + 15) {
-                            if (isBonusStageMode) { player.y = BASE_GROUND_Y - player.height; player.velocity = 0; } else {
-                                handleLifeLoss(); if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
+                        if (!isLoopingAnimationMode) {
+                            updateEntitiesAndCollisions(currentFrameSpeed);
+                            if (jetpackActiveTimer > 0) {
+                                player.velocity += 0.1; if (player.y < 40) player.y = 40;
+                            } else {
+                                player.velocity += player.gravity;
                             }
-                        } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
-                            player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
-                        } else { player.y = nextY; }
+                            let nextY = player.y + player.velocity;
+                            let floorY = getGroundYAt(player.x + player.width/2);
+                            if (player.onPlatform) floorY = player.platformTop;
+
+                            if (isBonusStageMode && nextY > BASE_GROUND_Y - player.height) {
+                                nextY = BASE_GROUND_Y - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
+                            }
+
+                            if (player.y > canvas.height + 15) {
+                                if (isBonusStageMode) { player.y = BASE_GROUND_Y - player.height; player.velocity = 0; } else {
+                                    handleLifeLoss(); if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
+                                }
+                            } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
+                                player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
+                            } else { player.y = nextY; }
+                        }
                     }
 
                     renderBackgroundScenariosLayer();
 
-                    // RENDERIZAÇÃO DE PARTÍCULAS DE FUMAÇA
+                    // RENDERIZAR E DESENHAR LOOPING REALISTA SE ESTIVER NA TELA
+                    if (loopingObjectX > -150 && !isBonusStageMode) {
+                        ctx.save();
+                        ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 8;
+                        ctx.shadowBlur = 15; ctx.shadowColor = "#ff007f";
+                        ctx.beginPath();
+                        ctx.arc(loopingObjectX + loopingRadiusSize, BASE_GROUND_Y - loopingRadiusSize, loopingRadiusSize, 0, Math.PI * 2);
+                        ctx.stroke();
+                        // Detalhes internos de suporte do loop
+                        ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2;
+                        ctx.strokeRect(loopingObjectX + loopingRadiusSize - 2, BASE_GROUND_Y - loopingRadiusSize * 2, 4, loopingRadiusSize * 2);
+                        ctx.restore();
+                    }
+
                     smokeParticles.forEach(p => {
                         ctx.save(); ctx.fillStyle = `rgba(180, 180, 180, ${p.opacity})`;
                         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
@@ -815,18 +819,22 @@
                         ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.restore();
                     }
 
+                    if (pipeWarningActive && gameActive && !isPaused) {
+                        ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
+                        let boxW = Math.min(canvas.width - 30, 440); let boxX = (canvas.width - boxW) / 2; let boxY = 70;
+                        ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 70, 10); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+                        ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
+                        ctx.font = "10px sans-serif"; ctx.fillStyle = "#ffe81f";
+                        ctx.fillText("Pode colidir com segurança! NÃO PRECISA PULAR!", canvas.width / 2, boxY + 40);
+                        ctx.fillStyle = "#ffffff"; ctx.fillText("Essa colisão não consome vidas e entra no modo bônus.", canvas.width / 2, boxY + 54);
+                        ctx.restore();
+                    }
+
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
                         activeLaserFrame--; ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 6;
                         ctx.shadowBlur = 15; ctx.shadowColor = "#00f2fe"; ctx.beginPath();
                         ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(player.x + player.width + 350, player.y + player.height/2); ctx.stroke(); ctx.restore();
-                    }
-
-                    // ATAQUE ESPECIAL DENSE SMOKE BLAST DA MARIA FUMAÇA
-                    if (activeSmokeBlastFrame > 0 && gameActive && !isPaused) {
-                        activeSmokeBlastFrame--; ctx.save(); ctx.fillStyle = "rgba(100, 100, 100, 0.85)";
-                        ctx.beginPath(); ctx.arc(player.x + player.width + 80, player.y + player.height/2, 50, 0, Math.PI * 2); ctx.fill();
-                        ctx.beginPath(); ctx.arc(player.x + player.width + 160, player.y + player.height/2, 70, 0, Math.PI * 2); ctx.fill();
-                        ctx.restore();
                     }
 
                     if (terrainList.length > 0) {
@@ -859,7 +867,7 @@
 
                     itemsInGame.forEach(it => {
                         ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
-                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.restore();
                     });
 
                     obstacles.forEach(o => {
@@ -874,31 +882,89 @@
             requestAnimationFrame(runGameLoop);
         }
 
+        // --- SISTEMA REVOLUCIONÁRIO DE CENÁRIOS COM DESIGN VISUAL PROCEDURAL REALISTA ---
         function renderBackgroundScenariosLayer() {
             let activeScenario = currentScenarioId;
             if (activeScenario === 'scen_default') activeScenario = currentPhaseConfig.type;
-
-            let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            let selectedScen = scenariosDB[activeScenario];
             
-            if (selectedScen && selectedScen.top) {
-                grad.addColorStop(0, selectedScen.top); grad.addColorStop(1, selectedScen.bottom || "#000000");
+            let selectedScen = scenariosDB[activeScenario];
+            let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
+            // 1. FUNDO REALISTA DE CIDADE CYBERPUNK / METRÓPOLE
+            if (activeScenario === 'city' || activeScenario === 'scen_cyberpunk_city') {
+                grad.addColorStop(0, "#060212"); grad.addColorStop(0.6, "#140a2b"); grad.addColorStop(1, "#030108");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                return;
+                ctx.save();
+                ctx.fillStyle = "rgba(16, 8, 32, 0.8)";
+                for(let i=0; i<10; i++) {
+                    let w = 80 + (i%3)*25; let h = 200 + (i*30)%150;
+                    let x = (i * 140 - frameCount * 0.4) % (canvas.width + w) - w;
+                    ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
+                    ctx.fillStyle = "#ffe81f";
+                    if(i%2===0) ctx.fillRect(x + 10, BASE_GROUND_Y - h + 30, 4, 6);
+                    ctx.fillStyle = "rgba(16, 8, 32, 0.8)";
+                }
+                ctx.restore(); return;
             }
 
-            // FALLBACK SE FOR BIOMA DA FASE PADRÃO
+            // 2. FUNDO REALISTA DE FLORESTA COM GRADIENTES DE ÁRVORES
+            if (activeScenario === 'forest') {
+                grad.addColorStop(0, "#0b1c08"); grad.addColorStop(0.7, "#163811"); grad.addColorStop(1, "#040d02");
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                for(let i=0; i<12; i++) {
+                    ctx.fillStyle = "rgba(12, 36, 10, 0.6)";
+                    let x = (i * 120 - frameCount * 0.3) % (canvas.width + 100) - 50;
+                    ctx.beginPath(); ctx.moveTo(x, BASE_GROUND_Y); ctx.lineTo(x+40, BASE_GROUND_Y-160); ctx.lineTo(x+80, BASE_GROUND_Y); ctx.fill();
+                }
+                ctx.restore(); return;
+            }
+
+            // 3. FUNDO REALISTA DE FERROVIA COM LINHAS DE TELEGRAFO E TRILHOS NO HORIZONTE
+            if (activeScenario === 'trains') {
+                grad.addColorStop(0, "#0c1626"); grad.addColorStop(0.6, "#1e2d42"); grad.addColorStop(1, "#070d14");
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(0, BASE_GROUND_Y - 40); ctx.lineTo(canvas.width, BASE_GROUND_Y - 40); ctx.stroke();
+                for(let i=0; i<8; i++) {
+                    let x = (i * 200 - frameCount * 0.9) % (canvas.width + 40) - 20;
+                    ctx.fillStyle = "#1a1a1a"; ctx.fillRect(x, BASE_GROUND_Y - 80, 6, 80);
+                }
+                ctx.restore(); return;
+            }
+
+            // 4. FUNDO REALISTA DE PLANETAS / CORES DO ESPAÇO PROFUNDO
+            if (activeScenario === 'scen_neon' || activeScenario === 'scen_zerog') {
+                grad.addColorStop(0, "#02020a"); grad.addColorStop(1, "#0c051c");
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                // Desenha Planeta Gigante com Anéis
+                ctx.fillStyle = "#ff007f"; ctx.beginPath(); ctx.arc(canvas.width * 0.75, 120, 45, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(canvas.width * 0.75, 120, 70, 12, Math.PI/6, 0, Math.PI*2); ctx.stroke();
+                ctx.restore(); return;
+            }
+
+            // FALLBACK PADRÃO CASO NENHUM SE ENCAIXE
+            if (selectedScen && selectedScen.top) {
+                grad.addColorStop(0, selectedScen.top); grad.addColorStop(1, selectedScen.bottom || "#000000");
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); return;
+            }
             grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
             ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         function updateSpawningEngine() {
-            let interval = Math.max(30, 80 - (currentPhase * 4));
+            let interval = Math.max(35, 90 - (currentPhase * 4));
             if (++obstacleTimer > interval) {
                 obstacleTimer = 0; let sX = canvas.width + 40;
                 let currentGroundY = getGroundYAt(sX);
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
+                // Trigger de Geração do Looping Estilo Sonic de forma controlada
+                if (frameCount > 150 && loopingObjectX < -100 && Math.random() > 0.78 && currentPhaseConfig.type !== 'trains' && !isBonusStageMode) {
+                    loopingObjectX = sX + 100; return;
+                }
+
                 if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
                     platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false }); return;
                 }
@@ -931,7 +997,7 @@
                         player.onPlatform = true; player.platformTop = p.y;
                     } else if (platOverlapsPlayer(p)) {
                         if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); return; }
-                        if (p.isTrain && !isBonusStageMode && turboActiveTimer <= 0) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
+                        if (p.isTrain && !isBonusStageMode && turboActiveTimer <= 0 && currentSkinId !== 'premium_tank') { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                     }
                 }
                 if (p.x < -300) platforms.splice(i, 1);
@@ -940,7 +1006,7 @@
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
-                    if (turboActiveTimer > 0) { obstacles.splice(i,1); continue; } // IMUNE EM TURBO
+                    if (turboActiveTimer > 0 || currentSkinId === 'premium_tank') { obstacles.splice(i,1); continue; }
                     obstacles.splice(i, 1); if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
@@ -1020,7 +1086,6 @@
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
-        // --- CONSTRUTOR DA LOJA ATUALIZADO COM SISTEMA DE TRAVA DE FASES NOS CENÁRIOS ---
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -1031,8 +1096,6 @@
             } else if (currentShopTab === 'scenarios') {
                 for (const [id, item] of Object.entries(scenariosDB)) {
                     let isUnlocked = unlockedScenarios.includes(id); let isEquipped = (currentScenarioId === id);
-                    
-                    // Verificação se a fase atual alcançada pelo jogador atende ao requisito do bioma
                     let phaseReachedMax = Math.floor(Number(safeGetStorage('highScore', 0)) / 500) + 1;
                     let isLockedByPhase = (phaseReachedMax < item.phaseRequired);
 
@@ -1063,7 +1126,7 @@
                             <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_skin_${id}"></canvas>
                             <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
                             <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">
-                                ${isUnlocked ? (isEquipped ? 'Uso' : 'Equipar') : (item.type==='ad' || item.type==='free' ? '🎬 Ver' : `🪙 ${item.cost}`)}
+                                ${isUnlocked ? (isEquipped ? 'Uso' : 'Equipar') : (item.type==='premium_link' ? '🛒 R$ 1.00' : (item.type==='ad' || item.type==='free' ? '🎬 Ads' : `🪙 ${item.cost}`))}
                             </button>
                         </div>`;
                 }
@@ -1083,14 +1146,40 @@
                 if(id==='shield') shieldActive=true;
                 if(id==='doublejump') doubleJumpUnlocked=true;
                 if(id==='heart') lifeBonusQueued++;
-                if(id==='jetpack') jetpackActiveTimer = 400; // ATIVA 400 FRAMES DE VOO SUAVE
-                if(id==='turbo') turboActiveTimer = 300;   // ATIVA SUPER VELOCIDADE INVENCÍVEL
+                if(id==='jetpack') jetpackActiveTimer = 400; 
+                if(id==='turbo') turboActiveTimer = 300;   
                 buildShop(); updateHUD();
             } else alert("Moedas insuficientes.");
         }
         
         function purchaseSkinItem(id, type, cost) {
-            if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
+            if (unlockedSkins.includes(id)) {
+                if (id === 'premium_tank' && tankPhaseLifespan < currentPhase) {
+                    alert("Seu acesso de 1 fase expirou. Por favor realize uma nova compra via Mercado Pago para reativar."); return;
+                }
+                currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; 
+            }
+            
+            if (type === 'premium_link') {
+                let textAlert = "O tanque de guerra custa 1 real e o pagamento é processado pelo Mercado Pago com 100% de segurança!\n\nEste tanque de guerra valerá apenas para UMA FASE INTEIRA após a confirmação.\n\nVocê será redirecionado para concluir o pagamento.";
+                alert(textAlert); window.open("https://mpago.la/1WMeWCp", "_blank");
+                
+                let overlay = document.getElementById('ad-processing-overlay');
+                let title = document.getElementById('ad-overlay-title');
+                let txtCounter = document.getElementById('ad-countdown-txt');
+                title.innerText = "VERIFICANDO PAGAMENTO MERCADO PAGO";
+                txtCounter.innerText = "Aguardando API..."; overlay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    overlay.classList.add('hidden'); unlockedSkins.push('premium_tank');
+                    safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
+                    tankPhaseLifespan = currentPhase + 1; safeSetStorage('tankPhaseLifespan', tankPhaseLifespan);
+                    currentSkinId = 'premium_tank'; safeSetStorage('currentSkinId', 'premium_tank');
+                    buildShop(); updateHUD();
+                    alert("Pagamento Confirmado! Seu Tanque de Guerra Premium está liberado para uso!");
+                }, 4000); return;
+            }
+
             if (type === 'ad' || type === 'free') {
                 triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); });
             } else {
@@ -1115,12 +1204,11 @@
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
         function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${item.status==='Pago'?'#28a745':'#ffaa00'}; font-weight:bold;">${item.status}</div></li>`; }); }
+        function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques no extrato.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${item.status==='Pago'?'#28a745':'#ffaa00'}; font-weight:bold;">${item.status}</div></li>`; }); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando com Segurança Administrativa.</li>"; } else alert("Acesso negado."); }
-        // REGRA DE SEGURANÇA INTERNA DO MOTOR EXCLUSIVA DO ADMINISTRADOR DISPARADA COM SUCESSO
+        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando.</li>"; } else alert("Acesso negado."); }
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
         function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
@@ -1130,24 +1218,23 @@
             let scoreHigh = Number(safeGetStorage('highScore', 0)); if (score > scoreHigh) safeSetStorage('highScore', score);
             safeSetText('hud-phase-txt', `Fase: ${currentPhase}`);
             const pActive = document.getElementById('hud-powerups-active'); 
-            if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''} ${jetpackActiveTimer>0 ? '🚀 Voo' : ''} ${turboActiveTimer>0 ? '⚡ Turbo' : ''}`;
+            if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''} ${jetpackActiveTimer>0 ? '🚀 Voo' : ''} ${turboActiveTimer>0 ? '⚡ Turbo' : ''} ${currentSkinId==='premium_tank'?'🚜 Tanque Ativo':''}`;
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; safeSetText('hud-lives', h || '💀');
         }
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
-        // --- ABA DE PODERES PERSONALIZADOS ESTILO SUBWAY SURFERS ---
         const powerupsDB = {
             'shield': { name: '🛡️ Escudo Defletor', cost: 120 },
             'doublejump': { name: '👟 Salto Duplo', cost: 250 },
-            'heart': { name: '💖 Vida Extra', cost: 180 },
-            'jetpack': { name: '🚀 Voo Jetpack (Subway Style)', cost: 300 },
-            'turbo': { name: '⚡ Turbo Voador (Super Rush)', cost: 400 }
+            'heart': { name: '💖 Extra Life', cost: 180 },
+            'jetpack': { name: '🚀 Voo Jetpack Pro', cost: 300 },
+            'turbo': { name: '⚡ Super Rush', cost: 400 }
         };
 
         resizeEngineCanvas();
