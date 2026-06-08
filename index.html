@@ -45,13 +45,13 @@
         .hud-val { color: #ff007f; font-size: 13px; }
         .hud-accent { color: #ffe81f; }
 
-        /* BOTÃO DE PAUSA PERFEITAMENTE CENTRALIZADO SEM AFETAR OUTRAS ÁREAS */
+        /* ARVORE DE FIXAÇÃO: BOTÃO DE PAUSA ABSOLUTAMENTE CENTRALIZADO E ISOLADO */
         .pause-btn {
-            position: absolute; top: env(safe-area-inset-top, 10px); left: 50%;
-            transform: translateX(-50%); font-size: 18px; cursor: pointer; z-index: 9999; padding: 4px;
-            background: rgba(10,10,26,0.9); border-radius: 50%; width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center; border: 2px solid #00f2fe;
-            box-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+            position: absolute; top: env(safe-area-inset-top, 10px); left: 50% !important;
+            transform: translateX(-50%) !important; font-size: 16px; cursor: pointer; z-index: 99999; 
+            background: linear-gradient(135deg, #0a0a20 0%, #151530 100%); border-radius: 50%; 
+            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; 
+            border: 2px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.7); margin: 0 auto;
         }
 
         .settings-gear {
@@ -231,7 +231,7 @@
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
                     Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas sem perigos.
                 </div>
-                <div class="tut-title" style="color:#ff007f;">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
+                <div class="tut-title" style="color:#ff007f;">%">🌀 Looping de Alta Velocidade (Estilo Sonic)</div>
                 <div style="color:#d1d1f0;">
                     Pistas circulares surgirão na pista! Entre nelas para realizar um looping completo de 360 graus por dentro do círculo com aceleração total!
                 </div>
@@ -370,7 +370,6 @@
         let canvas = null, ctx = null;
 
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
-        // VELOCIDADE CORRIGIDA (MAIS LENTA E CONFORTÁVEL)
         let obstacleSpeed = 4.5, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
         let adLifeUsed = false, isMuted = false;
@@ -387,7 +386,6 @@
         let itemsInGame = []; 
         let smokeParticles = []; 
 
-        // VARIÁVEIS DE CONTROLE DO LOOPING (ESTILO SONIC)
         let isLoopingAnimationMode = false;
         let loopingAngleTrack = 0;
         let loopingCenterX = 0;
@@ -430,7 +428,6 @@
             pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca']; unlockedScenarios = ['scen_default'];
         }
 
-        // SALTO CORRIGIDO (UM POUCO MAIS ALTO PARA DEIXAR A JOGABILIDADE FLUIDA)
         const player = {
             x: 70, y: 150, width: 36, height: 36,
             gravity: 0.60, lift: -13.5, velocity: 0,
@@ -507,6 +504,7 @@
             }
         };
 
+        // ENGENHARIA DE MATRIZ DE EMBLEMAS: GARANTE SIMBOLOS UNICOS E VISIVEIS PARA TODAS AS SKINS
         for (let i = 2; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
             let name = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
@@ -514,10 +512,30 @@
                 name: name, type: 'ad', tab: 'skins', cost: 0,
                 render: (g, x, y, r) => {
                     g.save();
-                    if(name.includes("Lâmina") || name.includes("Zênite")) { g.strokeStyle = colorHex; g.lineWidth = 3; g.beginPath(); g.moveTo(x-r, y); g.lineTo(x+r, y); g.stroke(); g.beginPath(); g.arc(x,y,4,0,Math.PI*2); g.fillStyle="#fff"; g.fill(); }
-                    else if(name.includes("Laser") || name.includes("Luz") || name.includes("Faísca")) { g.fillStyle = colorHex; g.fillRect(x-3, y-r, 6, r*2); g.fillStyle="#fff"; g.fillRect(x-6, y-3, 12, 6); }
-                    else if(name.includes("Sombra") || name.includes("Cyber") || name.includes("Hacker")) { g.fillStyle = "#151530"; g.fillRect(x-r, y-r, r*2, r*2); g.strokeStyle = colorHex; g.lineWidth=2; g.strokeRect(x-r, y-r, r*2, r*2); g.fillStyle=colorHex; g.font="9px sans-serif"; g.fillText("X", x-4, y+3); }
-                    else { g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fillStyle = colorHex; g.fill(); g.fillStyle="#fff"; g.beginPath(); g.arc(x,y,r/3,0,Math.PI*2); g.fill(); }
+                    if (i % 5 === 0) { 
+                        // SÍMBOLO: ESTRELA DE ENERGIA QUÂNTICA
+                        let rot = Math.PI / 2 * 3; let step = Math.PI / 5; g.beginPath(); g.moveTo(x, y - r);
+                        for (let k = 0; k < 5; k++) {
+                            g.lineTo(x + Math.cos(rot) * r, y + Math.sin(rot) * r); rot += step;
+                            g.lineTo(x + Math.cos(rot) * (r/2), y + Math.sin(rot) * (r/2)); rot += step;
+                        }
+                        g.closePath(); g.fillStyle = colorHex; g.fill(); g.strokeStyle = "#fff"; g.stroke();
+                    } else if (i % 5 === 1) {
+                        // SÍMBOLO: CRISTAL DIAMANTE NEON
+                        g.fillStyle = colorHex; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fill();
+                        g.strokeStyle = "#fff"; g.lineWidth = 1.5; g.stroke();
+                    } else if (i % 5 === 2) {
+                        // SÍMBOLO: FEIXES DE LASER CRUZADOS
+                        g.strokeStyle = colorHex; g.lineWidth = 4; g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x + r, y + r); g.moveTo(x + r, y - r); g.lineTo(x - r, y + r); g.stroke();
+                    } else if (i % 5 === 3) {
+                        // SÍMBOLO: MATRIZ DE DADOS CYBER (QUADRADO TECNOLÓGICO)
+                        g.fillStyle = "#151530"; g.fillRect(x - r, y - r, r * 2, r * 2); g.strokeStyle = colorHex; g.lineWidth = 2; g.strokeRect(x - r, y - r, r * 2, r * 2);
+                        g.fillStyle = colorHex; g.fillRect(x - r/3, y - r/3, (r*2)/3, (r*2)/3);
+                    } else {
+                        // SÍMBOLO: ASA DELTA SPEEDRUNNER
+                        g.fillStyle = colorHex; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y + r); g.lineTo(x, y + r/2); g.lineTo(x - r, y + r); g.closePath(); g.fill();
+                        g.strokeStyle = "#fff"; g.stroke();
+                    }
                     g.restore();
                 }
             };
@@ -531,15 +549,34 @@
                 name: name, type: 'coins', cost: costScale, tab: 'bizarre',
                 render: (g, x, y, r) => {
                     g.save();
-                    if (name.includes("Olho") || name.includes("Cthulhu")) { g.fillStyle = "#ffffff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/1.8, 0, Math.PI*2); g.fill(); g.fillStyle="#000"; g.beginPath(); g.arc(x,y,r/4,0,Math.PI*2); g.fill(); }
-                    else if (name.includes("Tentáculo") || name.includes("Gosma") || name.includes("Geleia")) { g.fillStyle = bizarroColor; g.fillRect(x-r/1.5, y-r/2, r*1.3, r); g.beginPath(); g.arc(x-r/4, y-r/3, 4, 0, Math.PI*2); g.fillStyle="#fff"; g.fill(); g.beginPath(); g.arc(x+r/4, y-r/3, 4, 0, Math.PI*2); g.fill(); }
-                    else { g.fillStyle = bizarroColor; g.beginPath(); g.moveTo(x, y-r); g.lineTo(x+r, y+r); g.lineTo(x-r, y+r); g.closePath(); g.fill(); g.fillStyle="#fff"; g.fillRect(x-2, y, 4, 4); }
+                    if (i % 5 === 0) {
+                        // SÍMBOLO: OLHO ABERRANTE CTHULHU
+                        g.fillStyle = "#ffffff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+                        g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r / 1.6, 0, Math.PI * 2); g.fill();
+                        g.fillStyle = "#000000"; g.beginPath(); g.arc(x, y, r / 3, 0, Math.PI * 2); g.fill();
+                    } else if (i % 5 === 1) {
+                        // SÍMBOLO: TENTÁCULOS SQUISHY / GOSMA DRIP
+                        g.fillStyle = bizarroColor; g.fillRect(x - r/2, y - r, r, r * 1.6);
+                        g.beginPath(); g.arc(x, y - r/2, r/2, 0, Math.PI * 2); g.fill();
+                        g.fillStyle = "#fff"; g.fillRect(x - 3, y - r, 6, 4);
+                    } else if (i % 5 === 2) {
+                        // SÍMBOLO: EMBLEMA BIO-HAZARD INFECTADO
+                        g.strokeStyle = bizarroColor; g.lineWidth = 3; g.beginPath(); g.arc(x, y, r/1.5, 0, Math.PI*2); g.stroke();
+                        g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/3, 0, Math.PI*2); g.fill();
+                    } else if (i % 5 === 3) {
+                        // SÍMBOLO: FRACTURA DO VAZIO MUTANTE
+                        g.strokeStyle = bizarroColor; g.lineWidth = 2; g.beginPath();
+                        g.moveTo(x, y - r); g.lineTo(x + r/2, y + r); g.lineTo(x - r, y - r/2); g.lineTo(x + r, y); g.closePath(); g.stroke();
+                    } else {
+                        // SÍMBOLO: GOLE DE MATÉRIA ESCURA (TRIÂNGULO INVERTIDO)
+                        g.fillStyle = bizarroColor; g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x + r, y - r); g.lineTo(x, y + r); g.closePath(); g.fill();
+                        g.fillStyle = "#000"; g.beginPath(); g.arc(x, y - r/3, 4, 0, Math.PI*2); g.fill();
+                    }
                     g.restore();
                 }
             };
         }
 
-        // SISTEMA ATUALIZADO DE CENÁRIOS COM 20 ESTILOS ÚNICOS E REQUISITOS DE PROGRESSÃO DE FASES
         const scenariosDB = {
             'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", render: (g,w,h)=> { g.fillStyle="#0a0518"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,h-10,30,2); } },
             'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,4,0,Math.PI*2); g.fill(); } },
@@ -600,7 +637,6 @@
             preBonusPhaseConfig = currentPhaseConfig; isBonusStageMode = true; bonusStageTimer = 600; pipeWarningActive = false;
             obstacles = []; platforms = []; itemsInGame = [];
             
-            // ADICIONADO: MAIS PLATAFORMAS COMPLETAS EM ALTURA ESCALONADA EVITANDO QUEDA NO LIMBO
             for (let k = 0; k < 12; k++) {
                 let hY = BASE_GROUND_Y - 50 - (k % 3 * 35);
                 platforms.push({ x: player.x + 60 + (k * 140), y: hY, width: 110, isTrain: false, isPipe: false });
@@ -658,7 +694,6 @@
 
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
-            // VELOCIDADE AJUSTADA PROGRESSIVAMENTE PARA MANTER RITMO MAIS LEVE
             obstacleSpeed = 4.5 + (phase * 0.35);
             if (turboActiveTimer > 0) obstacleSpeed = 14;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
@@ -705,9 +740,8 @@
                             });
                         }
 
-                        // MOVIMENTAÇÃO DO LOOPING DE SONIC ATIVA SE ENTRAR NO GATILHO
                         if (isLoopingAnimationMode) {
-                            loopingAngleTrack += 0.08; // VELOCIDADE ANGULAR DO PULO DENTRO DO CÍRCULO
+                            loopingAngleTrack += 0.08; 
                             player.x = loopingCenterX + Math.cos(loopingAngleTrack) * loopingRadiusSize - player.width / 2;
                             player.y = loopingCenterY + Math.sin(loopingAngleTrack) * loopingRadiusSize - player.height / 2;
                             player.velocity = 0;
@@ -731,30 +765,16 @@
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
 
-                            if (score % 20 === 0) { saldoPixAcumulado += 2; updateHUD(); }
-
-                            pipeWarningActive = false;
-                            for (let p of platforms) {
-                                if (p.isPipe && p.x > player.x && p.x - player.x < 480) {
-                                    pipeWarningActive = true; currentFrameSpeed = obstacleSpeed * 0.45; break;
-                                }
-                            }
-
-                            // MOVIMENTAÇÃO PROCEDURAL DO ELEMENTO LOOPING DO MAPA
                             if (loopingObjectX > -200) {
                                 loopingObjectX -= currentFrameSpeed;
-                                // Gatilho de Entrada de Colisão com o Looping do Sonic
                                 if (!isLoopingAnimationMode && loopingObjectX < player.x + 20 && loopingObjectX > player.x - 40 && Math.abs(player.y - (BASE_GROUND_Y - player.height)) < 40) {
-                                    isLoopingAnimationMode = true;
-                                    loopingAngleTrack = Math.PI; // Inicia na base traseira do círculo
-                                    loopingCenterX = player.x + loopingRadiusSize;
-                                    loopingCenterY = BASE_GROUND_Y - loopingRadiusSize;
-                                    coins += 50; updateHUD(); // Recompensa por completar o Looping
+                                    isLoopingAnimationMode = true; loopingAngleTrack = Math.PI; 
+                                    loopingCenterX = player.x + loopingRadiusSize; loopingCenterY = BASE_GROUND_Y - loopingRadiusSize;
+                                    coins += 50; updateHUD(); 
                                 }
                             }
 
-                            updateAndGenerateTerrain(currentFrameSpeed);
-                            updateSpawningEngine();
+                            updateAndGenerateTerrain(currentFrameSpeed); updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
@@ -793,17 +813,10 @@
 
                     renderBackgroundScenariosLayer();
 
-                    // RENDERIZAR E DESENHAR LOOPING REALISTA SE ESTIVER NA TELA
                     if (loopingObjectX > -150 && !isBonusStageMode) {
-                        ctx.save();
-                        ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 8;
-                        ctx.shadowBlur = 15; ctx.shadowColor = "#ff007f";
-                        ctx.beginPath();
-                        ctx.arc(loopingObjectX + loopingRadiusSize, BASE_GROUND_Y - loopingRadiusSize, loopingRadiusSize, 0, Math.PI * 2);
-                        ctx.stroke();
-                        // Detalhes internos de suporte do loop
-                        ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2;
-                        ctx.strokeRect(loopingObjectX + loopingRadiusSize - 2, BASE_GROUND_Y - loopingRadiusSize * 2, 4, loopingRadiusSize * 2);
+                        ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 8; ctx.shadowBlur = 15; ctx.shadowColor = "#ff007f";
+                        ctx.beginPath(); ctx.arc(loopingObjectX + loopingRadiusSize, BASE_GROUND_Y - loopingRadiusSize, loopingRadiusSize, 0, Math.PI * 2); ctx.stroke();
+                        ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2; ctx.strokeRect(loopingObjectX + loopingRadiusSize - 2, BASE_GROUND_Y - loopingRadiusSize * 2, 4, loopingRadiusSize * 2);
                         ctx.restore();
                     }
 
@@ -882,32 +895,25 @@
             requestAnimationFrame(runGameLoop);
         }
 
-        // --- SISTEMA REVOLUCIONÁRIO DE CENÁRIOS COM DESIGN VISUAL PROCEDURAL REALISTA ---
         function renderBackgroundScenariosLayer() {
             let activeScenario = currentScenarioId;
             if (activeScenario === 'scen_default') activeScenario = currentPhaseConfig.type;
-            
             let selectedScen = scenariosDB[activeScenario];
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
 
-            // 1. FUNDO REALISTA DE CIDADE CYBERPUNK / METRÓPOLE
             if (activeScenario === 'city' || activeScenario === 'scen_cyberpunk_city') {
                 grad.addColorStop(0, "#060212"); grad.addColorStop(0.6, "#140a2b"); grad.addColorStop(1, "#030108");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.save();
-                ctx.fillStyle = "rgba(16, 8, 32, 0.8)";
+                ctx.save(); ctx.fillStyle = "rgba(16, 8, 32, 0.8)";
                 for(let i=0; i<10; i++) {
                     let w = 80 + (i%3)*25; let h = 200 + (i*30)%150;
-                    let x = (i * 140 - frameCount * 0.4) % (canvas.width + w) - w;
-                    ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                    ctx.fillStyle = "#ffe81f";
-                    if(i%2===0) ctx.fillRect(x + 10, BASE_GROUND_Y - h + 30, 4, 6);
+                    let x = (i * 140 - frameCount * 0.4) % (canvas.width + w) - w; ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
+                    ctx.fillStyle = "#ffe81f"; if(i%2===0) ctx.fillRect(x + 10, BASE_GROUND_Y - h + 30, 4, 6);
                     ctx.fillStyle = "rgba(16, 8, 32, 0.8)";
                 }
                 ctx.restore(); return;
             }
 
-            // 2. FUNDO REALISTA DE FLORESTA COM GRADIENTES DE ÁRVORES
             if (activeScenario === 'forest') {
                 grad.addColorStop(0, "#0b1c08"); grad.addColorStop(0.7, "#163811"); grad.addColorStop(1, "#040d02");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -920,7 +926,6 @@
                 ctx.restore(); return;
             }
 
-            // 3. FUNDO REALISTA DE FERROVIA COM LINHAS DE TELEGRAFO E TRILHOS NO HORIZONTE
             if (activeScenario === 'trains') {
                 grad.addColorStop(0, "#0c1626"); grad.addColorStop(0.6, "#1e2d42"); grad.addColorStop(1, "#070d14");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -933,18 +938,14 @@
                 ctx.restore(); return;
             }
 
-            // 4. FUNDO REALISTA DE PLANETAS / CORES DO ESPAÇO PROFUNDO
             if (activeScenario === 'scen_neon' || activeScenario === 'scen_zerog') {
                 grad.addColorStop(0, "#02020a"); grad.addColorStop(1, "#0c051c");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.save();
-                // Desenha Planeta Gigante com Anéis
-                ctx.fillStyle = "#ff007f"; ctx.beginPath(); ctx.arc(canvas.width * 0.75, 120, 45, 0, Math.PI*2); ctx.fill();
+                ctx.save(); ctx.fillStyle = "#ff007f"; ctx.beginPath(); ctx.arc(canvas.width * 0.75, 120, 45, 0, Math.PI*2); ctx.fill();
                 ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(canvas.width * 0.75, 120, 70, 12, Math.PI/6, 0, Math.PI*2); ctx.stroke();
                 ctx.restore(); return;
             }
 
-            // FALLBACK PADRÃO CASO NENHUM SE ENCAIXE
             if (selectedScen && selectedScen.top) {
                 grad.addColorStop(0, selectedScen.top); grad.addColorStop(1, selectedScen.bottom || "#000000");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); return;
@@ -960,11 +961,9 @@
                 let currentGroundY = getGroundYAt(sX);
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
-                // Trigger de Geração do Looping Estilo Sonic de forma controlada
                 if (frameCount > 150 && loopingObjectX < -100 && Math.random() > 0.78 && currentPhaseConfig.type !== 'trains' && !isBonusStageMode) {
                     loopingObjectX = sX + 100; return;
                 }
-
                 if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
                     platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false }); return;
                 }
@@ -1245,3 +1244,4 @@
     </script>
 </body>
 </html>
+ 
