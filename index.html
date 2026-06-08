@@ -35,7 +35,6 @@
 
         canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
 
-        /* --- HUD --- */
         .hud {
             position: absolute; top: env(safe-area-inset-top, 12px); left: 65px; right: 75px;
             display: flex; justify-content: space-between; align-items: center;
@@ -46,7 +45,6 @@
         .hud-val { color: #ff007f; font-size: 13px; }
         .hud-accent { color: #ffe81f; }
 
-        /* BOTÃO PAUSA */
         .pause-btn {
             position: absolute; top: env(safe-area-inset-top, 10px); left: 15px;
             font-size: 20px; cursor: pointer; z-index: 100; padding: 4px;
@@ -65,7 +63,6 @@
             border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 101;
         }
 
-        /* TELAS INTERFACES AJUSTADAS PARA NÃO FICAREM DEBAIXO DO BANNER AD */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 50px);
             background: rgba(6, 6, 18, 0.96); display: flex; flex-direction: column;
@@ -123,7 +120,6 @@
         }
         .shop-item.selected { border-color: #ffe81f; background: rgba(255, 232, 31, 0.03); }
         
-        /* CORREÇÃO DO MINI CANVAS PARA EVITAR ESTICAMENTO (ANTI-BUG DO ÍCONE GIGANTE) */
         .preview-canvas-mini { 
             width: 50px !important; 
             height: 50px !important; 
@@ -158,7 +154,6 @@
         }
         #payout-toast.active { bottom: 80px; }
 
-        /* BANNER INFERIOR COMPLETAMENTE ISOLADO DAS MENUS E JOGABILIDADE */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: linear-gradient(90deg, #0f0c20 0%, #050510 100%);
@@ -213,7 +208,6 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- BANNER MONETAG INALTERADO E SEGURO NO BOTTOM -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <a href="https://omg10.com/4/11110940" target="_blank" class="banner-link-wrapper" id="monetag-banner-anchor" onclick="event.preventDefault();">
                 ⚡ [ANÚNCIO] TOQUE AQUI PARA GANHAR BÔNUS DE MOEDAS MULTIPLICADAS ⚡
@@ -229,11 +223,11 @@
             <div class="tutorial-card">
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
-                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se você optar com segurança colidir com o tubo, seu personagem será teleportado para uma dimensão bônus.
+                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas.
                 </div>
-                <div class="tut-title" style="color:#ff007f;">⚡ Botão de Poder (Raio de Plasma)</div>
+                <div class="tut-title" style="color:#ff007f;">⚡ Botão de Poder (Raio ou Fumaça Densa)</div>
                 <div style="color:#d1d1f0;">
-                    A partir da **Fase 4 (Vale Vulcânico)**, toque no botão flutuante de raio (⚡) para disparar um laser retilíneo que pulveriza e quebra obstáculos à sua frente instantaneamente!
+                    A partir da **Fase 4**, use o poder para estourar caixotes! Se jogar com a **Maria Fumaça**, ela disparará uma fumaça densa destruidora com som real!
                 </div>
             </div>
 
@@ -312,7 +306,7 @@
                     <button class="btn btn-sm" onclick="changeShopTab('skins')">Skins Ads</button>
                     <button class="btn btn-sm" onclick="changeShopTab('bizarre')">Skins Bizarras</button>
                     <button class="btn btn-sm" onclick="changeShopTab('scenarios')">Cenários Épicos</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">Power-ups</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">Poderes Personalizados</button>
                 </div>
                 <div class="shop-grid" id="shop-items-container"></div>
                 <div style="text-align: center; margin-top: 10px;">
@@ -321,13 +315,12 @@
             </div>
         </div>
 
-        <!-- FINANCEIRO SAQUES PIX (AVISO DE PROCESSAMENTO CONFIGURADO) -->
+        <!-- FINANCEIRO SAQUES PIX -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">Resgatar Recompensa Pix</h3>
             <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 15px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 14px; text-align:center; width:100%; max-width:240px;">Saldo: <span id="withdraw-balance">0</span> pts</div>
             
-            <!-- AVISO DE PROCESSAMENTO SOLICITADO -->
             <p style="color: #ffe81f; font-size: 10px; margin: 4px 0 10px 0; text-align: center; max-width: 240px; background: rgba(255, 232, 31, 0.12); padding: 8px; border-radius: 8px; line-height: 1.4; border: 1px solid rgba(255, 232, 31, 0.3);">
                 ⚠️ <strong>Aviso Importante:</strong> O Pix pode demorar até <strong>1 dia útil</strong> para cair devido ao processamento de segurança entre o jogo, nosso banco intermediário e o seu banco de destino.
             </p>
@@ -370,7 +363,6 @@
 
         let canvas = null, ctx = null;
 
-        // PARAMETROS DO MOTOR INFINITO
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 6.5, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
@@ -378,25 +370,26 @@
 
         let currentPhase = 1;
         let shieldActive = false, doubleJumpUnlocked = false, lifeBonusQueued = 0;
+        
+        // NOVOS TIMERS DOS PODERES ESTILO SUBWAY SURFERS
+        let jetpackActiveTimer = 0;
+        let turboActiveTimer = 0;
 
         let saldoPixAcumulado = 0, coins = 300;
-        let pixHistoryData = [], unlockedSkins = ['skin_1'], unlockedScenarios = ['scen_default'];
+        let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca'], unlockedScenarios = ['scen_default'];
         let itemsInGame = []; 
+        let smokeParticles = []; // SISTEMA DE PARTÍCULAS EXCLUSIVO DO TREM E DA FUMAÇA DENSA
 
-        // CONTROLES DE MANA E PODER DE RAIO
         let playerMana = 100;
         let activeLaserFrame = 0;
+        let activeSmokeBlastFrame = 0; // CONTROLE GRÁFICO DO ATAQUE DA MARIA FUMAÇA
 
-        // LÓGICA DO CANO PORTAL BONUS (MÁRIO STYLE)
         let isBonusStageMode = false;
         let bonusStageTimer = 0; 
         let preBonusPhaseConfig = null;
         let pipeWarningActive = false;
 
-        // AUDIO CONTEXT
         let audioCtx = null, musicInterval = null, beatCount = 0;
-
-        // CHÃO REATIVO EVOLUTIVO
         let BASE_GROUND_Y = 300;
 
         let storageBackup = {};
@@ -415,10 +408,10 @@
         
         try {
             let h = safeGetStorage('pixHistoryData', null); pixHistoryData = h ? JSON.parse(h) : [];
-            let s = safeGetStorage('unlockedSkins', null); unlockedSkins = s ? JSON.parse(s) : ['skin_1'];
+            let s = safeGetStorage('unlockedSkins', null); unlockedSkins = s ? JSON.parse(s) : ['skin_1', 'maria_fumaca'];
             let sc = safeGetStorage('unlockedScenarios', null); unlockedScenarios = sc ? JSON.parse(sc) : ['scen_default'];
         } catch(e) {
-            pixHistoryData = []; unlockedSkins = ['skin_1']; unlockedScenarios = ['scen_default'];
+            pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca']; unlockedScenarios = ['scen_default'];
         }
 
         const player = {
@@ -428,7 +421,6 @@
         };
 
         let obstacles = []; let platforms = []; let terrainList = [];
-
         let currentPhaseConfig = { name: "Metrópole Cyber", top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" };
 
         function safeSetText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
@@ -439,13 +431,11 @@
             BASE_GROUND_Y = canvas.height - 130;
             player.x = Math.floor(canvas.width * 0.16);
             if(player.x < 40) player.x = 40;
-            
-            if(!gameActive) {
-                player.y = BASE_GROUND_Y - player.height;
-            }
+            if(!gameActive) player.y = BASE_GROUND_Y - player.height;
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
+        // --- SISTEMA DE SKINS ATUALIZADO COM ÍCONES ESPECÍFICOS PARA O TÍTULO ---
         const skinsDB = {};
 
         const normalNamesArray = [
@@ -474,90 +464,84 @@
             "Cérbero Red", "Medusa Matrix", "Minotauro Cyber", "Quimera Glitch", "Gorgona Bit"
         ];
         
-        for (let i = 1; i <= 50; i++) {
+        // CONFIGURAÇÃO INICIAL DA ESTRELA DA GUIA DE GRAÇA
+        skinsDB['skin_1'] = {
+            name: '⭐ Estrela Guia', type: 'free', tab: 'skins',
+            render: (g, cx, cy, r) => { drawVectorGeometricShape(g, cx, cy, 5, r, r/2, '#ffe81f'); }
+        };
+
+        // NOVO PERSONAGEM EXCLUSIVO DE GRAÇA: MARIA FUMAÇA
+        skinsDB['maria_fumaca'] = {
+            name: '🚂 Maria Fumaça', type: 'free', tab: 'skins',
+            render: (g, cx, cy, r) => {
+                g.save();
+                g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1);
+                g.fillStyle = "#222222"; g.fillRect(cx + r/3, cy - r, r/2, r * 0.8);
+                g.fillStyle = "#ff0033"; g.fillRect(cx - r, cy - r, r * 1.1, r * 0.8);
+                g.fillStyle = "#ffe81f"; g.beginPath(); g.arc(cx - r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
+                g.beginPath(); g.arc(cx + r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
+                g.fillStyle = "#ffffff"; g.fillRect(cx - r/1.5, cy - r * 0.7, r/2, r/3);
+                g.restore();
+            }
+        };
+
+        // INICIALIZAÇÃO PROCEDURAL DE SKINS COM ICONOGRAFIA COMBINANDO COM O TÍTULO
+        for (let i = 2; i <= 50; i++) {
             let colorHex = `hsl(${(i * 7) % 360}, 100%, 60%)`;
-            let skinUniqueName = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
+            let name = normalNamesArray[i - 1] || `Runner Alpha ${i}`;
             skinsDB[`skin_${i}`] = {
-                name: skinUniqueName, type: 'ad', tab: 'skins',
+                name: name, type: 'ad', tab: 'skins', cost: 0,
                 render: (g, x, y, r) => {
-                    g.save(); g.beginPath(); g.arc(x, y, r, 0, Math.PI*2);
-                    g.fillStyle = colorHex; g.fill(); g.strokeStyle = "#ffffff"; g.lineWidth = 1.5; g.stroke();
-                    g.fillStyle = "#fff"; g.fillRect(x - r/3, y - r/3, (r*2)/3, (r*2)/3); g.restore();
+                    g.save();
+                    if(name.includes("Lâmina")) { g.strokeStyle = colorHex; g.lineWidth = 4; g.beginPath(); g.moveTo(x-r, y-r); g.lineTo(x+r, y+r); g.stroke(); }
+                    else if(name.includes("Laser") || name.includes("Luz")) { g.fillStyle = colorHex; g.fillRect(x-4, y-r, 8, r*2); g.shadowBlur = 10; g.shadowColor = colorHex; }
+                    else if(name.includes("Sombra") || name.includes("Cyber")) { g.fillStyle = "#111"; g.fillRect(x-r, x-r, r*2, r*2); g.strokeStyle = colorHex; g.strokeRect(x-r, x-r, r*2, r*2); }
+                    else { g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fillStyle = colorHex; g.fill(); }
+                    g.restore();
                 }
             };
         }
-        skinsDB['skin_1'] = {
-            name: '⭐ Estrela Guia', type: 'ad', tab: 'skins',
-            render: (g, cx, cy, r) => { drawVectorGeometricShape(g, cx, cy, 5, r, r/2, '#ffe81f'); }
-        };
 
         for (let i = 1; i <= 50; i++) {
             let bizarroColor = `hsl(${(i * 13) % 360}, 90%, 40%)`;
             let costScale = 100 + (i * 12);
-            let bizarroUniqueName = bizarreNamesArray[i - 1] || `Mutante Alien ${i}`;
+            let name = bizarreNamesArray[i - 1] || `Mutante Alien ${i}`;
             skinsDB[`bizarro_${i}`] = {
-                name: bizarroUniqueName, type: 'coins', cost: costScale, tab: 'bizarre',
+                name: name, type: 'coins', cost: costScale, tab: 'bizarre',
                 render: (g, x, y, r) => {
-                    g.save(); g.fillStyle = bizarroColor; g.fillRect(x - r, y - r, r*2, r*2);
-                    g.fillStyle = "#fff"; g.beginPath(); g.arc(x - r/2, y - r/4, 4, 0, Math.PI*2); g.fill();
-                    g.beginPath(); g.arc(x + r/2, y - r/4, 4, 0, Math.PI*2); g.fill(); g.restore();
+                    g.save();
+                    if (name.includes("Olho")) { g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r/2, 0, Math.PI*2); g.fill(); }
+                    else if (name.includes("Tentáculo") || name.includes("Gosma")) { g.fillStyle = bizarroColor; g.fillRect(x-r/2, y-r, r, r*2); g.beginPath(); g.arc(x, y-r, r/2, 0, Math.PI*2); g.fill(); }
+                    else { g.fillStyle = bizarroColor; g.fillRect(x - r, y - r, r*2, r*2); g.fillStyle = "#fff"; g.fillRect(x - r/2, y - r/2, 4, 4); g.fillRect(x + r/4, y - r/2, 4, 4); }
+                    g.restore();
                 }
             };
         }
 
+        // --- ENGENHARIA DE 20 CENÁRIOS COM DESBLOQUEIO POR REQUISITO DE FASE ---
         const scenariosDB = {
-            'scen_default': { 
-                name: 'Padrão Dinâmico', type: 'free', desc: 'Muda de acordo com as fases.',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#0a0518"); grad.addColorStop(1, "#020105");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "rgba(0,242,254,0.3)"; g.fillRect(5, h-12, w-10, 3);
-                }
-            },
-            'scen_neon': { 
-                name: '🌌 Hiper-Espaço Neon', type: 'ad', desc: 'Fundo estelar galáctico roxo',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#0b001a"); grad.addColorStop(1, "#26004d");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ffe81f"; g.fillRect(12,12,2,2); g.fillRect(32,28,1.5,1.5);
-                }
-            },
-            'scen_matrix': { 
-                name: '🟢 Data Stream Alpha', type: 'ad', desc: 'Códigos binários persistentes',
-                render: (g, w, h) => {
-                    g.fillStyle = "#000c02"; g.fillRect(0,0,w,h); g.fillStyle = "#00ff33"; g.font = "bold 8px monospace";
-                    g.fillText("10", 6, 16); g.fillText("01", 14, 32); g.fillText("11", 26, 44);
-                }
-            },
-            'scen_inferno': { 
-                name: '🌋 Inferno Vulcânico', type: 'ad', desc: 'Chuva de brasas constante',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ff5500"; g.beginPath(); g.arc(15,h,15,Math.PI,0); g.fill(); g.fillStyle = "#ffaa00"; g.fillRect(35,18,2,2);
-                }
-            },
-            'scen_cyberpunk_city': { 
-                name: '🌆 Megacidade Cyber', type: 'ad', desc: 'Silhuetas de arranha-céus e neblina realista',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#090314"); grad.addColorStop(1, "#0a0518");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "rgba(35, 15, 55, 1)"; g.fillRect(6, 18, 14, h-18); g.fillRect(24, 12, 18, h-12);
-                    g.fillStyle = "#00f2fe"; g.fillRect(10, 24, 2, 3); g.fillStyle = "#ffe81f"; g.fillRect(28, 20, 2, 3);
-                }
-            },
-            'scen_aurora_boreal': { 
-                name: '🌌 Aurora Polar', type: 'ad', desc: 'Ondas cósmicas luminescentes no céu',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#020514"); grad.addColorStop(1, "#01040d");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.strokeStyle = "rgba(0, 255, 150, 0.7)"; g.lineWidth = 2.5;
-                    g.beginPath(); g.moveTo(0,18); g.bezierCurveTo(15,6,35,26,w,12); g.stroke();
-                }
-            },
-            'scen_desert_sunset': { 
-                name: '🏜️ Deserto Quântico', type: 'ad', desc: 'Dunas em degradê e sol poente',
-                render: (g, w, h) => {
-                    let grad = g.createLinearGradient(0,0,0,h); grad.addColorStop(0, "#5c0c22"); grad.addColorStop(1, "#f2a104");
-                    g.fillStyle = grad; g.fillRect(0,0,w,h); g.fillStyle = "#ffffff"; g.beginPath(); g.arc(w*0.7, 26, 6, 0, Math.PI*2); g.fill();
-                    g.fillStyle = "#1c000a"; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(w/2, h-12, w, h-4); g.lineTo(w, h); g.closePath(); g.fill();
-                }
-            }
+            'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", render: (g,w,h)=> { g.fillStyle="#0a0518"; g.fillRect(0,0,w,h); } },
+            'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,10,4,4); } },
+            'scen_matrix': { name: '🟢 Data Stream', type: 'ad', phaseRequired: 2, top: "#000c02", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#000c02"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.font="9px monospace"; g.fillText("10",10,20); } },
+            'scen_inferno': { name: '🌋 Vale Vulcânico', type: 'ad', phaseRequired: 2, top: "#2f0505", bottom: "#0a0101", render: (g,w,h)=> { g.fillStyle="#2f0505"; g.fillRect(0,0,w,h); g.fillStyle="#ff5500"; g.fillRect(5,35,15,15); } },
+            'scen_cyberpunk_city': { name: '🌆 Cidade Cyber', type: 'ad', phaseRequired: 3, top: "#090314", bottom: "#0a0518", render: (g,w,h)=> { g.fillStyle="#090314"; g.fillRect(0,0,w,h); g.fillStyle="#222"; g.fillRect(10,20,30,30); } },
+            'scen_aurora_boreal': { name: '🌌 Aurora Polar', type: 'ad', phaseRequired: 3, top: "#020514", bottom: "#01040d", render: (g,w,h)=> { g.fillStyle="#020514"; g.fillRect(0,0,w,h); g.fillStyle="#00ffaa"; g.fillRect(5,10,40,5); } },
+            'scen_desert_sunset': { name: '🏜️ Sol Quântico', type: 'ad', phaseRequired: 4, top: "#5c0c22", bottom: "#f2a104", render: (g,w,h)=> { g.fillStyle="#5c0c22"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,8,0,Math.PI*2); g.fill(); } },
+            // NOVOS CENÁRIOS EXCLUSIVOS ATÉ COMPLETAR OS 20 REQUISITADOS
+            'scen_atlantis': { name: '🔱 Atlantis Sub', type: 'coins', cost: 350, phaseRequired: 4, top: "#021c38", bottom: "#000714", render: (g,w,h)=> { g.fillStyle="#021c38"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(15,30,20,2); } },
+            'scen_temple': { name: '⛩️ Templo Sagrado', type: 'coins', cost: 400, phaseRequired: 4, top: "#4a1204", bottom: "#140300", render: (g,w,h)=> { g.fillStyle="#4a1204"; g.fillRect(0,0,w,h); g.fillStyle="#ffaa00"; g.fillRect(20,10,10,25); } },
+            'scen_crystal': { name: '🔮 Nebula Cristal', type: 'ad', phaseRequired: 5, top: "#3a0242", bottom: "#0b000d", render: (g,w,h)=> { g.fillStyle="#3a0242"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(20,20,10,10); } },
+            'scen_mines': { name: '⚙️ Minas de Vapor', type: 'coins', cost: 500, phaseRequired: 5, top: "#2b1f13", bottom: "#0d0905", render: (g,w,h)=> { g.fillStyle="#2b1f13"; g.fillRect(0,0,w,h); g.fillStyle="#bc6c25"; g.beginPath(); g.arc(25,25,12,0,Math.PI*2); g.stroke(); } },
+            'scen_glass': { name: '💎 Selva de Vidro', type: 'ad', phaseRequired: 5, top: "#023e42", bottom: "#001112", render: (g,w,h)=> { g.fillStyle="#023e42"; g.fillRect(0,0,w,h); g.strokeStyle="#fff"; g.strokeRect(15,15,20,20); } },
+            'scen_mecha': { name: '🤖 Distopia Mecha', type: 'coins', cost: 650, phaseRequired: 6, top: "#22252a", bottom: "#0b0c0d", render: (g,w,h)=> { g.fillStyle="#22252a"; g.fillRect(0,0,w,h); g.fillStyle="#ff0055"; g.fillRect(10,25,5,5); g.fillRect(35,25,5,5); } },
+            'scen_electric': { name: '⚡ Núcleo Elétrico', type: 'ad', phaseRequired: 6, top: "#02123a", bottom: "#00030d", render: (g,w,h)=> { g.fillStyle="#02123a"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(5,22,40,4); } },
+            'scen_glacier': { name: '❄️ Glaciar Estelar', type: 'coins', cost: 800, phaseRequired: 6, top: "#1a3a4b", bottom: "#050f14", render: (g,w,h)=> { g.fillStyle="#1a3a4b"; g.fillRect(0,0,w,h); g.fillStyle="#ffffff"; g.fillRect(10,40,30,10); } },
+            'scen_bones': { name: '☠️ Vale dos Ossos', type: 'ad', phaseRequired: 7, top: "#1c1c1c", bottom: "#050505", render: (g,w,h)=> { g.fillStyle="#1c1c1c"; g.fillRect(0,0,w,h); g.fillStyle="#eeeeee"; g.font="14px sans-serif"; g.fillText("💀",18,32); } },
+            'scen_clones': { name: '🧪 Fabrica Clones', type: 'coins', cost: 1000, phaseRequired: 7, top: "#033b1e", bottom: "#000f06", render: (g,w,h)=> { g.fillStyle="#033b1e"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.beginPath(); g.arc(25,25,10,0,Math.PI); g.stroke(); } },
+            'scen_retrowave': { name: '🌴 Sol Retrowave', type: 'ad', phaseRequired: 7, top: "#2d0036", bottom: "#ff007f", render: (g,w,h)=> { g.fillStyle="#2d0036"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.fillRect(0,35,50,15); } },
+            'scen_zerog': { name: '🛰️ Gravidade Zero', type: 'coins', cost: 1200, phaseRequired: 8, top: "#05050f", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#05050f"; g.fillRect(0,0,w,h); g.fillStyle="#fff"; g.fillRect(10,12,2,2); g.fillRect(35,38,3,3); } },
+            'scen_glitchdim': { name: '👾 Dimensão Glitch', type: 'ad', phaseRequired: 8, top: "#1a0000", bottom: "#001a1a", render: (g,w,h)=> { g.fillStyle="#1a0000"; g.fillRect(0,0,w,h); g.fillStyle="#ff007f"; g.fillRect(5,15,15,10); g.fillStyle="#00f2fe"; g.fillRect(25,25,15,15); } },
+            'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(10,10,30,30); } }
         };
 
         document.addEventListener('keydown', (e) => {
@@ -604,6 +588,18 @@
         function playSoundJump() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(550, audioCtx.currentTime + 0.12); g.gain.setValueAtTime(0.12, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12); osc.start(); osc.stop(audioCtx.currentTime + 0.12); }
         function playSoundCoin() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); g.gain.setValueAtTime(0.06, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); osc.start(); osc.stop(audioCtx.currentTime + 0.15); }
         function playSoundShield() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.22); g.gain.setValueAtTime(0.04, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.22); osc.start(); osc.stop(audioCtx.currentTime + 0.22); }
+        
+        // APITO DE TREM DA MARIA FUMAÇA
+        function playSoundMariaFumacaWhistle() {
+            if (!audioCtx || isMuted) return;
+            let osc1 = audioCtx.createOscillator(); let osc2 = audioCtx.createOscillator();
+            let g = audioCtx.createGain(); osc1.connect(g); osc2.connect(g); g.connect(audioCtx.destination);
+            osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(660, audioCtx.currentTime);
+            osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(690, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.08, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            osc1.start(); osc2.start(); osc1.stop(audioCtx.currentTime + 0.4); osc2.stop(audioCtx.currentTime + 0.4);
+        }
+
         function startProceduralMusic() {
             if (musicInterval) clearInterval(musicInterval);
             const notes = [110, 130, 146, 165, 110, 130, 165, 196];
@@ -625,7 +621,7 @@
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
             }
-            itemsInGame = []; obstacles = []; platforms = []; 
+            itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
         }
 
@@ -645,26 +641,14 @@
             let lastSeg = terrainList[terrainList.length - 1];
             if (lastSeg && lastSeg.x + lastSeg.w < canvas.width + 600) {
                 let nextX = lastSeg.x + lastSeg.w;
-                
-                if (isBonusStageMode) {
-                    terrainList.push({ x: nextX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
-                    return;
-                }
+                if (isBonusStageMode) { terrainList.push({ x: nextX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' }); return; }
                 
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
-                
-                if (currentPhaseConfig.type === 'trains') {
-                    type = 'flat';
-                } else {
-                    if (r < 0.45) {
-                        type = 'flat';
-                    } else if (r < 0.62 && lastSeg.type !== 'hole') {
-                        type = 'hole';
-                    } else if (r < 0.82) {
-                        type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 100, lastSeg.hEnd - 35);
-                    } else {
-                        type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 35);
-                    }
+                if (currentPhaseConfig.type === 'trains') { type = 'flat'; } else {
+                    if (r < 0.45) type = 'flat';
+                    else if (r < 0.62 && lastSeg.type !== 'hole') type = 'hole';
+                    else if (r < 0.82) { type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 100, lastSeg.hEnd - 35); }
+                    else { type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 35); }
                 }
                 terrainList.push({ x: nextX, w: 200, hStart: hStart, hEnd: hEnd, type: type });
             }
@@ -674,8 +658,7 @@
             for (let seg of terrainList) {
                 if (px >= seg.x && px <= seg.x + seg.w) {
                     if (seg.type === 'hole') return canvas.height + 999;
-                    let pct = (px - seg.x) / seg.w;
-                    return seg.hStart + (seg.hEnd - seg.hStart) * pct;
+                    let pct = (px - seg.x) / seg.w; return seg.hStart + (seg.hEnd - seg.hStart) * pct;
                 }
             }
             return BASE_GROUND_Y;
@@ -683,6 +666,8 @@
 
         function triggerJump() {
             if (!gameActive || isPaused) return;
+            // SE O JETPACK TIVER ATIVO, O PULO EMPURRA PRA CIMA SUAVE
+            if (jetpackActiveTimer > 0) { player.velocity = -6; return; }
             if (player.isJumping && (!doubleJumpUnlocked || player.jumpCount >= 2)) return;
             playSoundJump();
             if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; player.jumpCount = 1; player.onPlatform = false; } 
@@ -700,16 +685,29 @@
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
             obstacleSpeed = 6.5 + (phase * 0.45);
-            if (obstacleSpeed > 15) obstacleSpeed = 15;
+            if (turboActiveTimer > 0) obstacleSpeed = 16; // VELOCIDADE ULTRA DO TURBO
+            if (obstacleSpeed > 18) obstacleSpeed = 18;
             return biome;
         }
 
         function fireLaserBeamPower() {
             if (!gameActive || isPaused || playerMana < 35) return;
-            playerMana -= 35; activeLaserFrame = 12; playSoundShield();
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) {
-                    if (obstacles[i].isBreakable) { obstacles.splice(i, 1); }
+            playerMana -= 35;
+            
+            if (currentSkinId === 'maria_fumaca') {
+                activeSmokeBlastFrame = 16; playSoundMariaFumacaWhistle();
+                // Destrói caixotes na frente com a fumaça
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 280) {
+                        if (obstacles[i].isBreakable) obstacles.splice(i, 1);
+                    }
+                }
+            } else {
+                activeLaserFrame = 12; playSoundShield();
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) {
+                        if (obstacles[i].isBreakable) obstacles.splice(i, 1);
+                    }
                 }
             }
         }
@@ -722,14 +720,35 @@
                     if (!isPaused && gameActive) {
                         frameCount++; 
                         
+                        // GERENCIAMENTO DE TIMERS DOS SUPER PODERES SUBWAY SURFERS
+                        if (jetpackActiveTimer > 0) jetpackActiveTimer--;
+                        if (turboActiveTimer > 0) turboActiveTimer--;
+
                         if (!isBonusStageMode && currentPhase >= 4 && playerMana < 100 && frameCount % 6 === 0) {
                             playerMana = Math.min(100, playerMana + 1);
-                            safeSetText('hud-mana', `⚡ Laser: ${playerMana}%`);
+                            safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
+                        }
+
+                        // ANIMAÇÃO DE FUMAÇA CONSTANTE SE FOR A MARIA FUMAÇA
+                        if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0) {
+                            smokeParticles.push({
+                                x: player.x + player.width * 0.8,
+                                y: player.y - 4,
+                                size: 5 + Math.random() * 8,
+                                opacity: 1.0,
+                                vx: -1.5 - Math.random() * 2,
+                                vy: -1.0 - Math.random() * 1
+                            });
+                        }
+
+                        // ATUALIZAÇÃO DA FUMAÇA
+                        for (let i = smokeParticles.length - 1; i >= 0; i--) {
+                            let p = smokeParticles[i]; p.x += p.vx; p.y += p.vy; p.opacity -= 0.02;
+                            if (p.opacity <= 0) smokeParticles.splice(i, 1);
                         }
 
                         if (!isBonusStageMode) {
-                            score++;
-                            currentPhase = Math.floor(score / 500) + 1;
+                            score++; currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
@@ -748,9 +767,7 @@
                             updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
-                            if (bonusStageTimer <= 0) {
-                                isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain();
-                            }
+                            if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
                             if (frameCount % 45 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 90);
                                 platforms.push({ x: canvas.width + 10, y: hY, width: 130, isTrain: false, isPipe: false });
@@ -762,17 +779,21 @@
 
                         updateEntitiesAndCollisions(currentFrameSpeed);
 
-                        player.velocity += player.gravity;
+                        // MODIFICAÇÃO DE GRAVIDADE CASO O JETPACK ESTEJA ATIVO
+                        if (jetpackActiveTimer > 0) {
+                            player.velocity += 0.1; // GRAVIDADE QUASE NULA PARA VOAR
+                            if (player.y < 40) player.y = 40;
+                        } else {
+                            player.velocity += player.gravity;
+                        }
+
                         let nextY = player.y + player.velocity;
                         let floorY = getGroundYAt(player.x + player.width/2);
                         if (player.onPlatform) floorY = player.platformTop;
 
                         if (player.y > canvas.height + 15) {
-                            if (isBonusStageMode) {
-                                player.y = BASE_GROUND_Y - player.height; player.velocity = 0;
-                            } else {
-                                handleLifeLoss();
-                                if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
+                            if (isBonusStageMode) { player.y = BASE_GROUND_Y - player.height; player.velocity = 0; } else {
+                                handleLifeLoss(); if (lives > 0) { player.y = BASE_GROUND_Y - 160; player.velocity = 0; initTerrain(); }
                             }
                         } else if (player.velocity >= 0 && (player.y + player.height) <= floorY + 20 && (nextY + player.height) >= floorY - 20) {
                             player.y = floorY - player.height; player.velocity = 0; player.isJumping = false; player.jumpCount = 0;
@@ -781,33 +802,30 @@
 
                     renderBackgroundScenariosLayer();
 
+                    // RENDERIZAÇÃO DE PARTÍCULAS DE FUMAÇA
+                    smokeParticles.forEach(p => {
+                        ctx.save(); ctx.fillStyle = `rgba(180, 180, 180, ${p.opacity})`;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    });
+
                     if (isBonusStageMode && gameActive && !isPaused) {
                         ctx.save(); ctx.fillStyle = "#ffe81f"; ctx.strokeStyle = "#000000"; ctx.lineWidth = 4;
                         ctx.font = "bold 22px 'Segoe UI', sans-serif"; ctx.textAlign = "center";
                         let timeLeft = (bonusStageTimer / 60).toFixed(1);
-                        ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110);
-                        ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.restore();
-                    }
-
-                    if (pipeWarningActive && gameActive && !isPaused) {
-                        ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
-                        ctx.shadowBlur = 10; ctx.shadowColor = "#00ffaa";
-                        let boxW = Math.min(canvas.width - 30, 440); let boxX = (canvas.width - boxW) / 2; let boxY = 70;
-                        ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 70, 10); ctx.fill(); ctx.stroke();
-                        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
-                        ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
-                        ctx.font = "10px sans-serif"; ctx.fillStyle = "#ffe81f";
-                        ctx.fillText("Pode colidir com segurança! NÃO PRECISA PULAR!", canvas.width / 2, boxY + 40);
-                        ctx.fillStyle = "#ffffff"; ctx.fillText("Essa colisão não consome vidas e nem energia.", canvas.width / 2, boxY + 54);
-                        ctx.restore();
+                        ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.restore();
                     }
 
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
-                        activeLaserFrame--;
-                        ctx.save(); ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 6;
-                        ctx.shadowBlur = 15; ctx.shadowColor = "#ff007f";
-                        ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2);
-                        ctx.lineTo(player.x + player.width + 350, player.y + player.height/2); ctx.stroke();
+                        activeLaserFrame--; ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 6;
+                        ctx.shadowBlur = 15; ctx.shadowColor = "#00f2fe"; ctx.beginPath();
+                        ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(player.x + player.width + 350, player.y + player.height/2); ctx.stroke(); ctx.restore();
+                    }
+
+                    // ATAQUE ESPECIAL DENSE SMOKE BLAST DA MARIA FUMAÇA
+                    if (activeSmokeBlastFrame > 0 && gameActive && !isPaused) {
+                        activeSmokeBlastFrame--; ctx.save(); ctx.fillStyle = "rgba(100, 100, 100, 0.85)";
+                        ctx.beginPath(); ctx.arc(player.x + player.width + 80, player.y + player.height/2, 50, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(player.x + player.width + 160, player.y + player.height/2, 70, 0, Math.PI * 2); ctx.fill();
                         ctx.restore();
                     }
 
@@ -816,20 +834,10 @@
                         for (let seg of terrainList) {
                             if (seg.type !== 'hole') {
                                 let groundGrad = ctx.createLinearGradient(0, Math.min(seg.hStart, seg.hEnd), 0, canvas.height);
-                                groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe");
-                                groundGrad.addColorStop(1, "#050515");
-                                ctx.fillStyle = groundGrad;
-                                
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
-                                ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height);
-                                ctx.closePath(); ctx.fill();
-                                
-                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke(); // CORRIGIDO: prefixo ctx adicionado com sucesso
-                            } else {
-                                ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x, canvas.height); ctx.stroke();
-                                ctx.beginPath(); ctx.moveTo(seg.x + seg.w, seg.hEnd); ctx.lineTo(seg.x + seg.w, canvas.height); ctx.stroke();
+                                groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe"); groundGrad.addColorStop(1, "#050515");
+                                ctx.fillStyle = groundGrad; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
+                                ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height); ctx.closePath(); ctx.fill();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             }
                         }
                         ctx.restore();
@@ -839,28 +847,23 @@
                         ctx.save();
                         if (p.isPipe) {
                             ctx.fillStyle = "#28a745"; ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.fillStyle = "#1e7e34"; ctx.fillRect(p.x + 5, p.y, 6, p.height);
                             ctx.fillStyle = "#34ce57"; ctx.fillRect(p.x, p.y, p.width, 12);
                         } else if (p.isTrain) {
                             ctx.fillStyle = "#5c0622"; ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.fillStyle = "#ffe81f"; for(let j=10; j<p.width-15; j+=35) ctx.fillRect(p.x+j, p.y+12, 12, 12);
                         } else {
-                            ctx.fillStyle = isBonusStageMode ? "#0b0b26" : "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height);
-                            ctx.strokeStyle = isBonusStageMode ? "#ffe81f" : "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.width, p.height);
+                            ctx.fillStyle = "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height);
+                            ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.width, p.height);
                         }
                         ctx.restore();
                     });
 
                     itemsInGame.forEach(it => {
                         ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
-                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill();
-                        ctx.restore();
+                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI*2); ctx.fill(); ctx.restore();
                     });
 
                     obstacles.forEach(o => {
-                        ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height);
-                        if(o.isBreakable) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.strokeRect(o.x, o.y, o.width, o.height); }
-                        ctx.restore();
+                        ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore();
                     });
 
                     let pX = player.x + player.width/2; let pY = player.y + player.height/2;
@@ -876,91 +879,17 @@
             if (activeScenario === 'scen_default') activeScenario = currentPhaseConfig.type;
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-
-            if (isBonusStageMode) {
-                grad.addColorStop(0, "#010005"); grad.addColorStop(1, "#070014");
+            let selectedScen = scenariosDB[activeScenario];
+            
+            if (selectedScen && selectedScen.top) {
+                grad.addColorStop(0, selectedScen.top); grad.addColorStop(1, selectedScen.bottom || "#000000");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.save(); ctx.fillStyle = "rgba(255, 232, 31, 0.4)";
-                for(let i=0; i<30; i++) ctx.fillRect((canvas.width*0.04*i + frameCount*1.5)%canvas.width, 30 + (i*17)%260, 2.5, 2.5);
-                ctx.restore(); return;
+                return;
             }
 
-            switch(activeScenario) {
-                case 'scen_cyberpunk_city':
-                    grad.addColorStop(0, "#090314"); grad.addColorStop(0.5, "#1f0f33"); grad.addColorStop(1, "#0a0518");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.save(); ctx.fillStyle = "rgba(20, 10, 35, 0.7)";
-                    for(let i=0; i<15; i++) {
-                        let w = 90; let h = 260 + (i * 13) % 110;
-                        let x = (i * 110 - frameCount * 0.3) % (canvas.width + w) - w;
-                        ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                    }
-                    ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
-                    for(let i=0; i<12; i++) {
-                        let w = 120; let h = 180 + (i * 29) % 140;
-                        let x = (i * 160 - frameCount * 0.9) % (canvas.width + w) - w;
-                        ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                        ctx.fillStyle = (i % 2 === 0) ? "#00f2fe" : "#ffe81f";
-                        for(let wx = x + 15; wx < x + w - 20; wx += 25) {
-                            for(let wy = BASE_GROUND_Y - h + 20; wy < BASE_GROUND_Y - 10; wy += 35) {
-                                if((wx+wy) % 3 === 0) ctx.fillRect(wx, wy, 6, 8);
-                            }
-                        }
-                        ctx.fillStyle = "rgba(35, 15, 55, 0.9)";
-                    }
-                    ctx.restore(); break;
-
-                case 'scen_aurora_boreal':
-                    grad.addColorStop(0, "#020514"); grad.addColorStop(0.7, "#051226"); grad.addColorStop(1, "#01040d");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.save(); ctx.fillStyle = "rgba(255,255,255,0.6)";
-                    for(let i=0; i<40; i++) ctx.fillRect((i*47)%canvas.width, (i*31)%220, 1.5, 1.5);
-                    for(let layer=0; layer<3; layer++) {
-                        let alpha = 0.06 - (layer * 0.015);
-                        ctx.fillStyle = layer === 0 ? `rgba(0, 255, 150, ${alpha})` : (layer === 1 ? `rgba(0, 242, 254, ${alpha})` : `rgba(124, 0, 254, ${alpha})`);
-                        ctx.beginPath(); ctx.moveTo(0, canvas.height);
-                        for(let x=0; x<=canvas.width; x+=40) {
-                            let yOffset = Math.sin((x * 0.003) + (frameCount * 0.015) + layer) * 60;
-                            ctx.lineTo(x, 100 + (layer * 40) + yOffset);
-                        }
-                        ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
-                    }
-                    ctx.restore(); break;
-
-                case 'scen_desert_sunset':
-                    grad.addColorStop(0, "#1f0314"); grad.addColorStop(0.3, "#5c0c22"); grad.addColorStop(0.6, "#d9381e"); grad.addColorStop(0.8, "#f2a104"); grad.addColorStop(1, "#ffe81f");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.save(); ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 40; ctx.shadowColor = "#ffaa00";
-                    ctx.beginPath(); ctx.arc(canvas.width * 0.75, BASE_GROUND_Y + 10, 75, 0, Math.PI * 2); ctx.fill();
-                    ctx.shadowBlur = 0; ctx.fillStyle = "#3d0319";
-                    ctx.beginPath(); ctx.moveTo(0, canvas.height);
-                    for(let x=0; x<=canvas.width; x+=50) {
-                        ctx.lineTo(x, (BASE_GROUND_Y - 60) + Math.sin(x * 0.005 - frameCount * 0.01) * 20);
-                    }
-                    ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = "#1c000a"; ctx.beginPath(); ctx.moveTo(0, canvas.height);
-                    for(let x=0; x<=canvas.width; x+=50) {
-                        ctx.lineTo(x, (BASE_GROUND_Y - 20) + Math.cos(x * 0.007 - frameCount * 0.03) * 15);
-                    }
-                    ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
-                    ctx.restore(); break;
-
-                case 'scen_neon':
-                    grad.addColorStop(0, "#0b001a"); grad.addColorStop(1, "#26004d");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
-                case 'matrix':
-                    grad.addColorStop(0, "#000c02"); grad.addColorStop(1, "#000000");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
-                case 'volcano':
-                    grad.addColorStop(0, "#2f0505"); grad.addColorStop(1, "#0a0101");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
-                case 'forest':
-                    grad.addColorStop(0, "#12240b"); grad.addColorStop(1, "#040a02");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
-                default:
-                    grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height); break;
-            }
+            // FALLBACK SE FOR BIOMA DA FASE PADRÃO
+            grad.addColorStop(0, currentPhaseConfig.top || "#0a0518"); grad.addColorStop(1, currentPhaseConfig.bottom || "#020105");
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         function updateSpawningEngine() {
@@ -971,10 +900,8 @@
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
                 if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
-                    platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false });
-                    return;
+                    platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false }); return;
                 }
-
                 if (currentPhaseConfig.type === 'trains') {
                     platforms.push({ x: sX, y: currentGroundY - 70, width: 200, height: 70, isTrain: true, isPipe: false });
                 } else {
@@ -989,7 +916,6 @@
                         });
                     }
                     if (Math.random() > 0.3) itemsInGame.push({ x: sX + 40, y: currentGroundY - 40, type: 'coin' });
-                    if (Math.random() > 0.92 && !shieldActive) itemsInGame.push({ x: sX + 50, y: currentGroundY - 55, type: 'shieldItem' });
                 }
             }
         }
@@ -1004,10 +930,8 @@
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) {
                         player.onPlatform = true; player.platformTop = p.y;
                     } else if (platOverlapsPlayer(p)) {
-                        if (p.isPipe) {
-                            platforms.splice(i, 1); triggerBonusStageActivation(); return;
-                        }
-                        if (p.isTrain && !isBonusStageMode) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
+                        if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); return; }
+                        if (p.isTrain && !isBonusStageMode && turboActiveTimer <= 0) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                     }
                 }
                 if (p.x < -300) platforms.splice(i, 1);
@@ -1016,6 +940,7 @@
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
+                    if (turboActiveTimer > 0) { obstacles.splice(i,1); continue; } // IMUNE EM TURBO
                     obstacles.splice(i, 1); if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
@@ -1027,8 +952,7 @@
                 let it = itemsInGame[i]; it.x -= speed;
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 25) {
-                    if (it.type === 'coin') { coins += 15; safeSetStorage('coins', coins); playSoundCoin(); }
-                    else { shieldActive = true; playSoundShield(); }
+                    coins += 15; safeSetStorage('coins', coins); playSoundCoin();
                     itemsInGame.splice(i, 1); updateHUD(); continue;
                 }
                 if (it.x < -100) itemsInGame.splice(i, 1);
@@ -1085,24 +1009,18 @@
         function openRankingMenu() {
             toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden');
             const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = '';
-            let records = [
-                { name: "Italo (Você)", score: Math.max(score, 1200) },
-                { name: "Cyber_Runner99", score: 8450 },
-                { name: "PixMaster_X", score: 6200 },
-                { name: "StarGamer_Oficial", score: 4900 }
-            ];
+            let records = [{ name: "Alexandre (Você)", score: Math.max(score, 1200) }, { name: "Cyber_Runner99", score: 8450 }, { name: "PixMaster_X", score: 6200 }];
             records.sort((a,b) => b.score - a.score);
             records.forEach((r, idx) => { container.innerHTML += `<li class='data-item'><div>#${idx+1} - <strong>${r.name}</strong></div><div>${r.score}m</div></li>`; });
         }
         function closeRankingMenu() { document.getElementById('ranking-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-
         function openSupportScreen() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
         function closeSupportScreen() { document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
 
-        // --- SISTEMA REESTRUTURADO DE MINI PREVIEWS SEM ENCOLHIMENTO OU CRESCIMENTO ---
+        // --- CONSTRUTOR DA LOJA ATUALIZADO COM SISTEMA DE TRAVA DE FASES NOS CENÁRIOS ---
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -1113,25 +1031,28 @@
             } else if (currentShopTab === 'scenarios') {
                 for (const [id, item] of Object.entries(scenariosDB)) {
                     let isUnlocked = unlockedScenarios.includes(id); let isEquipped = (currentScenarioId === id);
+                    
+                    // Verificação se a fase atual alcançada pelo jogador atende ao requisito do bioma
+                    let phaseReachedMax = Math.floor(Number(safeGetStorage('highScore', 0)) / 500) + 1;
+                    let isLockedByPhase = (phaseReachedMax < item.phaseRequired);
+
                     grid.innerHTML += `
                         <div class="shop-item">
                             <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_scen_${id}"></canvas>
-                            <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
-                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}')">
-                                ${isUnlocked?(isEquipped?'Uso':'Equipar'):'🎬 Liberar'}
-                            </button>
+                            <div style='font-size:10px; font-weight:bold;'>${item.name} <br><small style="color:#ff007f;">Req: F${item.phaseRequired}</small></div>
+                            ${isLockedByPhase ? `<button class='btn btn-sm' style='background:#444;' disabled>🔒 Bloqueado</button>` : `
+                                <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}', ${item.cost || 0})">
+                                    ${isUnlocked ? (isEquipped ? 'Uso' : 'Equipar') : (item.type==='ad' ? '🎬 Ads' : `🪙 ${item.cost}`)}
+                                </button>
+                            `}
                         </div>`;
                 }
                 setTimeout(() => {
                     for (const [id, item] of Object.entries(scenariosDB)) {
                         let miniC = document.getElementById(`mini_preview_scen_${id}`);
-                        if (miniC) {
-                            let mCtx = miniC.getContext('2d');
-                            mCtx.clearRect(0, 0, 50, 50);
-                            if (item.render) item.render(mCtx, 50, 50);
-                        }
+                        if (miniC) { let mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); if (item.render) item.render(mCtx, 50, 50); }
                     }
-                }, 20);
+                }, 25);
             } else {
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
@@ -1142,7 +1063,7 @@
                             <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_skin_${id}"></canvas>
                             <div style='font-size:10px; font-weight:bold; min-height: 24px; display:flex; align-items:center;'>${item.name}</div>
                             <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">
-                                ${isUnlocked?(isEquipped?'Uso':'Equipar'):(item.type==='ad'?'🎬 Ver':`🪙 ${item.cost}`)}
+                                ${isUnlocked ? (isEquipped ? 'Uso' : 'Equipar') : (item.type==='ad' || item.type==='free' ? '🎬 Ver' : `🪙 ${item.cost}`)}
                             </button>
                         </div>`;
                 }
@@ -1150,19 +1071,45 @@
                     for (const [id, item] of Object.entries(skinsDB)) {
                         if (item.tab !== currentShopTab) continue;
                         let miniC = document.getElementById(`mini_preview_skin_${id}`);
-                        if (miniC) {
-                            let mCtx = miniC.getContext('2d');
-                            mCtx.clearRect(0, 0, 50, 50);
-                            item.render(mCtx, 25, 25, 14);
-                        }
+                        if (miniC) { let mCtx = miniC.getContext('2d'); mCtx.clearRect(0, 0, 50, 50); item.render(mCtx, 25, 25, 14); }
                     }
-                }, 20);
+                }, 25);
             }
         }
 
-        function buyPowerUpItem(id, cost) { if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if(id==='shield') shieldActive=true; if(id==='doublejump') doubleJumpUnlocked=true; if(id==='heart') lifeBonusQueued++; buildShop(); updateHUD(); } else alert("Moedas insuficientes."); }
-        function purchaseSkinItem(id, type, cost) { if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; } if (type === 'ad') { triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); }); } else { if (coins >= cost) { coins -= cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); updateHUD(); } else alert("Moedas insuficientes."); } }
-        function purchaseScenarioItem(id, type) { if (unlockedScenarios.includes(id)) { currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); return; } triggerRewardedAdCall(() => { unlockedScenarios.push(id); safeSetStorage('unlockedScenarios', JSON.stringify(unlockedScenarios)); currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); }); }
+        function buyPowerUpItem(id, cost) {
+            if (coins >= cost) {
+                coins -= cost; safeSetStorage('coins', coins);
+                if(id==='shield') shieldActive=true;
+                if(id==='doublejump') doubleJumpUnlocked=true;
+                if(id==='heart') lifeBonusQueued++;
+                if(id==='jetpack') jetpackActiveTimer = 400; // ATIVA 400 FRAMES DE VOO SUAVE
+                if(id==='turbo') turboActiveTimer = 300;   // ATIVA SUPER VELOCIDADE INVENCÍVEL
+                buildShop(); updateHUD();
+            } else alert("Moedas insuficientes.");
+        }
+        
+        function purchaseSkinItem(id, type, cost) {
+            if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
+            if (type === 'ad' || type === 'free') {
+                triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); });
+            } else {
+                if (coins >= cost) {
+                    coins -= cost; unlockedSkins.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); updateHUD();
+                } else alert("Moedas insuficientes.");
+            }
+        }
+
+        function purchaseScenarioItem(id, type, cost) {
+            if (unlockedScenarios.includes(id)) { currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); return; }
+            if (type === 'ad') {
+                triggerRewardedAdCall(() => { unlockedScenarios.push(id); safeSetStorage('unlockedScenarios', JSON.stringify(unlockedScenarios)); currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); });
+            } else {
+                if (coins >= cost) {
+                    coins -= cost; unlockedScenarios.push(id); safeSetStorage('coins', coins); safeSetStorage('unlockedScenarios', JSON.stringify(unlockedScenarios)); currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); updateHUD();
+                } else alert("Moedas insuficientes.");
+            }
+        }
 
         function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
@@ -1172,28 +1119,35 @@
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando.</li>"; } else alert("Negado."); }
+        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando com Segurança Administrativa.</li>"; } else alert("Acesso negado."); }
+        // REGRA DE SEGURANÇA INTERNA DO MOTOR EXCLUSIVA DO ADMINISTRADOR DISPARADA COM SUCESSO
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
         function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
 
         function updateHUD() {
             safeSetText('hud-score', score); safeSetText('hud-total-pix', saldoPixAcumulado); safeSetText('hud-coins', coins);
-            const pActive = document.getElementById('hud-powerups-active'); if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''}`;
+            let scoreHigh = Number(safeGetStorage('highScore', 0)); if (score > scoreHigh) safeSetStorage('highScore', score);
+            safeSetText('hud-phase-txt', `Fase: ${currentPhase}`);
+            const pActive = document.getElementById('hud-powerups-active'); 
+            if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''} ${jetpackActiveTimer>0 ? '🚀 Voo' : ''} ${turboActiveTimer>0 ? '⚡ Turbo' : ''}`;
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; safeSetText('hud-lives', h || '💀');
         }
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; playerMana = 100; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 6.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 6.5; jetpackActiveTimer=0; turboActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
+        // --- ABA DE PODERES PERSONALIZADOS ESTILO SUBWAY SURFERS ---
         const powerupsDB = {
             'shield': { name: '🛡️ Escudo Defletor', cost: 120 },
             'doublejump': { name: '👟 Salto Duplo', cost: 250 },
-            'heart': { name: '💖 Vida Extra', cost: 180 }
+            'heart': { name: '💖 Vida Extra', cost: 180 },
+            'jetpack': { name: '🚀 Voo Jetpack (Subway Style)', cost: 300 },
+            'turbo': { name: '⚡ Turbo Voador (Super Rush)', cost: 400 }
         };
 
         resizeEngineCanvas();
