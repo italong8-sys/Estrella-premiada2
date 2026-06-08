@@ -61,7 +61,8 @@
         .dropdown-menu {
             position: absolute; top: calc(env(safe-area-inset-top, 10px) + 36px); right: 15px;
             background: #0a0a1a; border: 1px solid rgba(0, 242, 254, 0.3);
-            border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 101;
+            border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 101;
+            min-width: 160px;
         }
 
         .screen {
@@ -165,6 +166,11 @@
             text-decoration: none; color: #ffe81f; font-size: 10px; font-weight: bold; text-align: center; padding: 0 10px;
             letter-spacing: 0.5px; text-shadow: 0 0 8px rgba(255, 232, 31, 0.4);
         }
+        
+        .track-select-box {
+            background: #151530; color: #ffffff; border: 1px solid #00f2fe;
+            font-size: 10px; border-radius: 6px; padding: 4px; width: 100%; outline: none;
+        }
     </style>
 </head>
 <body>
@@ -200,6 +206,23 @@
         <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
             <button class="btn btn-sm" onclick="toggleMute()">🔇 Alternar Áudio</button>
+            
+            <div style="display:flex; flex-direction:column; gap:2px; width:100%;">
+                <span style="font-size:9px; color:#8a8ab0; font-weight:bold; text-transform:uppercase;">🎵 Rádio Cyber:</span>
+                <select id="jukebox-selector" class="track-select-box" onchange="changeBackgroundMusicTrack(this.value)">
+                    <option value="0">🌌 1. Neon Cyber</option>
+                    <option value="1">🌋 2. Vale Ácido</option>
+                    <option value="2">🟢 3. Código Matrix</option>
+                    <option value="3">🌴 4. Retrowave Glide</option>
+                    <option value="4">⚡ 5. Corrida Hiper</option>
+                    <option value="5">🛸 6. Drone Espacial</option>
+                    <option value="6">👾 7. Glitch Core</option>
+                    <option value="7">🚂 8. Chumbo Pesado</option>
+                    <option value="8">🔮 9. Sino de Cristal</option>
+                    <option value="9">🪖 10. Marcha Mecha</option>
+                </select>
+            </div>
+
             <button class="btn btn-sm" onclick="openRankingMenu()">🏆 Ver Ranking</button>
             <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte Técnico</button>
             <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
@@ -229,7 +252,7 @@
 
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
                 <div style="color:#d1d1f0; margin-bottom: 8px;">
-                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você irá para uma dimensão bônus cheia de moedas sem perigos.
+                    Durante a corrida, tubos verdes verticais aparecerão na pista. **Entrar neles é 100% OPCIONAL!** Se colidir com o tubo, você entrará na sala secreta.
                 </div>
             </div>
 
@@ -381,6 +404,7 @@
         let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua'], unlockedScenarios = ['scen_default'];
         let itemsInGame = []; 
         let smokeParticles = []; 
+        let enemyProjectiles = []; // Balas disparadas pelo atirador das fases difíceis
 
         let playerMana = 100;
         let activeLaserFrame = 0;
@@ -393,6 +417,21 @@
 
         let audioCtx = null, musicInterval = null, beatCount = 0;
         let BASE_GROUND_Y = 300;
+        let selectedMusicTrackIdx = 0;
+
+        // BANCO DE DADOS DE RÁDIO COM 10 MÚSICAS PROCEDURAIS
+        const audioTracksDB = [
+            { name: "🌌 Neon Cyber", notes: [110, 130, 146, 165, 110, 130, 165, 196], type: 'triangle', speed: 230 },
+            { name: "🌋 Vale Ácido", notes: [75, 85, 95, 65, 75, 85, 110, 90], type: 'sawtooth', speed: 170 },
+            { name: "🟢 Código Matrix", notes: [160, 220, 190, 240, 160, 220, 260, 200], type: 'square', speed: 190 },
+            { name: "🌴 Retrowave Glide", notes: [120, 140, 160, 180, 120, 140, 190, 150], type: 'sine', speed: 260 },
+            { name: "⚡ Corrida Hiper", notes: [200, 250, 220, 270, 300, 240, 280, 210], type: 'sawtooth', speed: 130 },
+            { name: "🛸 Drone Espacial", notes: [55, 65, 60, 70, 55, 65, 80, 75], type: 'triangle', speed: 450 },
+            { name: "👾 Glitch Core", notes: [320, 110, 410, 85, 350, 120, 390, 95], type: 'square', speed: 150 },
+            { name: "🚂 Chumbo Pesado", notes: [80, 85, 75, 90, 80, 85, 100, 95], type: 'triangle', speed: 210 },
+            { name: "🔮 Sino de Cristal", notes: [700, 850, 750, 900, 700, 850, 950, 800], type: 'sine', speed: 280 },
+            { name: "🪖 Marcha Mecha", notes: [95, 115, 105, 125, 95, 115, 135, 110], type: 'sawtooth', speed: 220 }
+        ];
 
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
@@ -486,7 +525,7 @@
             name: '🚂 Maria Fumaça', type: 'free', tab: 'skins',
             render: (g, cx, cy, r) => {
                 g.save(); g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1);
-                g.fillStyle = "#222222"; g.fillRect(cx + r/3, cy - r, r/2, r * 0.8);
+                g.fillStyle = "#222222"; g.fillRect(cx + r/3, cy - r/1.2, r/2, r * 0.8);
                 g.fillStyle = "#ff0033"; g.fillRect(cx - r, cy - r, r * 1.1, r * 0.8);
                 g.fillStyle = "#ffe81f"; g.beginPath(); g.arc(cx - r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
                 g.beginPath(); g.arc(cx + r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill();
@@ -605,7 +644,7 @@
             let overlay = document.getElementById('ad-processing-overlay');
             if (overlay) overlay.classList.remove('hidden');
             
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas automáticas restritas."); }
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueio de pop-up."); }
             
             let count = 3;
             let txtCounter = document.getElementById('ad-countdown-txt');
@@ -632,16 +671,24 @@
 
         function startProceduralMusic() {
             if (musicInterval) clearInterval(musicInterval);
-            const notes = [110, 130, 146, 165, 110, 130, 165, 196];
             musicInterval = setInterval(() => {
                 if (!gameActive || isPaused || isMuted || !audioCtx) return;
                 try {
+                    let track = audioTracksDB[selectedMusicTrackIdx];
                     let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination);
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(notes[beatCount % notes.length], audioCtx.currentTime);
-                    g.gain.setValueAtTime(0.04, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.38); beatCount++;
+                    osc.type = track.type; osc.frequency.setValueAtTime(track.notes[beatCount % track.notes.length], audioCtx.currentTime);
+                    g.gain.setValueAtTime(0.04, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + (track.speed / 1000));
+                    osc.start(); osc.stop(audioCtx.currentTime + (track.speed / 1000) * 1.1); beatCount++;
                 } catch(e){}
-            }, 230);
+            }, audioTracksDB[selectedMusicTrackIdx].speed);
+        }
+
+        // ALTERAR MÚSICA EM TEMPO REAL PELO MENU SELECT
+        function changeBackgroundMusicTrack(idx) {
+            selectedMusicTrackIdx = parseInt(idx);
+            if (gameActive && !isPaused && audioCtx) {
+                startProceduralMusic();
+            }
         }
 
         function initTerrain() {
@@ -651,18 +698,18 @@
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
             }
-            itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
+            itemsInGame = []; obstacles = []; platforms = []; smokeParticles = []; enemyProjectiles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
             updatePauseButtonVisibility();
         }
 
         function triggerBonusStageActivation() {
             preBonusPhaseConfig = currentPhaseConfig; isBonusStageMode = true; bonusStageTimer = 600; pipeWarningActive = false;
-            obstacles = []; platforms = []; itemsInGame = [];
+            obstacles = []; platforms = []; itemsInGame = []; enemyProjectiles = [];
             
             for (let k = 0; k < 12; k++) {
                 let hY = BASE_GROUND_Y - 50 - (k % 3 * 35);
-                platforms.push({ x: player.x + 60 + (k * 140), y: hY, width: 110, isTrain: false, isPipe: false });
+                platforms.push({ x: player.x + 60 + (k * 140), y: hY, width: 110, isTrain: false, isPipe: false, isBridge: false });
                 itemsInGame.push({ x: player.x + 100 + (k * 140), y: hY - 30, type: 'coin' });
                 itemsInGame.push({ x: player.x + 120 + (k * 140), y: hY - 60, type: 'coin' });
             }
@@ -682,7 +729,11 @@
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
                 if (currentPhaseConfig.type === 'trains') { type = 'flat'; } else {
                     if (r < 0.45) type = 'flat';
-                    else if (r < 0.62 && lastSeg.type !== 'hole') type = 'hole';
+                    else if (r < 0.62 && lastSeg.type !== 'hole') {
+                        type = 'hole';
+                        // SOLUÇÃO: CONSTRUIR PONTES NEON SOBRE OS BURACOS PARA O JOGADOR PASSAR EM SEGURANÇA
+                        platforms.push({ x: nextX, y: BASE_GROUND_Y - 8, width: 200, height: 10, isTrain: false, isPipe: false, isBridge: true });
+                    }
                     else if (r < 0.82) { type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 100, lastSeg.hEnd - 35); }
                     else { type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 35); }
                 }
@@ -701,7 +752,6 @@
             return BASE_GROUND_Y;
         }
 
-        // ALTERAÇÃO COMPLETA DA RAMPA DE VELOCIDADE: COMEÇA BAIXO E CRESCE GRADATIVAMENTE POR FASE
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "Metrópole Cyber", top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" },
@@ -719,7 +769,6 @@
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
             
-            // Ritmo inicial suave (3.2) aumentando em 0.65 a cada nova fase alcançada
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
             if (turboActiveTimer > 0) obstacleSpeed = 14;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
@@ -732,12 +781,12 @@
             if (currentSkinId === 'maria_fumaca') {
                 activeSmokeBlastFrame = 16; playSoundMariaFumacaWhistle();
                 for (let i = obstacles.length - 1; i >= 0; i--) {
-                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 280) { if (obstacles[i].isBreakable) obstacles.splice(i, 1); }
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 280) { if (obstacles[i].isBreakable || obstacles[i].isVehicle) obstacles.splice(i, 1); }
                 }
             } else {
                 activeLaserFrame = 12; playSoundShield();
                 for (let i = obstacles.length - 1; i >= 0; i--) {
-                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) { if (obstacles[i].isBreakable) obstacles.splice(i, 1); }
+                    if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) { if (obstacles[i].isBreakable || obstacles[i].isVehicle) obstacles.splice(i, 1); }
                 }
             }
         }
@@ -745,7 +794,6 @@
         function runGameLoop() {
             try {
                 if (ctx) {
-                    // VOLTOU PARA A CORRIDA AUTOMÁTICA CONTÍNUA
                     let currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
                     if (timeflowActiveTimer > 0 && !isBonusStageMode) currentFrameSpeed *= 0.5;
 
@@ -775,8 +823,32 @@
                             if (p.opacity <= 0) smokeParticles.splice(i, 1);
                         }
 
+                        // MECÂNICA DO ATIRADOR INIMIGO (FASE MAIS DIFÍCIL DE TODAS: FASE >= 5)
+                        if (!isBonusStageMode && currentPhase >= 5 && frameCount % 75 === 0) {
+                            enemyProjectiles.push({
+                                x: canvas.width - 50,
+                                y: BASE_GROUND_Y - 30 - (Math.random() * 40),
+                                radius: 5,
+                                speed: obstacleSpeed + 3.5
+                            });
+                        }
+
+                        // MOVER PROJÉTEIS DO ATIRADOR
+                        for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                            let b = enemyProjectiles[i]; b.x -= b.speed;
+                            // Colisão da bala com jogador
+                            let distPlayer = Math.hypot(b.x - (player.x + player.width/2), b.y - (player.y + player.height/2));
+                            if (distPlayer < player.width/2 + b.radius) {
+                                enemyProjectiles.splice(i, 1);
+                                if (shieldActive) { shieldActive = false; updateHUD(); } 
+                                else { handleLifeLoss(); }
+                                continue;
+                            }
+                            if (b.x < -20) enemyProjectiles.splice(i, 1);
+                        }
+
                         if (!isBonusStageMode) {
-                            score++; // Score progride automaticamente com o tempo
+                            score++; 
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
@@ -790,7 +862,7 @@
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
                             if (frameCount % 30 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 80);
-                                platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false });
+                                platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false, isBridge: false });
                                 itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
                             }
                             updateAndGenerateTerrain(currentFrameSpeed);
@@ -821,6 +893,14 @@
 
                     renderBackgroundScenariosLayer();
 
+                    // RENDERIZAÇÃO DOS RAIOS SOLARES (LIGADOS SEMPRE, PULSANDO SUAVEMENTE)
+                    ctx.save();
+                    let solarPulse = 0.05 + Math.abs(Math.cos(frameCount * 0.02)) * 0.05;
+                    ctx.fillStyle = `rgba(255, 232, 31, ${solarPulse})`;
+                    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(250, 0); ctx.lineTo(canvas.width, canvas.height * 0.6); ctx.lineTo(canvas.width - 400, canvas.height); ctx.closePath(); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(500, 0); ctx.lineTo(canvas.width * 0.9, canvas.height); ctx.lineTo(canvas.width * 0.5, canvas.height); ctx.closePath(); ctx.fill();
+                    ctx.restore();
+
                     smokeParticles.forEach(p => {
                         ctx.save(); ctx.fillStyle = `rgba(180, 180, 180, ${p.opacity})`;
                         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
@@ -833,24 +913,48 @@
                         ctx.strokeText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.fillText(`TEMPO BÔNUS: ${timeLeft}s`, canvas.width / 2, 110); ctx.restore();
                     }
 
+                    // ATUALIZADO: TEXTO DE AVISO DO TÚNEL DE RECOMPENSA SOLICITADO
                     if (pipeWarningActive && gameActive && !isPaused) {
                         ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
-                        let boxW = Math.min(canvas.width - 30, 440); let boxX = (canvas.width - boxW) / 2; let boxY = 70;
-                        ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 70, 10); ctx.fill(); ctx.stroke();
+                        let boxW = Math.min(canvas.width - 30, 480); let boxX = (canvas.width - boxW) / 2; let boxY = 70;
+                        ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, 75, 10); ctx.fill(); ctx.stroke();
                         ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
                         ctx.fillText("⚠️ TÚNEL DE RECOMPENSA VERDE CHEGANDO!", canvas.width / 2, boxY + 20);
-                        ctx.font = "10px sans-serif"; ctx.fillStyle = "#ffe81f";
-                        ctx.fillText("Pode colidir com segurança! NÃO PRECISA PULAR!", canvas.width / 2, boxY + 40);
-                        ctx.fillStyle = "#ffffff"; ctx.fillText("Essa colisão não consome vidas e entra no modo bônus.", canvas.width / 2, boxY + 54);
+                        ctx.font = "bold 10px sans-serif"; ctx.fillStyle = "#ffe81f";
+                        ctx.fillText("Você será transportado para uma fase bônus onde poderá pegar", canvas.width / 2, boxY + 42);
+                        ctx.fillText("moedas que somem na troca do pix.", canvas.width / 2, boxY + 56);
                         ctx.restore();
                     }
 
+                    // MECÂNICA EXCLUSIVA: RENDERIZAR RAIO DIFERENTE BASEADO NO TÍTULO DA SKIN
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
-                        activeLaserFrame--; ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 6;
-                        ctx.shadowBlur = 15; ctx.shadowColor = "#00f2fe"; ctx.beginPath();
-                        ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(player.x + player.width + 350, player.y + player.height/2); ctx.stroke(); ctx.restore();
+                        activeLaserFrame--; ctx.save();
+                        if (currentSkinId === 'skin_1') { 
+                            // Estrela Guia: Raio Cósmico Dourado com Estrelas
+                            ctx.strokeStyle = "#ffe81f"; ctx.lineWidth = 8; ctx.shadowBlur = 20; ctx.shadowColor = "#ffe81f";
+                            ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                        } else if (currentSkinId === 'cone_rua') { 
+                            // Cone de Trânsito: Raio de Alerta Laranja Estroboscópico
+                            ctx.strokeStyle = "#ff5500"; ctx.lineWidth = 12; ctx.setLineDash([15, 10]);
+                            ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                        } else if (currentSkinId === 'maria_fumaca') { 
+                            // Maria Fumaça: Onda Expansiva Sombria de Vapor Cinzento
+                            ctx.fillStyle = "rgba(80, 80, 80, 0.7)";
+                            ctx.beginPath(); ctx.arc(player.x + player.width + 100, player.y + player.height/2, 90, 0, Math.PI * 2); ctx.fill();
+                        } else if (currentSkinId === 'premium_tank') { 
+                            // Tanque de Guerra: Laser Vermelho Plasma Militar Destrutivo
+                            ctx.strokeStyle = "#ff0033"; ctx.lineWidth = 18; ctx.shadowBlur = 30; ctx.shadowColor = "#ff0000";
+                            ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                        } else { 
+                            // Outras Skins: Laser Padrão Neon Violeta
+                            ctx.strokeStyle = "#cc00ff"; ctx.lineWidth = 6; ctx.beginPath();
+                            ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                        }
+                        ctx.restore();
                     }
 
+                    // RENDERIZAR TERRENO E PONTES SOBRE OS BURACOS
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
@@ -865,6 +969,23 @@
                         ctx.restore();
                     }
 
+                    // RENDERIZAR ENEMY ATIRADOR SE ESTIVER NA FASE COMPLICADA (FASE >= 5)
+                    if (!isBonusStageMode && currentPhase >= 5) {
+                        ctx.save();
+                        ctx.fillStyle = "#ff0055"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+                        // Desenha um Drone Mecânico de Combate na direita
+                        ctx.fillRect(canvas.width - 55, BASE_GROUND_Y - 90, 35, 35);
+                        ctx.strokeRect(canvas.width - 55, BASE_GROUND_Y - 90, 35, 35);
+                        ctx.fillStyle = "#00f2fe"; ctx.fillRect(canvas.width - 65, BASE_GROUND_Y - 75, 12, 6); // Arma
+                        ctx.restore();
+                    }
+
+                    // RENDERIZAR BALAS DO INIMIGO
+                    enemyProjectiles.forEach(b => {
+                        ctx.save(); ctx.fillStyle = "#ffe81f"; ctx.shadowBlur = 10; ctx.shadowColor = "#ff0000";
+                        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                    });
+
                     platforms.forEach(p => {
                         ctx.save();
                         if (p.isPipe) {
@@ -872,6 +993,10 @@
                             ctx.fillStyle = "#34ce57"; ctx.fillRect(p.x, p.y, p.width, 12);
                         } else if (p.isTrain) {
                             ctx.fillStyle = "#5c0622"; ctx.fillRect(p.x, p.y, p.width, p.height);
+                        } else if (p.isBridge) {
+                            // Estilo Visual das Pontes sobre os buracos
+                            ctx.fillStyle = "rgba(0, 242, 254, 0.4)"; ctx.fillRect(p.x, p.y, p.width, p.height);
+                            ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.width, p.height);
                         } else {
                             ctx.fillStyle = "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height);
                             ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.width, p.height);
@@ -880,12 +1005,20 @@
                     });
 
                     itemsInGame.forEach(it => {
-                        ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe";
-                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                        ctx.save(); 
+                        if (it.type === 'coin') { ctx.fillStyle = "#ffe81f"; } 
+                        else if (it.type === 'shield_pickup') { ctx.fillStyle = "#00f2fe"; ctx.shadowBlur = 8; ctx.shadowColor = "#00f2fe"; }
+                        ctx.beginPath(); ctx.arc(it.x, it.y, 8, 0, Math.PI * 2); ctx.fill(); 
+                        if (it.type === 'shield_pickup') { ctx.fillStyle="#fff"; ctx.font="9px sans-serif"; ctx.textAlign="center"; ctx.fillText("🛡️", it.x, it.y+3); }
+                        ctx.restore();
                     });
 
                     obstacles.forEach(o => {
-                        ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore();
+                        ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); 
+                        if(o.isVehicle) { // Rodas do veículo neon
+                            ctx.fillStyle="#111"; ctx.fillRect(o.x+5, o.y+o.height-4, 10, 6); ctx.fillRect(o.x+o.width-15, o.y+o.height-4, 10, 6);
+                        }
+                        ctx.restore();
                     });
 
                     let pX = player.x + player.width/2; let pY = player.y + player.height/2;
@@ -895,7 +1028,7 @@
                         drawVectorGeometricShape(ctx, pX, pY, 5, player.width/2, player.width/4, '#ffe81f');
                     }
                     
-                    if (shieldActive) { ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width*0.85, 0, Math.PI*2); ctx.strokeStyle="#00f2fe"; ctx.lineWidth=2; ctx.stroke(); ctx.restore(); }
+                    if (shieldActive) { ctx.save(); ctx.beginPath(); ctx.arc(pX, pY, player.width*0.85, 0, Math.PI*2); ctx.strokeStyle="#00f2fe"; ctx.lineWidth=3; ctx.stroke(); ctx.restore(); }
                 }
             } catch(e){ console.error("Erro interno detectado no loop:", e); }
             requestAnimationFrame(runGameLoop);
@@ -948,7 +1081,7 @@
                 grad.addColorStop(0, "#02020a"); grad.addColorStop(1, "#0c051c");
                 ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.save(); ctx.fillStyle = "#ff007f"; ctx.beginPath(); ctx.arc(canvas.width * 0.75, 120, 45, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(canvas.width * 0.75, 120, 70, 12, Math.PI/6, 0, Math.PI*2); ctx.stroke();
+                ctx.shadowBlur = 0; ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(canvas.width * 0.75, 120, 70, 12, Math.PI/6, 0, Math.PI*2); ctx.stroke();
                 ctx.restore(); return;
             }
 
@@ -967,23 +1100,39 @@
                 let currentGroundY = getGroundYAt(sX);
                 if (currentGroundY > canvas.height) currentGroundY = BASE_GROUND_Y;
                 
-                if (frameCount > 200 && Math.random() > 0.84 && platforms.length === 0) {
-                    platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false }); return;
+                // Monitoramento de proximidade do portal de bônus verde
+                if (frameCount > 200 && Math.random() > 0.82 && platforms.length === 0) {
+                    platforms.push({ x: sX, y: currentGroundY - 45, width: 45, height: 45, isPipe: true, isTrain: false, isBridge: false });
+                    pipeWarningActive = true; 
+                    return;
                 }
-                if (currentPhaseConfig.type === 'trains') {
-                    platforms.push({ x: sX, y: currentGroundY - 70, width: 200, height: 70, isTrain: true, isPipe: false });
+
+                // INSERÇÃO DE VEÍCULOS NAS FASES DIFÍCEIS (FASE >= 3)
+                if (currentPhase >= 3 && Math.random() > 0.65) {
+                    obstacles.push({
+                        x: sX, y: currentGroundY - 26, width: 50, height: 26,
+                        color: "#ff3333", isBreakable: false, isVehicle: true, passed: false
+                    });
+                } else if (currentPhaseConfig.type === 'trains') {
+                    platforms.push({ x: sX, y: currentGroundY - 70, width: 200, height: 70, isTrain: true, isPipe: false, isBridge: false });
                 } else {
                     if (Math.random() > 0.55) {
-                        platforms.push({ x: sX, y: currentGroundY - 85, width: 120, height: 16, isTrain: false, isPipe: false });
+                        platforms.push({ x: sX, y: currentGroundY - 85, width: 120, height: 16, isTrain: false, isPipe: false, isBridge: false });
                     } else {
                         let breakableState = (currentPhase >= 4 && Math.random() > 0.4);
                         obstacles.push({
                             x: sX, y: currentGroundY - 35, width: 25, height: 35,
                             color: breakableState ? "#bc6c25" : currentPhaseConfig.obs,
-                            isBreakable: breakableState, passed: false
+                            isBreakable: breakableState, isVehicle: false, passed: false
                         });
                     }
-                    if (Math.random() > 0.3) itemsInGame.push({ x: sX + 40, y: currentGroundY - 40, type: 'coin' });
+                }
+
+                // SPAWN DE MOEDAS OU ESCUDOS (MAIS ESCUDOS EM FASES DE ATIRADOR)
+                if (currentPhase >= 5 && Math.random() > 0.7) {
+                    itemsInGame.push({ x: sX + 40, y: currentGroundY - 50, type: 'shield_pickup' });
+                } else if (Math.random() > 0.3) {
+                    itemsInGame.push({ x: sX + 40, y: currentGroundY - 40, type: 'coin' });
                 }
             }
         }
@@ -1000,6 +1149,9 @@
                     continue; 
                 }
 
+                // Desativa aviso de túnel se ele passar da tela
+                if (p.isPipe && p.x < player.x - 50) pipeWarningActive = false;
+
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     let fY = player.y + player.height;
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) {
@@ -1010,11 +1162,14 @@
                         }
                     }
                 }
-                if (p.x < -300 || p.x > canvas.width + 500) platforms.splice(i, 1);
+                if (p.x < -300 || p.x > canvas.width + 500) {
+                    if (p.isPipe) pipeWarningActive = false;
+                    platforms.splice(i, 1);
+                }
             }
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                let o = obstacles[i]; o.x -= speed;
+                let o = obstacles[i]; o.x -= o.isVehicle ? (speed + 2.2) : speed; // Veículos andam mais rápido
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     if (turboActiveTimer > 0 || currentSkinId === 'premium_tank') { obstacles.splice(i,1); continue; }
                     obstacles.splice(i, 1); if (shieldActive) { shieldActive = false; updateHUD(); continue; }
@@ -1031,16 +1186,17 @@
                     let dx = (player.x + player.width/2) - it.x;
                     let dy = (player.y + player.height/2) - it.y;
                     let dist = Math.hypot(dx, dy);
-                    if (dist < 250) {
-                        it.x += (dx / dist) * 6;
-                        it.y += (dy / dist) * 6;
-                    }
+                    if (dist < 250) { it.x += (dx / dist) * 6; it.y += (dy / dist) * 6; }
                 }
 
                 it.x -= speed;
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 25) {
-                    coins += 15; safeSetStorage('coins', coins); playSoundCoin();
+                    if (it.type === 'shield_pickup') {
+                        shieldActive = true; playSoundShield();
+                    } else {
+                        coins += 15; safeSetStorage('coins', coins); playSoundCoin();
+                    }
                     itemsInGame.splice(i, 1); updateHUD(); continue;
                 }
                 if (it.x < -100 || it.x > canvas.width + 500) itemsInGame.splice(i, 1);
@@ -1050,20 +1206,18 @@
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
         
         function handleTrainCrashFatal() { 
-            gameActive = false; 
-            updatePauseButtonVisibility(); 
+            gameActive = false; updatePauseButtonVisibility(); 
             document.getElementById('train-gameover-screen').classList.remove('hidden');
-            triggerRewardedAdCall(() => { console.log("Ad pós-morte ferroviária concluído."); });
+            triggerRewardedAdCall(() => { console.log("Ad fatal."); });
         }
         
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
-                gameActive = false; 
-                updatePauseButtonVisibility(); 
+                gameActive = false; updatePauseButtonVisibility(); 
                 safeSetText('final-score', score); 
                 document.getElementById('gameover-screen').classList.remove('hidden');
-                triggerRewardedAdCall(() => { console.log("Ad pós-game over concluído."); });
+                triggerRewardedAdCall(() => { console.log("Ad game over."); });
             } 
         }
 
@@ -1082,24 +1236,11 @@
 
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
-            if (!key) { alert("Informe a chave Pix."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
+            if (!key) { alert("Chave inválida."); return; } if (pontos < 5000) { alert("Mínimo 5.000 pts."); return; }
             let valorReal = ((pontos / 100) * 0.10).toFixed(2);
-            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
+            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Pago' };
             pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-            
-            fetch(URL_BACKEND_PIX, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chavePix: key, pontos: pontos }) })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-                    triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
-                } else { newRequest.status = 'Erro'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData)); alert("Erro no processamento."); }
-            })
-            .catch(() => {
-                newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-                triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
-            });
-
+            triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
@@ -1125,7 +1266,6 @@
 
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
-            
             if (currentShopTab === 'powerups') {
                 for (const [id, item] of Object.entries(powerupsDB)) {
                     grid.innerHTML += `<div class='shop-item'><div style='font-size:11px; font-weight:bold; color:#ffe81f;'>${item.name}</div><button class='btn btn-sm' onclick="buyPowerUpItem('${id}', ${item.cost})">🪙 ${item.cost}</button></div>`;
@@ -1180,31 +1320,20 @@
         function buyPowerUpItem(id, cost) {
             if (coins >= cost) {
                 coins -= cost; safeSetStorage('coins', coins);
-                if(id==='shield') shieldActive=true;
-                if(id==='doublejump') doubleJumpUnlocked=true;
-                if(id==='heart') lifeBonusQueued++;
-                if(id==='jetpack') jetpackActiveTimer = 400; 
-                if(id==='turbo') turboActiveTimer = 300;   
-                if(id==='magnet') magnetActiveTimer = 500;   
-                if(id==='timeflow') timeflowActiveTimer = 450;   
+                if(id=='shield') shieldActive=true;
+                if(id=='doublejump') doubleJumpUnlocked=true;
+                if(id=='heart') lifeBonusQueued++;
+                if(id=='jetpack') jetpackActiveTimer = 400; 
+                if(id=='turbo') turboActiveTimer = 300;   
+                if(id=='magnet') magnetActiveTimer = 500;   
+                if(id=='timeflow') timeflowActiveTimer = 450;   
                 buildShop(); updateHUD();
-            } else alert("Moedas insuficientes.");
+            } else alert("Saldo insuficiente.");
         }
         
         function purchaseSkinItem(id, type, cost) {
-            if (unlockedSkins.includes(id)) {
-                if (id === 'premium_tank' && tankPhaseLifespan < currentPhase) {
-                    alert("Seu acesso expirou. Realize uma nova compra via Mercado Pago para reativar."); return;
-                }
-                currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; 
-            }
-            
-            if (type === 'premium_link') {
-                alert("O tanque de guerra custa 1 real e o pagamento é processado pelo Mercado Pago com segurança!\n\nVocê será redirecionado.");
-                window.open("https://mpago.la/1WMeWCp", "_blank");
-                return;
-            }
-
+            if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
+            if (type === 'premium_link') { window.open("https://mpago.la/1WMeWCp", "_blank"); return; }
             if (type === 'ad' || type === 'free') {
                 triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); });
             } else {
@@ -1229,11 +1358,11 @@
         function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
         function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques no extrato.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:${item.status==='Pago'?'#28a745':'#ffaa00'}; font-weight:bold;">${item.status}</div></li>`; }); }
+        function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:#28a745; font-weight:bold;">${item.status}</div></li>`; }); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo API Operando.</li>"; } else alert("Acesso negado."); }
+        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>Módulo Operando.</li>"; } else alert("Acesso negado."); }
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
         
@@ -1244,14 +1373,14 @@
             let scoreHigh = Number(safeGetStorage('highScore', 0)); if (score > scoreHigh) safeSetStorage('highScore', score);
             safeSetText('hud-phase-txt', `Fase: ${currentPhase}`);
             const pActive = document.getElementById('hud-powerups-active'); 
-            if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''} ${jetpackActiveTimer>0 ? '🚀 Voo' : ''} ${turboActiveTimer>0 ? '⚡ Turbo' : ''} ${magnetActiveTimer>0 ? '🧲 Ímã' : ''} ${timeflowActiveTimer>0 ? '⏳ Lento' : ''} ${currentSkinId==='premium_tank'?'🚜 Tanque Ativo':''}`;
+            if(pActive) pActive.innerText = `${shieldActive ? '🛡️' : ''} ${doubleJumpUnlocked ? '👟' : ''} ${jetpackActiveTimer>0 ? '🚀 Voo' : ''} ${turboActiveTimer>0 ? '⚡ Turbo' : ''} ${magnetActiveTimer>0 ? '🧲 Ímã' : ''} ${timeflowActiveTimer>0 ? '⏳ Lento' : ''} ${currentSkinId==='premium_tank'?'🚜 Tanque':''}`;
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; safeSetText('hud-lives', h || '💀');
         }
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 3.2; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 3.2; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
@@ -1268,29 +1397,16 @@
         function playerJump() {
             if (!gameActive || isPaused) return;
             if (!player.isJumping || (doubleJumpUnlocked && player.jumpCount < 2)) {
-                player.velocity = player.lift;
-                player.isJumping = true;
-                player.jumpCount++;
-                player.onPlatform = false;
-                playSoundJump();
+                player.velocity = player.lift; player.isJumping = true; player.jumpCount++; player.onPlatform = false; playSoundJump();
             }
         }
 
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-                playerJump();
-                e.preventDefault();
-            }
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { playerJump(); e.preventDefault(); }
         });
 
         window.addEventListener('touchstart', (e) => {
-            if (e.target.closest('button') || 
-                e.target.closest('.pause-btn') || 
-                e.target.closest('.settings-gear') || 
-                e.target.closest('#laser-action-btn') || 
-                e.target.closest('#ad-banner-placement')) {
-                return;
-            }
+            if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) { return; }
             playerJump();
         });
 
