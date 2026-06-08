@@ -94,24 +94,12 @@
         .btn-sm { padding: 5px 12px; font-size: 10px; border-radius: 15px; }
 
         #laser-action-btn {
-            position: absolute; bottom: 135px; right: 20px; width: 50px; height: 50px;
+            position: absolute; bottom: 75px; right: 20px; width: 52px; height: 52px;
             background: radial-gradient(circle, #ff007f 0%, #7c003c 100%);
             border: 2px solid #ffffff; border-radius: 50%; z-index: 90;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
             box-shadow: 0 0 15px #ff007f; cursor: pointer; display: none;
         }
-
-        #manual-hud-controls {
-            position: absolute; bottom: 65px; left: 0; width: 100%; padding: 0 20px;
-            display: none; justify-content: space-between; align-items: center; z-index: 95; pointer-events: none;
-        }
-        .dpad-group { display: flex; gap: 14px; pointer-events: auto; }
-        .control-arrow-btn {
-            width: 54px; height: 54px; background: rgba(10, 10, 26, 0.9); border: 2px solid #00f2fe;
-            border-radius: 50%; color: #ffffff; font-size: 22px; display: flex; align-items: center;
-            justify-content: center; cursor: pointer; box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
-        }
-        .control-arrow-btn:active { background: #00f2fe; color: #000; }
 
         input[type="text"], input[type="password"] {
             padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(0, 242, 254, 0.2);
@@ -221,17 +209,6 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Disparar Especial</div>
 
-        <!-- CONTROLES DPAD DA JOGABILIDADE MANUAL -->
-        <div id="manual-hud-controls">
-            <div class="dpad-group">
-                <div class="control-arrow-btn" id="ctrl-left">⬅️</div>
-                <div class="control-arrow-btn" id="ctrl-right">➡️</div>
-            </div>
-            <div class="dpad-group">
-                <div class="control-arrow-btn" id="ctrl-jump">🔼</div>
-            </div>
-        </div>
-
         <!-- BANNER DE PUBLICAÇÃO FIXO NO RODAPÉ -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
@@ -247,7 +224,7 @@
 
             <div class="tutorial-card">
                 <div style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-align: center; color: #00f2fe; margin-bottom: 10px;">
-                    📢 AVISO DE JOGABILIDADE: Controle o corredor segurando as setas na tela ou teclado. Pule nas plataformas azuis flutuantes sem sofrer dano!
+                    📢 JOGABILIDADE TRADICIONAL: A corrida é automática! Pressione Espaço, Seta para Cima ou Toque na tela para pular e desviar dos perigos neon!
                 </div>
 
                 <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto (Estilo Mario)</div>
@@ -388,7 +365,7 @@
         let canvas = null, ctx = null;
 
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
-        let obstacleSpeed = 4.5, obstacleTimer = 0;
+        let obstacleSpeed = 3.2, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
         let adLifeUsed = false, isMuted = false;
 
@@ -404,8 +381,6 @@
         let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua'], unlockedScenarios = ['scen_default'];
         let itemsInGame = []; 
         let smokeParticles = []; 
-
-        let controlKeys = { Left: false, Right: false };
 
         let playerMana = 100;
         let activeLaserFrame = 0;
@@ -630,7 +605,7 @@
             let overlay = document.getElementById('ad-processing-overlay');
             if (overlay) overlay.classList.remove('hidden');
             
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas automáticas restritas pelo pop-up blocker."); }
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas automáticas restritas."); }
             
             let count = 3;
             let txtCounter = document.getElementById('ad-countdown-txt');
@@ -679,7 +654,6 @@
             itemsInGame = []; obstacles = []; platforms = []; smokeParticles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
             updatePauseButtonVisibility();
-            updateManualControlsUIVisibility();
         }
 
         function triggerBonusStageActivation() {
@@ -727,6 +701,7 @@
             return BASE_GROUND_Y;
         }
 
+        // ALTERAÇÃO COMPLETA DA RAMPA DE VELOCIDADE: COMEÇA BAIXO E CRESCE GRADATIVAMENTE POR FASE
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "Metrópole Cyber", top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" },
@@ -743,7 +718,9 @@
 
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
-            obstacleSpeed = 4.5 + (phase * 0.35);
+            
+            // Ritmo inicial suave (3.2) aumentando em 0.65 a cada nova fase alcançada
+            obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
             if (turboActiveTimer > 0) obstacleSpeed = 14;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
             return biome;
@@ -768,15 +745,8 @@
         function runGameLoop() {
             try {
                 if (ctx) {
-                    let currentFrameSpeed = 0;
-                    if (gameActive && !isPaused) {
-                        if (controlKeys.Right) {
-                            currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
-                        } else if (controlKeys.Left) {
-                            currentFrameSpeed = isBonusStageMode ? -6.0 : -obstacleSpeed;
-                        }
-                    }
-
+                    // VOLTOU PARA A CORRIDA AUTOMÁTICA CONTÍNUA
+                    let currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
                     if (timeflowActiveTimer > 0 && !isBonusStageMode) currentFrameSpeed *= 0.5;
 
                     if (!isPaused && gameActive) {
@@ -792,7 +762,7 @@
                             safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
                         }
 
-                        if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0 && currentFrameSpeed !== 0) {
+                        if (currentSkinId === 'maria_fumaca' && frameCount % 4 === 0) {
                             smokeParticles.push({
                                 x: player.x + player.width * 0.8, y: player.y - 4,
                                 size: 5 + Math.random() * 8, opacity: 1.0,
@@ -806,9 +776,7 @@
                         }
 
                         if (!isBonusStageMode) {
-                            if (controlKeys.Right) score++;
-                            else if (controlKeys.Left) score = Math.max(0, score - 1);
-
+                            score++; // Score progride automaticamente com o tempo
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
@@ -816,11 +784,11 @@
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
 
                             updateAndGenerateTerrain(currentFrameSpeed); 
-                            if (currentFrameSpeed > 0) updateSpawningEngine();
+                            updateSpawningEngine();
                         } else {
-                            if (currentFrameSpeed !== 0) bonusStageTimer--;
+                            bonusStageTimer--;
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
-                            if (currentFrameSpeed > 0 && frameCount % 30 === 0) {
+                            if (frameCount % 30 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 80);
                                 platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false });
                                 itemsInGame.push({ x: canvas.width + 40, y: hY - 30, type: 'coin' });
@@ -1084,7 +1052,6 @@
         function handleTrainCrashFatal() { 
             gameActive = false; 
             updatePauseButtonVisibility(); 
-            updateManualControlsUIVisibility();
             document.getElementById('train-gameover-screen').classList.remove('hidden');
             triggerRewardedAdCall(() => { console.log("Ad pós-morte ferroviária concluído."); });
         }
@@ -1094,7 +1061,6 @@
             if (lives <= 0) { 
                 gameActive = false; 
                 updatePauseButtonVisibility(); 
-                updateManualControlsUIVisibility();
                 safeSetText('final-score', score); 
                 document.getElementById('gameover-screen').classList.remove('hidden');
                 triggerRewardedAdCall(() => { console.log("Ad pós-game over concluído."); });
@@ -1110,14 +1076,9 @@
             if (btn) btn.style.display = gameActive ? 'flex' : 'none';
         }
 
-        function updateManualControlsUIVisibility() {
-            const pad = document.getElementById('manual-hud-controls');
-            if (pad) pad.style.display = gameActive ? 'flex' : 'none';
-        }
-
         function togglePauseGame() { if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
 
-        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
+        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
@@ -1289,8 +1250,8 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 4.5; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; controlKeys.Left = false; controlKeys.Right = false; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 4.5; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; controlKeys.Left = false; controlKeys.Right = false; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); updateManualControlsUIVisibility(); }
+        function resetGame() { score = 0; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; obstacleSpeed = 3.2; playerMana = 100; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; jetpackActiveTimer=0; turboActiveTimer=0; magnetActiveTimer=0; timeflowActiveTimer=0; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
 
         function drawVectorGeometricShape(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
@@ -1316,48 +1277,27 @@
         }
 
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') controlKeys.Left = true;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = true;
             if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
                 playerJump();
                 e.preventDefault();
             }
         });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') controlKeys.Left = false;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') controlKeys.Right = false;
-        });
-
-        const setupMobileControls = () => {
-            const padLeft = document.getElementById('ctrl-left');
-            const padRight = document.getElementById('ctrl-right');
-            const padJump = document.getElementById('ctrl-jump');
-
-            if (padLeft && padRight && padJump) {
-                // Toque mobile
-                padLeft.addEventListener('touchstart', (e) => { controlKeys.Left = true; e.preventDefault(); });
-                padLeft.addEventListener('touchend', (e) => { controlKeys.Left = false; e.preventDefault(); });
-                padRight.addEventListener('touchstart', (e) => { controlKeys.Right = true; e.preventDefault(); });
-                padRight.addEventListener('touchend', (e) => { controlKeys.Right = false; e.preventDefault(); });
-                padJump.addEventListener('touchstart', (e) => { playerJump(); e.preventDefault(); });
-
-                // Clique de mouse (para testes e acessibilidade desktop)
-                padLeft.addEventListener('mousedown', () => { controlKeys.Left = true; });
-                padLeft.addEventListener('mouseup', () => { controlKeys.Left = false; });
-                padLeft.addEventListener('mouseleave', () => { controlKeys.Left = false; });
-                padRight.addEventListener('mousedown', () => { controlKeys.Right = true; });
-                padRight.addEventListener('mouseup', () => { controlKeys.Right = false; });
-                padRight.addEventListener('mouseleave', () => { controlKeys.Right = false; });
-                padJump.addEventListener('mousedown', () => { playerJump(); });
+        window.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button') || 
+                e.target.closest('.pause-btn') || 
+                e.target.closest('.settings-gear') || 
+                e.target.closest('#laser-action-btn') || 
+                e.target.closest('#ad-banner-placement')) {
+                return;
             }
-        };
+            playerJump();
+        });
 
         resizeEngineCanvas();
         ctx = document.getElementById('gameCanvas').getContext('2d');
         initTerrain();
         updateHUD();
-        setupMobileControls();
         requestAnimationFrame(runGameLoop);
 
         window.addEventListener('load', () => {
