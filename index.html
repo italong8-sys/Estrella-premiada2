@@ -64,7 +64,6 @@
             border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 101;
         }
 
-        /* AJUSTE COESO DE TELAS PARA DEIXAR O ESPAÇO DO BANNER LIVRE */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 50px);
             background: rgba(6, 6, 18, 0.96); display: flex; flex-direction: column;
@@ -136,8 +135,8 @@
 
         #ad-processing-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.96); z-index: 1000000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center; color: #ffffff;
+            background: rgba(4, 4, 12, 0.98); z-index: 1000000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; color: #ffffff; padding: 20px;
         }
         .spinner {
             width: 50px; height: 50px; border: 5px solid #151530; border-top: 5px solid #ff007f;
@@ -155,7 +154,6 @@
         }
         #payout-toast.active { bottom: 80px; }
 
-        /* BANNER TOTALMENTE ISOLADO COM ALTURA CONSOLIDADA E PREENCHIMENTO COMPACTO */
         #ad-banner-placement {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: #050510; display: flex; align-items: center; justify-content: center;
@@ -172,11 +170,12 @@
 <body>
 
     <div id="game-container">
+        <!-- DETECTOR INTERATIVO DE ANÚNCIOS PREMIADOS -->
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
-            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">CARREGANDO ANÚNCIO PREMIADO</h2>
-            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 5px 0;">O anúncio foi aberto em outra guia. Aguarde a validação da recompensa...</p>
-            <p id="ad-countdown-txt" style="color: #ffe81f; font-weight: bold; font-size: 20px;">4s</p>
+            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">SISTEMA DE RECOMPENSAS AD</h2>
+            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 20px 0; max-width: 280px; line-height: 1.4;">Clique no botão abaixo para carregar o anúncio do patrocinador e liberar seu prêmio.</p>
+            <div id="ad-countdown-txt"></div>
         </div>
 
         <div id="payout-toast">
@@ -211,7 +210,7 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡</div>
 
-        <!-- BANNER DO RODAPÉ PERSISTENTE - CONECTADO DIRETAMENTE AO SMARTLINK -->
+        <!-- BANNER DE ANÚNCIOS DO RODAPÉ PERSISTENTE -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
                 ⚡ [ANÚNCIO CYBER] TOQUE AQUI PARA VISITAR O PATROCINADOR E MULTIPLICAR SEUS GANHOS ⚡
@@ -372,7 +371,7 @@
         let canvas = null, ctx = null;
 
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
-        let obstacleSpeed = 4.5, obstacleSpeedMultiplier = 1.0, obstacleTimer = 0;
+        let obstacleSpeed = 4.5, obstacleTimer = 0;
         let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
         let adLifeUsed = false, isMuted = false;
 
@@ -442,7 +441,6 @@
 
         function safeSetText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
 
-        /* AJUSTE ESTRUTURAL DA ALTURA DO CHÃO PARA NÃO PERMITIR CLIPS ATRÁS DO BANNER DO RODAPÉ */
         function resizeEngineCanvas() {
             canvas = document.getElementById('gameCanvas'); if (!canvas) return;
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -582,7 +580,7 @@
         }
 
         const scenariosDB = {
-            'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", render: (g,w,h)=> { g.fillStyle="#0a0518"; g.fillRect(0,0,w,h); g.fillStyle="#00f2fe"; g.fillRect(10,h-10,30,2); } },
+            'scen_default': { name: 'Padrão Dinâmico', type: 'free', phaseRequired: 1, top: "#0a0518", bottom: "#020105", ground: "#00f2fe", obs: "#ff007f", type: "city" },
             'scen_neon': { name: '🌌 Hiper Neon', type: 'ad', phaseRequired: 1, top: "#0b001a", bottom: "#26004d", render: (g,w,h)=> { g.fillStyle="#0b001a"; g.fillRect(0,0,w,h); g.fillStyle="#ffe81f"; g.beginPath(); g.arc(25,25,4,0,Math.PI*2); g.fill(); } },
             'scen_matrix': { name: '🟢 Data Stream', type: 'ad', phaseRequired: 2, top: "#000c02", bottom: "#000000", render: (g,w,h)=> { g.fillStyle="#000c02"; g.fillRect(0,0,w,h); g.fillStyle="#00ff33"; g.font="9px monospace"; g.fillText("101",10,25); } },
             'scen_inferno': { name: '🌋 Vale Vulcânico', type: 'ad', phaseRequired: 2, top: "#2f0505", bottom: "#0a0101", render: (g,w,h)=> { g.fillStyle="#2f0505"; g.fillRect(0,0,w,h); g.fillStyle="#ff5500"; g.fillRect(10,30,20,5); } },
@@ -605,17 +603,32 @@
             'scen_plasma': { name: '🧪 Oásis Plasma', type: 'coins', cost: 1500, phaseRequired: 9, top: "#0a3c36", bottom: "#020f0d", render: (g,w,h)=> { g.fillStyle="#0a3c36"; g.fillRect(0,0,w,h); g.fillStyle="#00ffcc"; g.fillRect(15,15,20,20); } }
         };
 
-        /* ENGENHARIA DE DISPARO REWARDED AD CORRIGIDA: ATIVA A IMPRESSÃO E DISPARA O CALLBACK */
+        /* INTERCEPTOR PREMIUM CONTRA POPUP BLOCKERS */
+        let activeRewardedAdCallback = null;
         function triggerRewardedAdCall(callback) {
-            // Abre o Smartlink em segundo plano para forçar a contabilização no painel
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueador impediu popunder."); }
-            
+            activeRewardedAdCallback = callback;
             let overlay = document.getElementById('ad-processing-overlay');
             let title = document.getElementById('ad-overlay-title');
             let txtCounter = document.getElementById('ad-countdown-txt');
             
-            if (title) title.innerText = "CONTABILIZANDO IMPRESSÃO PREMIADA";
+            if (title) title.innerText = "SISTEMA DE RECOMPENSAS AD";
+            if (txtCounter) {
+                txtCounter.innerHTML = `
+                    <button class="btn btn-primary" style="padding: 14px 28px; font-size: 12px; box-shadow: 0 0 15px #ff007f;" onclick="userExplicitAdActionGate()">
+                        ⚡ ASSISTIR PROPAGANDA AGORA ⚡
+                    </button>
+                `;
+            }
             if (overlay) overlay.classList.remove('hidden');
+        }
+
+        /* DISPARO EXPEDIDO APÓS CLIQUE REAL DO USUÁRIO */
+        function userExplicitAdActionGate() {
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Abas restritas."); }
+            
+            let title = document.getElementById('ad-overlay-title');
+            let txtCounter = document.getElementById('ad-countdown-txt');
+            if (title) title.innerText = "VALIDANDO VISUALIZAÇÃO...";
             
             let count = 4;
             if (txtCounter) txtCounter.innerText = count + "s";
@@ -625,8 +638,12 @@
                 if (txtCounter) txtCounter.innerText = count + "s";
                 if (count <= 0) {
                     clearInterval(interval);
+                    let overlay = document.getElementById('ad-processing-overlay');
                     if (overlay) overlay.classList.add('hidden');
-                    if (callback) callback();
+                    if (activeRewardedAdCallback) {
+                        activeRewardedAdCallback();
+                        activeRewardedAdCallback = null;
+                    }
                 }
             }, 1000);
         }
@@ -892,7 +909,7 @@
                                 groundGrad.addColorStop(0, currentPhaseConfig.ground || "#00f2fe"); groundGrad.addColorStop(1, "#050515");
                                 ctx.fillStyle = groundGrad; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd);
                                 ctx.lineTo(seg.x + seg.w, canvas.height); ctx.lineTo(seg.x, canvas.height); ctx.closePath(); ctx.fill();
-                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
+                                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
                             }
                         }
                         ctx.restore();
@@ -1080,7 +1097,6 @@
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
         
-        /* O ANÚNCIO AGORA SÓ DISPARA QUANDO O JOGADOR SOLICITA O CONTINUAR COERENTEMENTE */
         function handleTrainCrashFatal() { 
             gameActive = false; 
             updatePauseButtonVisibility(); 
