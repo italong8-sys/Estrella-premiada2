@@ -392,7 +392,7 @@
 
         let saldoPixAcumulado = 0, coins = 300;
         let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua'], unlockedScenarios = ['scen_default'];
-        let itemsInGame = [], obstacles = [], platforms = [], smokeParticles = [], enemyProjectiles = [];
+        let itemsInGame = [], obstacles = [], platforms = [], enemyProjectiles = [];
 
         let playerMana = 100, activeLaserFrame = 0;
         let isBonusStageMode = false, bonusStageTimer = 0, preBonusPhaseConfig = null, pipeWarningActive = false;
@@ -424,6 +424,14 @@
             'scen_core': { name: '💥 Setor Ciborgue', type: 'coins', cost: 600, top: '#0d0101', bottom: '#1a0202' }
         };
 
+        // BANCO DE DADOS ATUALIZADO COM OS NOVOS PODERES ESPECIAIS
+        const powerupsDB = { 
+            'shield': { name: '🛡️ Escudo Protetor', cost: 120 },
+            'magnet': { name: '🧲 Ímã Magnético', cost: 180 },
+            'turbo': { name: '🚀 Hiper Turbo Nitro', cost: 250 },
+            'timeflow': { name: '⏳ Distorção Temporal', cost: 150 }
+        };
+
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
             try { return localStorage.getItem(key) !== null ? localStorage.getItem(key) : fallback; } 
@@ -446,9 +454,10 @@
             pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua']; unlockedScenarios = ['scen_default'];
         }
 
+        // FÍSICA CALIBRADA: GRAVIDADE E LIFT DE SALTO SNAPPY (EXTREMAMENTE RESPONSIVO)
         const player = {
             x: 70, y: 150, width: 36, height: 36,
-            gravity: 0.60, lift: -13.5, velocity: 0,
+            gravity: 0.78, lift: -15.8, velocity: 0,
             isJumping: false, jumpCount: 0, onPlatform: false, platformTop: 290
         };
 
@@ -483,18 +492,6 @@
                 name: `👾 Aberração Bz ${i}`, type: 'coins', cost: 150 + (i * 20), tab: 'bizarre',
                 render: (g, x, y, r) => { g.save(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y - r/3, r/3, 0, Math.PI * 2); g.fill(); g.fillStyle = "#000"; g.beginPath(); g.arc(x, y - r/3, 3, 0, Math.PI * 2); g.fill(); g.restore(); }
             };
-        }
-
-        function convertCoinsToPixPoints() {
-            trackMenuClicks();
-            if (coins >= 10000) {
-                coins -= 10000; saldoPixAcumulado += 1000;
-                safeSetStorage('coins', coins); safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
-                updateHUD(); safeSetText('withdraw-balance', saldoPixAcumulado);
-                triggerTruePayoutBalloonNotice("🔄 10.000 Moedas convertidas em +1.000 pts Pix!");
-            } else {
-                alert("❌ Saldo insuficiente! Você precisa de pelo menos 10.000 Moedas Amarelas para fazer a conversão.");
-            }
         }
 
         function initAudioEngine() { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startProceduralMusic(); } catch(e){} }
@@ -582,25 +579,48 @@
 
         function calculateInfinitePhaseStyle(phase) {
             let activeScen = currentScenarioId !== 'scen_default' ? currentScenarioId : null;
-            
             const baseBiomes = [
-                { name: " Sovereignty Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
+                { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
                 { name: "🧪 Laboratório Quântico", top: "#011216", bottom: "#041e24", ground: "#39ff14", obs: "#ffffff", type: "quantum_lab" },
                 { name: "🏭 Refinaria Cyber", top: "#1a0b02", bottom: "#2b1404", ground: "#ff5500", obs: "#ffaa00", type: "cyber_refinery" },
                 { name: "🏜️ Deserto Sintético", top: "#240412", bottom: "#3a0921", ground: "#ff00ff", obs: "#ffe81f", type: "synthetic_desert" },
                 { name: "💥 Núcleo Sombrio", top: "#0d0101", bottom: "#1a0202", ground: "#7c0000", obs: "#ff2222", type: "dark_core" }
             ];
-            
             if (activeScen && scenariosDB[activeScen]) {
                 let s = scenariosDB[activeScen];
                 return { name: s.name, top: s.top, bottom: s.bottom, ground: "#00f2fe", obs: "#ff007f", type: "custom" };
             }
-
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
+            
+            // EXECUÇÃO EM TEMPO REAL DOS PODERES COMPRADOS NA JOGABILIDADE
+            if (turboActiveTimer > 0) obstacleSpeed = 15;
+            if (timeflowActiveTimer > 0) obstacleSpeed *= 0.5;
+            
             if (obstacleSpeed > 16) obstacleSpeed = 16;
             return biome;
+        }
+
+        function triggerRewardedAdCall(callback) {
+            activeRewardedAdCallback = callback;
+            let overlay = document.getElementById('ad-processing-overlay');
+            if (overlay) overlay.classList.remove('hidden');
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Popup bloqueado."); }
+            let count = 3;
+            let txtCounter = document.getElementById('ad-countdown-txt');
+            let interval = setInterval(() => {
+                count--;
+                if (txtCounter) txtCounter.innerText = "Processando recompensa em " + count + "s...";
+                if (count <= 0) {
+                    clearInterval(interval);
+                    if (overlay) overlay.classList.add('hidden');
+                    if (activeRewardedAdCallback) {
+                        activeRewardedAdCallback();
+                        activeRewardedAdCallback = null;
+                    }
+                }
+            }, 1000);
         }
 
         function runGameLoop() {
@@ -610,6 +630,11 @@
 
                     if (!isPaused && gameActive) {
                         frameCount++; 
+                        
+                        // DECREMENTO ATIVO DE TIMERS DOS POWERUPS COMPRADOS
+                        if (turboActiveTimer > 0) turboActiveTimer--;
+                        if (magnetActiveTimer > 0) magnetActiveTimer--;
+                        if (timeflowActiveTimer > 0) timeflowActiveTimer--;
 
                         if (frameCount % 45 === 0) {
                             saldoPixAcumulado += 3;
@@ -631,6 +656,7 @@
                             let dP = Math.hypot(b.x - (player.x + player.width/2), b.y - (player.y + player.height/2));
                             if (dP < player.width/2 + b.radius) {
                                 enemyProjectiles.splice(i, 1);
+                                if (turboActiveTimer > 0) continue;
                                 if (shieldActive) { shieldActive = false; updateHUD(); } else { handleLifeLoss(); }
                                 continue;
                             }
@@ -701,15 +727,6 @@
                     ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(300, 0); ctx.lineTo(canvas.width, canvas.height * 0.7); ctx.closePath(); ctx.fill();
                     ctx.restore();
 
-                    if (pipeWarningActive && gameActive && !isPaused) {
-                        ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
-                        let boxW = Math.min(canvas.width - 30, 480); let boxX = (canvas.width - boxW) / 2;
-                        ctx.beginPath(); ctx.roundRect(boxX, 70, boxW, 75, 10); ctx.fill(); ctx.stroke();
-                        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
-                        ctx.fillText("⚠️ TUBO VERDE DE SESSÃO BÔNUS PROXIMIDADE!", canvas.width / 2, 90);
-                        ctx.restore();
-                    }
-
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
@@ -718,14 +735,10 @@
                                 ctx.fillRect(seg.x, seg.hStart, seg.w, canvas.height - seg.hStart);
                                 ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); 
-                                ctx.stroke(); // CORREÇÃO BUG DO STROKE ISOLADO -> ADICIONADO CTX.STROKE INDIRETO VIA AMBIENTE MÁXIMO
+                                ctx.stroke();
                             }
                         }
                         ctx.restore();
-                    }
-
-                    if (!isBonusStageMode && currentPhase >= 5) {
-                        ctx.save(); ctx.fillStyle = "#ff0055"; ctx.fillRect(canvas.width - 55, BASE_GROUND_Y - 70, 30, 30); ctx.restore();
                     }
 
                     enemyProjectiles.forEach(b => { ctx.save(); ctx.fillStyle = "#ffe81f"; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill(); ctx.restore(); });
@@ -734,6 +747,12 @@
                     obstacles.forEach(o => { ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore(); });
 
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
+                    
+                    // FX VISUAL DE ESCUDO ATIVO
+                    if (shieldActive || turboActiveTimer > 0) {
+                        ctx.save(); ctx.strokeStyle = turboActiveTimer > 0 ? "#ff007f" : "#00f2fe"; ctx.lineWidth = 3;
+                        ctx.beginPath(); ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+                    }
                 }
             } catch(e){ console.error(e); }
             requestAnimationFrame(runGameLoop);
@@ -749,8 +768,6 @@
                     platforms.push({ x: sX, y: cY - 45, width: 45, height: 45, isPipe: true, isTrain: false, isBridge: false });
                     pipeWarningActive = true; return;
                 }
-
-                // ADIÇÃO DE METRO FERROVIÁRIO PROCEDURAL NA FASE 3
                 if (currentPhase === 3 && Math.random() > 0.6) {
                     platforms.push({ x: sX, y: cY - 60, width: 140, height: 60, isPipe: false, isTrain: true, isBridge: false });
                 } else {
@@ -764,15 +781,12 @@
             player.onPlatform = false;
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= speed;
-                
-                // DETECÇÃO CORRIGIDA DE COLISÃO COM PLATAFORMAS E TRENS DE MALHA
                 if (platOverlapsPlayer(p)) {
                     if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); continue; }
-                    if (p.isTrain) {
+                    if (p.isTrain && turboActiveTimer <= 0) {
                         if (currentSkinId !== 'premium_tank') { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                     }
                 }
-
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     let fY = player.y + player.height;
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) { player.onPlatform = true; player.platformTop = p.y; }
@@ -781,9 +795,13 @@
             }
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
+                
+                // MECA DO MAGNET ADICIONADA: PUXA MOEDAS EM ADJACÊNCIA SE O MANTENEDOR ESTIVER ATIVO
+                if (magnetActiveTimer > 0 && o.x < player.x + 200) { /* Espaço reserved */ }
+
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1);
-                    if (currentSkinId === 'premium_tank') continue;
+                    if (currentSkinId === 'premium_tank' || turboActiveTimer > 0) continue;
                     if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
@@ -792,8 +810,16 @@
             }
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
                 let it = itemsInGame[i]; it.x -= speed;
+                
+                // ATRAÇÃO DO ÍMÃ SE ATIVADO PELA LOJA
+                if (magnetActiveTimer > 0 && it.x > player.x) {
+                    let diffY = (player.y + player.height/2) - it.y;
+                    let diffX = (player.x + player.width/2) - it.x;
+                    it.x += diffX * 0.15; it.y += diffY * 0.15;
+                }
+
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
-                if (d < 25) {
+                if (d < 28) {
                     coins += 15; safeSetStorage('coins', coins); playSoundCoin();
                     itemsInGame.splice(i, 1); updateHUD(); continue;
                 }
@@ -846,10 +872,8 @@
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
             if (!key) { alert("Informe a chave."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
             let valorReal = ((pontos / 100) * 0.10).toFixed(2);
-            
-            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processado...' };
+            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
             pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-
             const multiPayload = { chavePix: key, chave: key, pontos: pontos, amount: valorReal, valor: valorReal };
             
             fetch(URL_BACKEND_PIX, { method: "POST", mode: "cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(multiPayload) })
@@ -862,7 +886,6 @@
                 newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
                 triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado de contingência!`);
             });
-
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
@@ -872,14 +895,23 @@
         function openSupportScreen() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
         function closeSupportScreen() { trackMenuClicks(); document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openShop() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
-        function closeShop() { trackMenuClicks(); document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { trackMenuClicks(); currentShopTab = tab; buildShop(); }
 
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
+            
+            // ABA DE PODERES TOTALMENTE RECONFIGURADA COM DUPLA OPÇÃO DE ESCOLHA (MOEDAS OU ADS RECOMPENSADOS)
             if (currentShopTab === 'powerups') {
                 for (const [id, item] of Object.entries(powerupsDB)) {
-                    grid.innerHTML += `<div class='shop-item'><div style='font-size:11px; font-weight:bold; color:#ffe81f;'>${item.name}</div><button class='btn btn-sm' onclick="buyPowerUpItem('${id}', ${item.cost})">🪙 ${item.cost}</button></div>`;
+                    grid.innerHTML += `
+                        <div class='shop-item' style='padding:10px 4px; gap:4px;'>
+                            <div style='font-size:11px; font-weight:bold; color:#ffe81f; margin-bottom:2px;'>${item.name}</div>
+                            <div style='display:flex; gap:4px; width:100%; justify-content:center;'>
+                                <button class='btn btn-sm' style='padding:4px 6px; font-size:9px;' onclick="buyPowerUpItem('${id}', 'coins', ${item.cost})">🪙 ${item.cost}</button>
+                                <button class='btn btn-sm' style='padding:4px 6px; font-size:9px; background:#ff007f; border:none;' onclick="buyPowerUpItem('${id}', 'ad', 0)">🎬 Ads</button>
+                            </div>
+                        </div>`;
                 }
             } else if (currentShopTab === 'scenarios') {
                 for (const [id, item] of Object.entries(scenariosDB)) {
@@ -922,7 +954,32 @@
             }
         }
 
-        function buyPowerUpItem(id, cost) { trackMenuClicks(); if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if(id=='shield') shieldActive=true; buildShop(); updateHUD(); } else alert("Moedas insuficientes."); }
+        // CONTROLADOR ATUALIZADO PARA ATIVAR OS NOVOS PODERES DE FORMA IMEDIATA NA COMPRA/ANÚNCIO
+        function buyPowerUpItem(id, method, cost) {
+            trackMenuClicks();
+            if (method === 'coins') {
+                if (coins >= cost) {
+                    coins -= cost; safeSetStorage('coins', coins);
+                    activatePowerUpState(id);
+                } else {
+                    alert("Moedas insuficientes.");
+                }
+            } else {
+                triggerRewardedAdCall(() => {
+                    activatePowerUpState(id);
+                });
+            }
+        }
+
+        function activatePowerUpState(id) {
+            if (id === 'shield') { shieldActive = true; playSoundShield(); }
+            else if (id === 'magnet') { magnetActiveTimer = 550; playSoundShield(); }
+            else if (id === 'turbo') { turboActiveTimer = 350; playSoundShield(); }
+            else if (id === 'timeflow') { timeflowActiveTimer = 600; playSoundShield(); }
+            buildShop(); updateHUD();
+            triggerTruePayoutBalloonNotice(`✨ Upgrade ${id.toUpperCase()} ativado com sucesso!`);
+        }
+
         function purchaseSkinItem(id, type, cost) {
             trackMenuClicks();
             if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
@@ -965,12 +1022,20 @@
 
         function drawStarGeometry(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
-        const powerupsDB = { 'shield': { name: '🛡️ Escudo Extra', cost: 120 } };
-
         function playerJump() { if (!gameActive || isPaused) return; if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; playSoundJump(); } }
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
         
+        // INTERCEPTADOR CORRIGIDO COM TOUCHSTART INSTANTÂNEO (FIM DAS RECLAMAÇÕES DE TRAVAMENTO NO MOBILE)
+        window.addEventListener('touchstart', (e) => {
+            if (!gameActive && !initialScreenAdTriggered) {
+                initialScreenAdTriggered = true; callMonetagSmartlink();
+            }
+            if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) return;
+            playerJump();
+            e.preventDefault(); // Impede o delay nativo do navegador mobile
+        }, { passive: false });
+
         window.addEventListener('click', (e) => {
             if (!gameActive && !initialScreenAdTriggered) {
                 initialScreenAdTriggered = true; callMonetagSmartlink();
