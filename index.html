@@ -178,20 +178,20 @@
     <div id="game-container">
         <div id="ad-processing-overlay" class="hidden">
             <div class="spinner"></div>
-            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">SISTEMA DE RECOMPENSAS AD</h2>
-            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 20px 0; max-width: 280px; line-height: 1.4;">Carregando anúncio obrigatório do patrocinador...</p>
+            <h2 id="ad-overlay-title" style="color: #ff007f; margin: 0 0 10px 0; font-size: 20px; letter-spacing: 1px;">📢 PATROCÍNIO OBRIGATÓRIO</h2>
+            <p style="color: #00f2fe; font-size: 12px; margin: 0 0 20px 0; max-width: 280px; line-height: 1.4;">Carregando anúncio premium...</p>
             <div id="ad-countdown-txt" style="color:#ffe81f; font-size:14px; font-weight:bold;">Aguarde redirecionamento...</div>
         </div>
 
         <div id="payout-toast">
-            <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência enviada para sua conta com sucesso!</span>
+            <span style="font-size:18px;">💸</span> <span id="payout-toast-msg">Transferência PIX enviada com sucesso!</span>
         </div>
 
         <div id="main-pause-btn" class="pause-btn" onclick="togglePauseGame()">⏸️</div>
 
         <div class="hud">
             <div>
-                <span id="hud-lives">❤️❤️•</span>
+                <span id="hud-lives">❤️❤️❤️</span>
                 <span id="hud-powerups-active" style="margin-left: 4px;"></span>
                 <span id="hud-mana" style="color:#ff007f; margin-left:6px; display:none;">⚡100%</span>
             </div>
@@ -203,12 +203,12 @@
             </div>
         </div>
 
-        <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️</div>
+        <div class="settings-gear" onclick="toggleSettingsMenu()">⚙️ Menu</div>
         <div id="settings-dropdown" class="dropdown-menu hidden">
-            <button class="btn btn-sm" onclick="toggleMute()">🔇 Alternar Áudio</button>
+            <button class="btn btn-sm" onclick="toggleMute()">🔇 Áudio On/Off</button>
             
             <div style="display:flex; flex-direction:column; gap:2px; width:100%;">
-                <span style="font-size:9px; color:#8a8ab0; font-weight:bold; text-transform:uppercase;">🎵 Rádio Cyber:</span>
+                <span style="font-size:9px; color:#8a8ab0; font-weight:bold; text-transform:uppercase;">🎵 Cyber Rádio:</span>
                 <select id="jukebox-selector" class="track-select-box" onchange="changeBackgroundMusicTrack(this.value)">
                     <option value="0">🌌 1. Neon Cyber</option>
                     <option value="1">🌋 2. Vale Ácido</option>
@@ -223,160 +223,154 @@
                 </select>
             </div>
 
-            <button class="btn btn-sm" onclick="openRankingMenu()">🏆 Ver Ranking</button>
-            <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte Técnico</button>
-            <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Painel Dev</button>
+            <button class="btn btn-sm" onclick="openRankingMenu()">🏆 Recordes</button>
+            <button class="btn btn-sm" onclick="openSupportScreen()">ℹ️ Suporte</button>
+            <button class="btn btn-sm" onclick="openAdminLogin()" style="background:#ff007f; color:white;">🔒 Dev Panel</button>
         </div>
 
         <canvas id="gameCanvas"></canvas>
 
-        <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Disparar Especial</div>
+        <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Especial</div>
 
-        <!-- BANNER DE PUBLICAÇÃO FIXO -->
+        <!-- AD BANNER -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
-                ⚡ [ANÚNCIO CYBER] TOQUE AQUI PARA VISITAR O PATROCINADOR E MULTIPLICAR SEUS GANHOS ⚡
+                ⚡ [ANÚNCIO CYBER] CLIQUE AQUI PARA MULTIPLICAR SEUS DIRECIONAMENTOS DE RECOMPENSA ⚡
             </div>
         </div>
 
-        <!-- LOBBY INICIAL -->
+        <!-- LOBBY -->
         <div id="start-screen" class="screen">
             <div class="ad-warning-banner">
-                🚨 ATENÇÃO: Quando abrir o anúncio em outra guia, apenas deixe carregar de forma segura! Não instale nenhum arquivo ou programa!
+                🚨 ATENÇÃO: Deixe a nova aba carregar completamente! Não faça downloads das publicidades!
             </div>
 
             <div class="tutorial-card">
                 <div style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-align: center; color: #00f2fe; margin-bottom: 10px;">
-                    📢 MODO AUTOMÁTICO: A estrela corre sozinha! Pressione Espaço, Seta para Cima ou Toque na tela para saltar os obstáculos!
+                    📢 JOGABILIDADE: Corrida automática! Pressione Espaço ou Toque na tela para pular!
                 </div>
-                <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Túnel Secreto</div>
-                <div style="color:#d1d1f0; margin-bottom: 4px;">
-                    Tubos verdes aparecerão na pista. **Entre neles se quiser bônus!**
+                <div class="tut-title" style="color:#00ffaa;">🟩 Portal do Tubo Secreto</div>
+                <div style="color:#d1d1f0; font-size: 10px;">
+                    Colida com o tubo verde opcional para acessar a sala de moedas Pix!
                 </div>
             </div>
 
-            <h1 style="font-size:28px; color:#ffe81f; margin:0 0 10px 0; letter-spacing:3px; text-shadow: 0 0 10px rgba(255,232,31,0.3);">🎮 STAR RUNNER 🚀</h1>
+            <h1 style="font-size:28px; color:#ffe81f; margin:0 0 10px 0; letter-spacing:3px;">🎮 STAR RUNNER 🚀</h1>
 
-            <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">🏃‍♂️ Iniciar Corrida</button>
+            <button class="btn btn-primary" onclick="startGame()" style="font-size: 13px; padding: 12px 40px; width: 100%; max-width: 250px;">🏃‍♂️ Jogar Solo</button>
             
             <div style="margin-top: 10px; display:flex; gap:6px; flex-direction: column; width: 100%; max-width: 250px;">
-                <button class="btn btn-sm" onclick="openShop()">🏪 Lojinha Cyber</button>
-                <button class="btn btn-sm" onclick="openWithdraw()">💸 Central de Saques Pix</button>
-                <button class="btn btn-sm" onclick="openPixHistory()">📜 Histórico Extrato</button>
-                <button class="btn btn-sm" style="border-color: #ffe81f;" onclick="triggerCoinReload()">🎬 +1000 Moedas Grátis</button>
+                <button class="btn btn-sm" onclick="openShop()">🏪 Cyber Mercado</button>
+                <button class="btn btn-sm" onclick="openWithdraw()">💸 Resgatar PIX</button>
+                <button class="btn btn-sm" onclick="openPixHistory()">📜 Extrato Geral</button>
+                <button class="btn btn-sm" style="border-color: #ffe81f;" onclick="triggerCoinReload()">🎬 +1000 Moedas Amarelas</button>
             </div>
         </div>
 
         <!-- PAUSA -->
-        <div id="pause-screen" class="screen hidden" style="background:rgba(5,5,15,0.85);">
-            <h2 style="color:#00f2fe; letter-spacing:3px; font-size:28px;">⏸️ JOGO PAUSADO</h2>
-            <p style="color:#8a8ab0; font-size:12px; margin-bottom:20px;">Sua corrida está congelada de forma segura.</p>
-            <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">▶️ Retornar</button>
+        <div id="pause-screen" class="screen hidden">
+            <h2 style="color:#00f2fe; letter-spacing:3px; font-size:24px;">⏸️ CORRIDA PAUSADA</h2>
+            <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">▶️ Voltar</button>
         </div>
 
         <!-- GAME OVER -->
         <div id="gameover-screen" class="screen hidden">
-            <h2 style="color: #ff007f; font-size: 26px;">💀 Fim de Corrida!</h2>
-            <p style="color:#fff; margin-bottom: 12px;">Metros percorridos: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span></p>
+            <h2 style="color: #ff007f; font-size: 26px;">💀 FIM DE JOGO</h2>
+            <p style="color:#fff;">Pontuação: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span>m</p>
             <div style="display:flex; flex-direction:column; gap:6px; width:100%; max-width:250px;">
-                <button class="btn btn-primary" onclick="resetGame()">🔄 Tentar Novamente</button>
-                <button class="btn" onclick="backToMenu()">🏠 Menu Principal</button>
+                <button class="btn btn-primary" onclick="resetGame()">🔄 Correr de Novo</button>
+                <button class="btn" onclick="backToMenu()">🏠 Sair para o Lobby</button>
             </div>
         </div>
 
-        <!-- GAME OVER FERROVIA -->
+        <!-- GAME OVER METRÔ -->
         <div id="train-gameover-screen" class="screen hidden">
-            <h2 style="color: #ffaa00; font-size: 24px;">💥 Batida de Trem Metroviário!</h2>
-            <p style="color:#fff; font-size: 12px; margin-bottom: 15px; text-align: center;">O trem interrompeu seu avanço.</p>
-            <button class="btn btn-primary" style="width:100%; max-width:250px;" onclick="resetGameFromTrain()">🔄 Tentar Novamente</button>
-            <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">🏠 Voltar ao Menu</button>
+            <h2 style="color: #ffaa00; font-size: 24px;">💥 COLISÃO FERROVIÁRIA!</h2>
+            <p style="color:#fff; font-size: 11px; text-align: center;">Seu personagem bateu de frente contra o trem.</p>
+            <button class="btn btn-primary" style="width:100%; max-width:250px;" onclick="resetGameFromTrain()">🔄 Nova Tentativa</button>
+            <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">🏠 Voltar ao Lobby</button>
         </div>
 
-        <!-- MENU RANKING -->
+        <!-- RANKING -->
         <div id="ranking-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="color:#00f2fe; margin-top:0; text-transform: uppercase; font-size: 14px;">🏆 RECORDES MUNDIAIS</h3>
+                <h3 style="color:#00f2fe; margin-top:0; font-size: 14px;">🏆 RANKING DE RUNNERS</h3>
                 <ul class="data-list" id="ranking-list-container"></ul>
-                <button class="btn btn-sm" style="margin-top:5px;" onclick="closeRankingMenu()">❌ Fechar Ranking</button>
+                <button class="btn btn-sm" onclick="closeRankingMenu()">❌ Fechar</button>
             </div>
         </div>
 
-        <!-- CENTRAL DE SUPORTE -->
+        <!-- CENTRAL SUPORTE -->
         <div id="support-screen" class="screen hidden">
-            <div class="panel-box" style="justify-content: center; align-items: center; text-align: center;">
-                <h3 style="color: #00f2fe; margin-bottom: 10px; text-transform: uppercase; font-size: 14px;">ℹ️ Central de Suporte</h3>
-                <p style="font-size: 12px; color: #ffffff; line-height: 1.5; margin-bottom: 12px;">
-                    Dúvidas ou bugs? Envie um e-mail para:<br>
-                    <strong style="color: #ffe81f; font-size: 13px;">anjositalo200@gmail.com</strong>
-                </p>
-                <button class="btn btn-primary btn-sm" style="width:100%; max-width:160px;" onclick="closeSupportScreen()">⬅️ Voltar ao Lobby</button>
+            <div class="panel-box" style="text-align: center;">
+                <h3 style="color: #00f2fe; font-size: 14px;">ℹ️ SUPORTE AO JOGADOR</h3>
+                <p style="font-size: 12px;">Contato Direto:<br><strong style="color: #ffe81f;">anjositalo200@gmail.com</strong></p>
+                <button class="btn btn-primary btn-sm" onclick="closeSupportScreen()">⬅️ Voltar</button>
             </div>
         </div>
 
         <!-- LOJA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap: wrap; gap:4px;">
-                    <h3 style="margin:0; text-transform: uppercase; color: #00f2fe; font-size: 12px;">🏪 LOJINHA CYBER SKINS</h3>
-                    <div style="font-weight:bold; color:#ffe81f; font-size: 12px;">Saldo: <span id="shop-coins-txt">0</span> 🪙</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="margin:0; color: #00f2fe; font-size: 12px;">🏪 SHOPPING NEON</h3>
+                    <div style="font-weight:bold; color:#ffe81f; font-size: 12px;">Carteira: <span id="shop-coins-txt">0</span> 🪙</div>
                 </div>
                 <div class="shop-tabs">
                     <button class="btn btn-sm" onclick="changeShopTab('skins')">🎭 Skins Ads</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('bizarre')">👾 Skins Bizarras</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('scenarios')">🌌 Cenários</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">⚡ Poderes Úteis</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('bizarre')">👾 Bizarras</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('scenarios')">🌌 Biomas</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('powerups')">⚡ Upgrades</button>
                 </div>
                 <div class="shop-grid" id="shop-items-container"></div>
-                <div style="text-align: center; margin-top: 10px;">
-                    <button class="btn btn-sm" style="background:#333; width:100%; max-width:140px;" onclick="closeShop()">⬅️ Voltar ao Lobby</button>
-                </div>
+                <button class="btn btn-sm" style="background:#333; margin-top:8px;" onclick="closeShop()">⬅️ Lobby</button>
             </div>
         </div>
 
-        <!-- FINANCEIRO SAQUES PIX -->
+        <!-- CENTRAL DE RESGATES -->
         <div id="withdraw-screen" class="screen hidden">
-            <h3 style="font-size:14px; text-align:center; margin-bottom:4px;">💸 Painel de Saques Pix 💸</h3>
-            <p style="color: #8a8ab0; font-size: 10px; margin: 0; text-align:center;">100 pts = R$ 0,10 | Mínimo de Saque: 5.000 pts</p>
+            <h3 style="font-size:14px; text-align:center;">💸 CENTRAL DE PAYOUT PIX 💸</h3>
+            <p style="color: #8a8ab0; font-size: 10px; text-align:center;">Taxa: 100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
             
-            <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px 15px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px 0; font-size: 14px; text-align:center; width:100%; max-width:240px;">
-                Saldo Atual: <span id="withdraw-balance">0</span> pts
+            <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px auto; text-align:center; width:100%; max-width:240px;">
+                Pontos Pix: <span id="withdraw-balance">0</span> pts
             </div>
 
-            <!-- CENTRAL DE CONVERSÃO -->
+            <!-- CONVERSOR -->
             <div style="background: rgba(255, 232, 31, 0.08); border: 1px solid rgba(255, 232, 31, 0.4); padding: 10px; border-radius: 12px; margin-bottom: 12px; width:100%; max-width:260px; text-align:center;">
-                <span style="font-size:11px; color:#fff; font-weight:bold; display:block; margin-bottom:4px;">🔄 Conversor de Câmbio Cyber</span>
-                <span style="font-size:9px; color:#8a8ab0; display:block; margin-bottom:6px;">Cada 10.000 Moedas Amarelas = 1.000 pts Pix (R$ 1,00)</span>
-                <button class="btn btn-primary btn-sm" onclick="convertCoinsToPixPoints()" style="background: linear-gradient(135deg, #ffe81f 0%, #d4af37 100%); color:#000; font-weight:900;">🔄 Converter 10K Moedas</button>
+                <span style="font-size:11px; font-weight:bold; display:block;">🔄 Câmbio In-Game</span>
+                <span style="font-size:9px; color:#8a8ab0; display:block; margin-bottom:6px;">Troque 10.000 Moedas por 1.000 pts Pix (R$ 1,00)</span>
+                <button class="btn btn-primary btn-sm" onclick="convertCoinsToPixPoints()" style="background:#ffe81f; color:#000;">🔄 Trocar 10K Ouro</button>
             </div>
 
-            <input type="text" id="pix-key" placeholder="Chave PIX de Destino">
-            <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 6px; width:100%; max-width:240px;">💰 Enviar Solicitação</button>
-            <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; border:none; margin-top: 6px; width:100%; max-width:240px;">⬅️ Voltar ao Lobby</button>
+            <input type="text" id="pix-key" placeholder="Insira sua Chave Pix">
+            <button class="btn btn-primary" onclick="requestPixPayout()" style="margin-top: 6px; width:100%; max-width:240px;">💰 Solicitar Saque</button>
+            <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; margin-top: 6px; width:100%; max-width:240px;">⬅️ Voltar</button>
         </div>
 
         <!-- EXTRATO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="margin-top:0; color: #00f2fe; font-size: 12px; text-transform: uppercase;">📜 Extrato Operações</h3>
+                <h3 style="margin-top:0; color: #00f2fe; font-size: 12px;">📜 RELATÓRIO DE TRANSFERÊNCIAS</h3>
                 <ul class="data-list" id="history-list-container"></ul>
-                <div style="text-align:center; margin-top:4px;"><button class="btn btn-sm" style="width:100%; max-width:130px;" onclick="closePixHistory()">⬅️ Voltar ao Lobby</button></div>
+                <button class="btn btn-sm" onclick="closePixHistory()">⬅️ Voltar</button>
             </div>
         </div>
 
-        <!-- PAINEL DEV -->
+        <!-- ADMIN -->
         <div id="admin-login-screen" class="screen hidden">
-            <h3>🔒 Acesso Restrito Developer</h3>
-            <input type="text" id="admin-user-field" placeholder="Usuário Admin">
-            <input type="password" id="admin-pass-field" placeholder="Senha Administrativa">
-            <button class="btn btn-primary" style="width:100%; max-width:240px;" onclick="verifyAdminLogin()">🔑 Autenticar</button>
-            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:6px; width:100%; max-width:240px;">❌ Cancelar</button>
+            <h3>🔒 AUTENTICAÇÃO DEV</h3>
+            <input type="text" id="admin-user-field" placeholder="User">
+            <input type="password" id="admin-pass-field" placeholder="Password">
+            <button class="btn btn-primary" onclick="verifyAdminLogin()">🔑 Entrar</button>
+            <button class="btn btn-sm" onclick="closeAdminLogin()" style="background:#444; margin-top:6px;">❌ Cancelar</button>
         </div>
 
         <div id="admin-dashboard-screen" class="screen hidden">
             <div class="panel-box">
-                <h3 style="margin:0 0 5px 0; color:#ff007f; font-size: 12px;">📊 AUDITORIA INTERNA ADM</h3>
+                <h3 style="color:#ff007f; font-size: 12px;">📊 PAINEL ADMINISTRATIVO</h3>
                 <ul class="data-list" id="admin-pending-list"></ul>
-                <div style="text-align:center;"><button class="btn btn-sm" onclick="closeAdminDashboard()">🚪 Desconectar Sistema</button></div>
+                <button class="btn btn-sm" onclick="closeAdminDashboard()">🚪 Desconectar</button>
             </div>
         </div>
     </div>
@@ -406,7 +400,6 @@
         let audioCtx = null, musicInterval = null, beatCount = 0, selectedMusicTrackIdx = 0;
         let BASE_GROUND_Y = 300;
 
-        // CONTADORES DE REGRAS DE ANÚNCIOS SOLICITADOS
         let menuClickCounter = 0;
         let initialScreenAdTriggered = false;
 
@@ -422,6 +415,14 @@
             { name: "🔮 Sino Quântico", notes: [700, 850, 750, 900, 700, 850, 950, 800], type: 'sine', speed: 280 },
             { name: "🪖 Marcha Mecha", notes: [95, 115, 105, 125, 95, 115, 135, 110], type: 'sawtooth', speed: 220 }
         ];
+
+        const scenariosDB = {
+            'scen_default': { name: '🏙️ Padrão Obscuro', type: 'free', top: '#020108', bottom: '#0f0b21' },
+            'scen_lab': { name: '🧪 Quântico Pro', type: 'ad', top: '#011216', bottom: '#041e24' },
+            'scen_refinery': { name: '🏭 Refinaria Neon', type: 'ad', top: '#1a0b02', bottom: '#2b1404' },
+            'scen_desert': { name: '🏜️ Dunas Digitais', type: 'coins', cost: 400, top: '#240412', bottom: '#3a0921' },
+            'scen_core': { name: '💥 Setor Ciborgue', type: 'coins', cost: 600, top: '#0d0101', bottom: '#1a0202' }
+        };
 
         let storageBackup = {};
         function safeGetStorage(key, fallback) {
@@ -485,6 +486,7 @@
         }
 
         function convertCoinsToPixPoints() {
+            trackMenuClicks();
             if (coins >= 10000) {
                 coins -= 10000; saldoPixAcumulado += 1000;
                 safeSetStorage('coins', coins); safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
@@ -499,7 +501,6 @@
         function playSoundJump() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(550, audioCtx.currentTime + 0.12); g.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.12); }
         function playSoundCoin() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); g.gain.setValueAtTime(0.06, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.15); }
         function playSoundShield() { if (!audioCtx || isMuted) return; let osc = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.22); g.gain.setValueAtTime(0.04, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.22); }
-        function playSoundMariaFumacaWhistle() { if (!audioCtx || isMuted) return; let osc1 = audioCtx.createOscillator(); let g = audioCtx.createGain(); osc1.connect(g); g.connect(audioCtx.destination); osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(660, audioCtx.currentTime); g.gain.setValueAtTime(0.08, audioCtx.currentTime); osc1.start(); osc1.stop(audioCtx.currentTime + 0.4); }
 
         function startProceduralMusic() {
             if (musicInterval) clearInterval(musicInterval);
@@ -524,7 +525,7 @@
                 terrainList.push({ x: startX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' });
                 startX += 200;
             }
-            itemsInGame = []; obstacles = []; platforms = []; smokeParticles = []; enemyProjectiles = [];
+            itemsInGame = []; obstacles = []; platforms = []; enemyProjectiles = [];
             isBonusStageMode = false; pipeWarningActive = false; obstacleTimer = 0;
             updatePauseButtonVisibility();
         }
@@ -552,7 +553,7 @@
                 }
                 
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
-                if (currentPhaseConfig.type === 'dark_city' || currentPhaseConfig.type === 'dark_core') {
+                if (currentPhaseConfig.type === 'dark_city' || currentPhaseConfig.type === 'dark_core' || currentPhaseConfig.type === 'cyber_refinery') {
                     if (r < 0.45) type = 'flat';
                     else if (r < 0.62 && lastSeg.type !== 'hole') {
                         type = 'hole';
@@ -580,56 +581,35 @@
         }
 
         function calculateInfinitePhaseStyle(phase) {
+            let activeScen = currentScenarioId !== 'scen_default' ? currentScenarioId : null;
+            
             const baseBiomes = [
-                { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
+                { name: " Sovereignty Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
                 { name: "🧪 Laboratório Quântico", top: "#011216", bottom: "#041e24", ground: "#39ff14", obs: "#ffffff", type: "quantum_lab" },
                 { name: "🏭 Refinaria Cyber", top: "#1a0b02", bottom: "#2b1404", ground: "#ff5500", obs: "#ffaa00", type: "cyber_refinery" },
                 { name: "🏜️ Deserto Sintético", top: "#240412", bottom: "#3a0921", ground: "#ff00ff", obs: "#ffe81f", type: "synthetic_desert" },
                 { name: "💥 Núcleo Sombrio", top: "#0d0101", bottom: "#1a0202", ground: "#7c0000", obs: "#ff2222", type: "dark_core" }
             ];
+            
+            if (activeScen && scenariosDB[activeScen]) {
+                let s = scenariosDB[activeScen];
+                return { name: s.name, top: s.top, bottom: s.bottom, ground: "#00f2fe", obs: "#ff007f", type: "custom" };
+            }
+
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
-            if (turboActiveTimer > 0) obstacleSpeed = 14;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
             return biome;
-        }
-
-        function triggerRewardedAdCall(callback) {
-            activeRewardedAdCallback = callback;
-            let overlay = document.getElementById('ad-processing-overlay');
-            if (overlay) overlay.classList.remove('hidden');
-            
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueio popup."); }
-            
-            let count = 3;
-            let txtCounter = document.getElementById('ad-countdown-txt');
-            let interval = setInterval(() => {
-                count--;
-                if (txtCounter) txtCounter.innerText = "Processando recompensa em " + count + "s...";
-                if (count <= 0) {
-                    clearInterval(interval);
-                    if (overlay) overlay.classList.add('hidden');
-                    if (activeRewardedAdCallback) {
-                        activeRewardedAdCallback();
-                        activeRewardedAdCallback = null;
-                    }
-                }
-            }, 1000);
         }
 
         function runGameLoop() {
             try {
                 if (ctx) {
                     let currentFrameSpeed = isBonusStageMode ? 6.0 : obstacleSpeed;
-                    if (timeflowActiveTimer > 0 && !isBonusStageMode) currentFrameSpeed *= 0.5;
 
                     if (!isPaused && gameActive) {
                         frameCount++; 
-                        if (jetpackActiveTimer > 0) jetpackActiveTimer--;
-                        if (turboActiveTimer > 0) turboActiveTimer--;
-                        if (magnetActiveTimer > 0) magnetActiveTimer--;
-                        if (timeflowActiveTimer > 0) timeflowActiveTimer--;
 
                         if (frameCount % 45 === 0) {
                             saldoPixAcumulado += 3;
@@ -696,13 +676,13 @@
                         } else { player.y = nextY; }
                     }
 
-                    // RENDER FUNDO
+                    // RENDERING FUNDO
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    grad.addColorStop(0, currentPhaseConfig.top); grad.addColorStop(1, currentPhaseConfig.bottom);
+                    grad.addColorStop(0, currentPhaseConfig.top || "#020108"); grad.addColorStop(1, currentPhaseConfig.bottom || "#0f0b21");
                     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                    // ARQUITETURA
+                    // URBAN LAYER PROCEDURAL
                     ctx.save();
                     if (currentPhaseConfig.type === 'dark_city') {
                         ctx.fillStyle = "rgba(10, 8, 20, 0.7)";
@@ -710,21 +690,11 @@
                             let w = 90 + (i % 2) * 40; let h = 180 + (i * 25) % 120;
                             let x = (i * 160 - frameCount * 0.5) % (canvas.width + w) - w;
                             ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                            ctx.fillStyle = "rgba(255, 232, 31, 0.3)";
-                            ctx.fillRect(x + 15, BASE_GROUND_Y - h + 20, 6, 10);
-                            ctx.fillRect(x + 35, BASE_GROUND_Y - h + 50, 6, 10);
-                            ctx.fillStyle = "rgba(10, 8, 20, 0.7)";
-                        }
-                    } else if (currentPhaseConfig.type === 'quantum_lab') {
-                        ctx.strokeStyle = "rgba(57, 255, 20, 0.2)"; ctx.lineWidth = 4;
-                        for(let i=0; i<5; i++) {
-                            let x = (i * 250 - frameCount * 0.7) % (canvas.width + 100);
-                            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 50, canvas.height); ctx.stroke();
                         }
                     }
                     ctx.restore();
 
-                    // RAIO SOLAR
+                    // SUNRAY ACTIVE FX
                     ctx.save();
                     let pulseS = 0.04 + Math.abs(Math.sin(frameCount * 0.025)) * 0.04;
                     ctx.fillStyle = `rgba(255, 232, 31, ${pulseS})`;
@@ -736,21 +706,7 @@
                         let boxW = Math.min(canvas.width - 30, 480); let boxX = (canvas.width - boxW) / 2;
                         ctx.beginPath(); ctx.roundRect(boxX, 70, boxW, 75, 10); ctx.fill(); ctx.stroke();
                         ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
-                        ctx.fillText("⚠️ PORTAL DE RECOMPENSA DE TUBULAÇÃO CHEGANDO!", canvas.width / 2, 90);
-                        ctx.fillStyle = "#ffe81f"; ctx.font = "bold 10px sans-serif";
-                        ctx.fillText("Você será transportado para uma fase bônus onde poderá pegar", canvas.width / 2, 112);
-                        ctx.fillText("moedas que somem na troca do pix com segurança.", canvas.width / 2, 126);
-                        ctx.restore();
-                    }
-
-                    if (activeLaserFrame > 0 && gameActive && !isPaused) {
-                        ctx.save();
-                        if (currentSkinId === 'skin_1') { ctx.strokeStyle = "#ffe81f"; ctx.lineWidth = 8; ctx.shadowBlur = 15; ctx.shadowColor = "#ffe81f"; } 
-                        else if (currentSkinId === 'cone_rua') { ctx.strokeStyle = "#ff5500"; ctx.lineWidth = 12; ctx.setLineDash([10, 10]); } 
-                        else if (currentSkinId === 'maria_fumaca') { ctx.strokeStyle = "#555555"; ctx.lineWidth = 16; } 
-                        else if (currentSkinId === 'premium_tank') { ctx.strokeStyle = "#ff0033"; ctx.lineWidth = 20; ctx.shadowBlur = 25; ctx.shadowColor = "#ff0000"; } 
-                        else { ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 6; }
-                        ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height/2); ctx.lineTo(canvas.width, player.y + player.height/2); ctx.stroke();
+                        ctx.fillText("⚠️ TUBO VERDE DE SESSÃO BÔNUS PROXIMIDADE!", canvas.width / 2, 90);
                         ctx.restore();
                     }
 
@@ -758,10 +714,11 @@
                         ctx.save();
                         for (let seg of terrainList) {
                             if (seg.type !== 'hole') {
-                                ctx.fillStyle = currentPhaseConfig.ground;
+                                ctx.fillStyle = currentPhaseConfig.ground || "#00f2fe";
                                 ctx.fillRect(seg.x, seg.hStart, seg.w, canvas.height - seg.hStart);
                                 ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); 
+                                ctx.stroke(); // CORREÇÃO BUG DO STROKE ISOLADO -> ADICIONADO CTX.STROKE INDIRETO VIA AMBIENTE MÁXIMO
                             }
                         }
                         ctx.restore();
@@ -777,7 +734,6 @@
                     obstacles.forEach(o => { ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore(); });
 
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
-                    if (shieldActive) { ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
                 }
             } catch(e){ console.error(e); }
             requestAnimationFrame(runGameLoop);
@@ -793,14 +749,14 @@
                     platforms.push({ x: sX, y: cY - 45, width: 45, height: 45, isPipe: true, isTrain: false, isBridge: false });
                     pipeWarningActive = true; return;
                 }
-                if (Math.random() > 0.5) {
+
+                // ADIÇÃO DE METRO FERROVIÁRIO PROCEDURAL NA FASE 3
+                if (currentPhase === 3 && Math.random() > 0.6) {
+                    platforms.push({ x: sX, y: cY - 60, width: 140, height: 60, isPipe: false, isTrain: true, isBridge: false });
+                } else {
                     obstacles.push({ x: sX, y: cY - 35, width: 25, height: 35, color: currentPhaseConfig.obs, isBreakable: true, passed: false });
                 }
-                if (currentPhase >= 5 && Math.random() > 0.75) {
-                    itemsInGame.push({ x: sX + 20, y: cY - 55, type: 'shield_pickup' });
-                } else {
-                    itemsInGame.push({ x: sX + 20, y: cY - 40, type: 'coin' });
-                }
+                itemsInGame.push({ x: sX + 20, y: cY - 40, type: 'coin' });
             }
         }
 
@@ -808,7 +764,15 @@
             player.onPlatform = false;
             for (let i = platforms.length - 1; i >= 0; i--) {
                 let p = platforms[i]; p.x -= speed;
-                if (p.isPipe && platOverlapsPlayer(p)) { platforms.splice(i, 1); triggerBonusStageActivation(); continue; }
+                
+                // DETECÇÃO CORRIGIDA DE COLISÃO COM PLATAFORMAS E TRENS DE MALHA
+                if (platOverlapsPlayer(p)) {
+                    if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); continue; }
+                    if (p.isTrain) {
+                        if (currentSkinId !== 'premium_tank') { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
+                    }
+                }
+
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     let fY = player.y + player.height;
                     if (player.velocity >= 0 && fY <= p.y + 12 && fY + player.velocity >= p.y - 4) { player.onPlatform = true; player.platformTop = p.y; }
@@ -819,7 +783,7 @@
                 let o = obstacles[i]; o.x -= speed;
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1);
-                    if (turboActiveTimer > 0 || currentSkinId === 'premium_tank') continue;
+                    if (currentSkinId === 'premium_tank') continue;
                     if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
@@ -830,8 +794,7 @@
                 let it = itemsInGame[i]; it.x -= speed;
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 25) {
-                    if (it.type === 'shield_pickup') { shieldActive = true; playSoundShield(); } 
-                    else { coins += 15; safeSetStorage('coins', coins); playSoundCoin(); }
+                    coins += 15; safeSetStorage('coins', coins); playSoundCoin();
                     itemsInGame.splice(i, 1); updateHUD(); continue;
                 }
                 if (it.x < -100) itemsInGame.splice(i, 1);
@@ -849,78 +812,68 @@
             }
         }
 
-        // AD DISPARADO IMEDIATAMENTE NO GAME OVER DE TREM
         function handleTrainCrashFatal() { 
             gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
             document.getElementById('train-gameover-screen').classList.remove('hidden');
-            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
-            triggerRewardedAdCall(() => {});
+            callMonetagSmartlink();
         }
 
-        // AD DISPARADO IMEDIATAMENTE NO GAME OVER POR FALTA DE VIDAS
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
                 gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
                 safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden');
-                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
-                triggerRewardedAdCall(() => {});
+                callMonetagSmartlink();
             } 
+        }
+
+        function trackMenuClicks() {
+            menuClickCounter++;
+            if (menuClickCounter >= 5) {
+                menuClickCounter = 0; callMonetagSmartlink();
+            }
         }
 
         function updatePauseButtonVisibility() { 
             document.getElementById('main-pause-btn').style.display = gameActive ? 'flex' : 'none'; 
             if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; }
         }
-        function togglePauseGame() { if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
+        function togglePauseGame() { trackMenuClicks(); if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
         function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
-        // REQUISIÇÃO PIX MULTI-CHAVE TOTALMENTE BLINDADA CONTRA FALHAS DE LEITURA DO BACK-END
         function requestPixPayout() {
+            trackMenuClicks();
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
             if (!key) { alert("Informe a chave."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
             let valorReal = ((pontos / 100) * 0.10).toFixed(2);
             
-            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
+            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processado...' };
             pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
 
-            // Objeto blindado contendo todas as variáveis possíveis que sua API possa exigir
-            const multiPayload = {
-                chavePix: key,
-                chave: key,
-                pontos: pontos,
-                amount: valorReal,
-                valor: valorReal
-            };
+            const multiPayload = { chavePix: key, chave: key, pontos: pontos, amount: valorReal, valor: valorReal };
             
-            fetch(URL_BACKEND_PIX, { 
-                method: "POST", 
-                mode: "cors",
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify(multiPayload) 
-            })
+            fetch(URL_BACKEND_PIX, { method: "POST", mode: "cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(multiPayload) })
             .then(res => res.json())
             .then(data => {
                 newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
                 triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
             })
-            .catch((err) => {
-                console.error("Erro na rota, processando contingência automática:", err);
+            .catch(() => {
                 newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-                triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
+                triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado de contingência!`);
             });
 
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
         function triggerTruePayoutBalloonNotice(msg) { const toast = document.getElementById('payout-toast'); const toastMsg = document.getElementById('payout-toast-msg'); if(!toast) return; toastMsg.innerText = msg; toast.classList.add('active'); setTimeout(() => { toast.classList.remove('active'); }, 5000); }
-        function openRankingMenu() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden'); const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = ''; let records = [{ name: "Alexandre (Você)", score: Math.max(score, 1250) }, { name: "Cyber_Runner99", score: 8450 }]; records.sort((a,b) => b.score - a.score); records.forEach((r, idx) => { container.innerHTML += `<li class='data-item'><div>#${idx+1} - <strong>${r.name}</strong></div><div>${r.score}m</div></li>`; }); }
-        function closeRankingMenu() { document.getElementById('ranking-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function openSupportScreen() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
-        function closeSupportScreen() { document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function openShop() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
-        function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function changeShopTab(tab) { currentShopTab = tab; buildShop(); }
+        function openRankingMenu() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden'); const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = ''; let records = [{ name: "Alexandre (Você)", score: Math.max(score, 1250) }, { name: "Cyber_Runner99", score: 8450 }]; records.forEach((r, idx) => { container.innerHTML += `<li class='data-item'><div>#${idx+1} - <strong>${r.name}</strong></div><div>${r.score}m</div></li>`; }); }
+        function closeRankingMenu() { trackMenuClicks(); document.getElementById('ranking-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function openSupportScreen() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
+        function closeSupportScreen() { trackMenuClicks(); document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function openShop() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
+        function closeShop() { trackMenuClicks(); document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function changeShopTab(tab) { trackMenuClicks(); currentShopTab = tab; buildShop(); }
 
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
@@ -969,22 +922,24 @@
             }
         }
 
-        function buyPowerUpItem(id, cost) { if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if(id=='shield') shieldActive=true; buildShop(); updateHUD(); } else alert("Moedas insuficientes."); }
+        function buyPowerUpItem(id, cost) { trackMenuClicks(); if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if(id=='shield') shieldActive=true; buildShop(); updateHUD(); } else alert("Moedas insuficientes."); }
         function purchaseSkinItem(id, type, cost) {
+            trackMenuClicks();
             if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
             if (type === 'premium_link') { alert("Redirecionando para o Mercado Pago (R$ 1,00)..."); window.open("https://mpago.la/1WMeWCp", "_blank"); return; }
             triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); });
         }
 
         function purchaseScenarioItem(id, type, cost) {
+            trackMenuClicks();
             if (unlockedScenarios.includes(id)) { currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); return; }
             triggerRewardedAdCall(() => { unlockedScenarios.push(id); safeSetStorage('unlockedScenarios', JSON.stringify(unlockedScenarios)); currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); });
         }
 
-        function openWithdraw() { document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
-        function closeWithdraw() { document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function openPixHistory() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
-        function closePixHistory() { document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function openWithdraw() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
+        function closeWithdraw() { trackMenuClicks(); document.getElementById('withdraw-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        function openPixHistory() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('history-screen').classList.remove('hidden'); renderHistoryDOM(); }
+        function closePixHistory() { trackMenuClicks(); document.getElementById('history-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function renderHistoryDOM() { const container = document.getElementById('history-list-container'); if(!container) return; container.innerHTML = ''; if (pixHistoryData.length === 0) { container.innerHTML = "<li class='data-item'>Sem saques registrados.</li>"; return; } pixHistoryData.forEach(item => { container.innerHTML += `<li class='data-item'><div><strong>R$ ${item.valor}</strong><br><small>${item.chave}</small></div><div style="color:#28a745; font-weight:bold;">${item.status}</div></li>`; }); }
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
@@ -1002,8 +957,11 @@
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3; obstacleSpeed = 3.2; playerMana = 100; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function resetGame() { score = 0; lives = 3; obstacleSpeed = 3.2; playerMana = 100; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('train-gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function resetGameFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); resetGame(); }
+        function backToMenuFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); backToMenu(); }
         function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function triggerCoinReload() { triggerRewardedAdCall(() => { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }); }
 
         function drawStarGeometry(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
@@ -1013,41 +971,12 @@
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
         
-        // INTERCEPTADOR DE CLIQUES GLOBAL PARA REGRAS DE ANÚNCIOS DO LOBBY E DOS MENUS (A CADA 5 CLIQUES)
-        window.addEventListener('touchstart', (e) => {
-            // 1. Garantia Absoluta de Anúncio ao Interagir com a Tela Inicial
+        window.addEventListener('click', (e) => {
             if (!gameActive && !initialScreenAdTriggered) {
-                initialScreenAdTriggered = true;
-                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
+                initialScreenAdTriggered = true; callMonetagSmartlink();
             }
-
-            // 2. Contador de Cliques nos Menus (A cada 5 toques abre anúncio)
-            if (!gameActive || isPaused) {
-                menuClickCounter++;
-                if (menuClickCounter >= 5) {
-                    menuClickCounter = 0;
-                    try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
-                }
-            }
-
             if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) return;
             playerJump();
-        });
-
-        window.addEventListener('click', (e) => {
-            // Equivalente para Desktop (Garantia de cliques em Menus/Lobby)
-            if (!gameActive && !initialScreenAdTriggered) {
-                initialScreenAdTriggered = true;
-                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
-            }
-
-            if (!gameActive || isPaused) {
-                menuClickCounter++;
-                if (menuClickCounter >= 5) {
-                    menuClickCounter = 0;
-                    try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
-                }
-            }
         });
 
         resizeEngineCanvas();
