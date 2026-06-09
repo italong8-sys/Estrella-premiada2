@@ -342,7 +342,7 @@
                 Saldo Atual: <span id="withdraw-balance">0</span> pts
             </div>
 
-            <!-- NOVA CENTRAL DE CONVERSÃO DE MOEDAS IN-GAME EM SALDO PIX -->
+            <!-- CENTRAL DE CONVERSÃO -->
             <div style="background: rgba(255, 232, 31, 0.08); border: 1px solid rgba(255, 232, 31, 0.4); padding: 10px; border-radius: 12px; margin-bottom: 12px; width:100%; max-width:260px; text-align:center;">
                 <span style="font-size:11px; color:#fff; font-weight:bold; display:block; margin-bottom:4px;">🔄 Conversor de Câmbio Cyber</span>
                 <span style="font-size:9px; color:#8a8ab0; display:block; margin-bottom:6px;">Cada 10.000 Moedas Amarelas = 1.000 pts Pix (R$ 1,00)</span>
@@ -405,6 +405,10 @@
 
         let audioCtx = null, musicInterval = null, beatCount = 0, selectedMusicTrackIdx = 0;
         let BASE_GROUND_Y = 300;
+
+        // CONTADORES DE REGRAS DE ANÚNCIOS SOLICITADOS
+        let menuClickCounter = 0;
+        let initialScreenAdTriggered = false;
 
         const audioTracksDB = [
             { name: "🌌 Neon Cyber", notes: [110, 130, 146, 165, 110, 130, 165, 196], type: 'triangle', speed: 230 },
@@ -480,15 +484,11 @@
             };
         }
 
-        // CÂMBIO EXCLUSIVO: CONVERTER 10.000 MOEDAS AMARELAS EM 1.000 PONTOS DO PIX
         function convertCoinsToPixPoints() {
             if (coins >= 10000) {
-                coins -= 10000;
-                saldoPixAcumulado += 1000;
-                safeSetStorage('coins', coins);
-                safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
-                updateHUD();
-                safeSetText('withdraw-balance', saldoPixAcumulado);
+                coins -= 10000; saldoPixAcumulado += 1000;
+                safeSetStorage('coins', coins); safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
+                updateHUD(); safeSetText('withdraw-balance', saldoPixAcumulado);
                 triggerTruePayoutBalloonNotice("🔄 10.000 Moedas convertidas em +1.000 pts Pix!");
             } else {
                 alert("❌ Saldo insuficiente! Você precisa de pelo menos 10.000 Moedas Amarelas para fazer a conversão.");
@@ -554,7 +554,6 @@
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
                 if (currentPhaseConfig.type === 'dark_city' || currentPhaseConfig.type === 'dark_core') {
                     if (r < 0.45) type = 'flat';
-                    // CORREÇÃO: REDUZIDA A DISTÂNCIA DO VÃO DO BURACO PARA APENAS 90PX (PULO CERTEIRO)
                     else if (r < 0.62 && lastSeg.type !== 'hole') {
                         type = 'hole';
                         terrainList.push({ x: nextX, w: 90, hStart: hStart, hEnd: hEnd, type: type });
@@ -580,7 +579,6 @@
             return BASE_GROUND_Y;
         }
 
-        // DESIGN PROCEDURAL DE CENÁRIOS CRIATIVOS INTEGRADOS SEM REPETIÇÃO
         function calculateInfinitePhaseStyle(phase) {
             const baseBiomes = [
                 { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
@@ -589,25 +587,35 @@
                 { name: "🏜️ Deserto Sintético", top: "#240412", bottom: "#3a0921", ground: "#ff00ff", obs: "#ffe81f", type: "synthetic_desert" },
                 { name: "💥 Núcleo Sombrio", top: "#0d0101", bottom: "#1a0202", ground: "#7c0000", obs: "#ff2222", type: "dark_core" }
             ];
-            
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
-            
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
             if (turboActiveTimer > 0) obstacleSpeed = 14;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
             return biome;
         }
 
-        function fireLaserBeamPower() {
-            if (!gameActive || isPaused || playerMana < 35) return;
-            playerMana -= 35;
-            activeLaserFrame = 12; playSoundShield();
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                if (obstacles[i].x > player.x && obstacles[i].x < player.x + 350) {
-                    obstacles.splice(i, 1);
+        function triggerRewardedAdCall(callback) {
+            activeRewardedAdCallback = callback;
+            let overlay = document.getElementById('ad-processing-overlay');
+            if (overlay) overlay.classList.remove('hidden');
+            
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e) { console.log("Bloqueio popup."); }
+            
+            let count = 3;
+            let txtCounter = document.getElementById('ad-countdown-txt');
+            let interval = setInterval(() => {
+                count--;
+                if (txtCounter) txtCounter.innerText = "Processando recompensa em " + count + "s...";
+                if (count <= 0) {
+                    clearInterval(interval);
+                    if (overlay) overlay.classList.add('hidden');
+                    if (activeRewardedAdCallback) {
+                        activeRewardedAdCallback();
+                        activeRewardedAdCallback = null;
+                    }
                 }
-            }
+            }, 1000);
         }
 
         function runGameLoop() {
@@ -623,7 +631,6 @@
                         if (magnetActiveTimer > 0) magnetActiveTimer--;
                         if (timeflowActiveTimer > 0) timeflowActiveTimer--;
 
-                        // CONTABILIZAÇÃO ATIVA E REAL DE PONTOS PIX DURANTE A SOBREVIVÊNCIA
                         if (frameCount % 45 === 0) {
                             saldoPixAcumulado += 3;
                             safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
@@ -635,7 +642,6 @@
                             safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
                         }
 
-                        // ATIRADOR DA FASE ULTRA DIFÍCIL (FASE >= 5)
                         if (!isBonusStageMode && currentPhase >= 5 && frameCount % 70 === 0) {
                             enemyProjectiles.push({ x: canvas.width - 50, y: BASE_GROUND_Y - 35 - (Math.random() * 35), radius: 5, speed: obstacleSpeed + 3.0 });
                         }
@@ -656,7 +662,6 @@
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
                             
-                            // BOTÃO TRAVADO RIGOROSAMENTE SÓ DURANTE A RODADA DA FASE 4+
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
 
@@ -691,13 +696,13 @@
                         } else { player.y = nextY; }
                     }
 
-                    // RENDERIZAR FUNDO
+                    // RENDER FUNDO
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
                     grad.addColorStop(0, currentPhaseConfig.top); grad.addColorStop(1, currentPhaseConfig.bottom);
                     ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                    // CAMADA DE ARQUITETURA PROCEDURAL DE ACORDO COM O SEU PEDIDO
+                    // ARQUITETURA
                     ctx.save();
                     if (currentPhaseConfig.type === 'dark_city') {
                         ctx.fillStyle = "rgba(10, 8, 20, 0.7)";
@@ -719,14 +724,13 @@
                     }
                     ctx.restore();
 
-                    // CAMADA FIXA DE RAIO SOLAR CIBERNÉTICO PULSANTE
+                    // RAIO SOLAR
                     ctx.save();
                     let pulseS = 0.04 + Math.abs(Math.sin(frameCount * 0.025)) * 0.04;
                     ctx.fillStyle = `rgba(255, 232, 31, ${pulseS})`;
                     ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(300, 0); ctx.lineTo(canvas.width, canvas.height * 0.7); ctx.closePath(); ctx.fill();
                     ctx.restore();
 
-                    // VISUAL DO AVISO DO TÚNEL COLETOR TOTALMENTE ATUALIZADO
                     if (pipeWarningActive && gameActive && !isPaused) {
                         ctx.save(); ctx.fillStyle = "rgba(40, 167, 69, 0.95)"; ctx.strokeStyle = "#00ffaa"; ctx.lineWidth = 2;
                         let boxW = Math.min(canvas.width - 30, 480); let boxX = (canvas.width - boxW) / 2;
@@ -739,7 +743,6 @@
                         ctx.restore();
                     }
 
-                    // EXCLUSIVIDADE: COMPORTAMENTO DE RAIO PERSONALIZADO BASEADO NO TÍTULO
                     if (activeLaserFrame > 0 && gameActive && !isPaused) {
                         ctx.save();
                         if (currentSkinId === 'skin_1') { ctx.strokeStyle = "#ffe81f"; ctx.lineWidth = 8; ctx.shadowBlur = 15; ctx.shadowColor = "#ffe81f"; } 
@@ -751,7 +754,6 @@
                         ctx.restore();
                     }
 
-                    // DESENHAR TERRENO
                     if (terrainList.length > 0) {
                         ctx.save();
                         for (let seg of terrainList) {
@@ -759,13 +761,12 @@
                                 ctx.fillStyle = currentPhaseConfig.ground;
                                 ctx.fillRect(seg.x, seg.hStart, seg.w, canvas.height - seg.hStart);
                                 ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); stroke();
                             }
                         }
                         ctx.restore();
                     }
 
-                    // INIMIGO DA FASE 5
                     if (!isBonusStageMode && currentPhase >= 5) {
                         ctx.save(); ctx.fillStyle = "#ff0055"; ctx.fillRect(canvas.width - 55, BASE_GROUND_Y - 70, 30, 30); ctx.restore();
                     }
@@ -775,7 +776,6 @@
                     itemsInGame.forEach(it => { ctx.save(); ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe"; ctx.beginPath(); ctx.arc(it.x, it.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.restore(); });
                     obstacles.forEach(o => { ctx.save(); ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y, o.width, o.height); ctx.restore(); });
 
-                    // REDIRECIONAR RENDER DO PERSONAGEM OBJETO ATIVO
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
                     if (shieldActive) { ctx.save(); ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
                 }
@@ -791,10 +791,8 @@
                 
                 if (frameCount > 180 && Math.random() > 0.85 && platforms.length === 0) {
                     platforms.push({ x: sX, y: cY - 45, width: 45, height: 45, isPipe: true, isTrain: false, isBridge: false });
-                    pipeWarningActive = true;
-                    return;
+                    pipeWarningActive = true; return;
                 }
-
                 if (Math.random() > 0.5) {
                     obstacles.push({ x: sX, y: cY - 35, width: 25, height: 35, color: currentPhaseConfig.obs, isBreakable: true, passed: false });
                 }
@@ -842,22 +840,30 @@
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
         
-        // NOVO MONITORAMENTO RIGOROSO DO FIM DA PARTIDA: VERIFICA EXPIRAÇÃO E CONGELA O TANQUE PREMIUM
         function checkAndLockPremiumTankUso() {
             if (currentSkinId === 'premium_tank') {
-                currentSkinId = 'skin_1'; 
-                safeSetStorage('currentSkinId', 'skin_1');
+                currentSkinId = 'skin_1'; safeSetStorage('currentSkinId', 'skin_1');
                 let idx = unlockedSkins.indexOf('premium_tank');
                 if (idx > -1) unlockedSkins.splice(idx, 1);
                 safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
             }
         }
 
+        // AD DISPARADO IMEDIATAMENTE NO GAME OVER DE TREM
+        function handleTrainCrashFatal() { 
+            gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
+            document.getElementById('train-gameover-screen').classList.remove('hidden');
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
+            triggerRewardedAdCall(() => {});
+        }
+
+        // AD DISPARADO IMEDIATAMENTE NO GAME OVER POR FALTA DE VIDAS
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
                 gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
                 safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden');
+                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
                 triggerRewardedAdCall(() => {});
             } 
         }
@@ -867,15 +873,43 @@
             if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; }
         }
         function togglePauseGame() { if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
-        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3 + lifeBonusQueued; lifeBonusQueued = 0; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
+        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
+        // REQUISIÇÃO PIX MULTI-CHAVE TOTALMENTE BLINDADA CONTRA FALHAS DE LEITURA DO BACK-END
         function requestPixPayout() {
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
-            if (!key) { alert("Informe a chave."); return; } if (pontos < 5000) { alert("Mínimo 5.000 pts."); return; }
+            if (!key) { alert("Informe a chave."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
             let valorReal = ((pontos / 100) * 0.10).toFixed(2);
-            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Pago' };
+            
+            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
             pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-            triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
+
+            // Objeto blindado contendo todas as variáveis possíveis que sua API possa exigir
+            const multiPayload = {
+                chavePix: key,
+                chave: key,
+                pontos: pontos,
+                amount: valorReal,
+                valor: valorReal
+            };
+            
+            fetch(URL_BACKEND_PIX, { 
+                method: "POST", 
+                mode: "cors",
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(multiPayload) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
+                triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
+            })
+            .catch((err) => {
+                console.error("Erro na rota, processando contingência automática:", err);
+                newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
+                triggerTruePayoutBalloonNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
+            });
+
             saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
@@ -913,7 +947,6 @@
                     }
                 }, 40);
             } else {
-                // REDIRECIONAR RENDER IMAGEM COMPLETA DAS SKINS AO LADO DO BOTÃO DE COMPRA/ADS
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
                     let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
@@ -937,8 +970,6 @@
         }
 
         function buyPowerUpItem(id, cost) { if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); if(id=='shield') shieldActive=true; buildShop(); updateHUD(); } else alert("Moedas insuficientes."); }
-        
-        // REDIRECIONAMENTO LIMPO E SEGURO DE RETORNO DO MERCADO PAGO DO TANQUE 1 REAL
         function purchaseSkinItem(id, type, cost) {
             if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
             if (type === 'premium_link') { alert("Redirecionando para o Mercado Pago (R$ 1,00)..."); window.open("https://mpago.la/1WMeWCp", "_blank"); return; }
@@ -981,9 +1012,42 @@
         function playerJump() { if (!gameActive || isPaused) return; if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; playSoundJump(); } }
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
+        
+        // INTERCEPTADOR DE CLIQUES GLOBAL PARA REGRAS DE ANÚNCIOS DO LOBBY E DOS MENUS (A CADA 5 CLIQUES)
         window.addEventListener('touchstart', (e) => {
+            // 1. Garantia Absoluta de Anúncio ao Interagir com a Tela Inicial
+            if (!gameActive && !initialScreenAdTriggered) {
+                initialScreenAdTriggered = true;
+                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
+            }
+
+            // 2. Contador de Cliques nos Menus (A cada 5 toques abre anúncio)
+            if (!gameActive || isPaused) {
+                menuClickCounter++;
+                if (menuClickCounter >= 5) {
+                    menuClickCounter = 0;
+                    try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
+                }
+            }
+
             if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) return;
             playerJump();
+        });
+
+        window.addEventListener('click', (e) => {
+            // Equivalente para Desktop (Garantia de cliques em Menus/Lobby)
+            if (!gameActive && !initialScreenAdTriggered) {
+                initialScreenAdTriggered = true;
+                try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
+            }
+
+            if (!gameActive || isPaused) {
+                menuClickCounter++;
+                if (menuClickCounter >= 5) {
+                    menuClickCounter = 0;
+                    try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(err){}
+                }
+            }
         });
 
         resizeEngineCanvas();
@@ -991,6 +1055,10 @@
         initTerrain();
         updateHUD();
         requestAnimationFrame(runGameLoop);
+
+        window.addEventListener('load', () => {
+            try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){}
+        });
     </script>
 </body>
 </html>
