@@ -11,7 +11,7 @@ app.use(express.json());
 // =========================================================================
 // CONFIGURAÇÃO DE CREDENCIAIS (Substitua com o seu Token de Produção Real)
 // =========================================================================
-const GATEWAY_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || "SEU_ACCESS_TOKEN_REAL_AQUI";
+const GATEWAY_ACCESS_TOKEN = MP_ACCESS_TOKEN || "APP_USR-7218605027356877-060621-5159232083e305465b657a62c03ffe40-163518318;"
 
 app.post('/api/saque-pix', async (req, res) => {
     try {
