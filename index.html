@@ -131,7 +131,8 @@
             border: 1px solid rgba(255,255,255,0.1); 
         }
 
-        .data-list { width: 100%; max-height: 140px; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
+        /* DATA LIST UPGRADADA COM SUPORTE DINÂMICO A SCROLLBARS */
+        .data-list { width: 100%; flex-grow: 1; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
         #ad-processing-overlay {
@@ -408,7 +409,7 @@
         };
 
         const powerupsDB = { 
-            'shield': { name: '🛡️ Escudo Protetor', cost: 120 },
+            'shield': { name: '🛡️ Escudo Protectoor', cost: 120 },
             'magnet': { name: '🧲 Ímã Magnético', cost: 180 },
             'turbo': { name: '🚀 Hiper Turbo Nitro', cost: 250 },
             'timeflow': { name: '⏳ Distorção Temporal', cost: 150 }
@@ -642,7 +643,6 @@
             }, 1000);
         }
 
-        // FUNÇÃO LÓGICA DO PODER ESPECIAL ADICIONADA E INTEGRADA COMPLEMENTARMENTE
         function fireLaserBeamPower() {
             if (!gameActive || isPaused) return;
             if (playerMana >= 40) {
@@ -782,19 +782,11 @@
 
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
                     
-                    // RENDERIZAÇÃO EM TEMPO REAL DO FEIXE DE LASER NA TELA
                     if (activeLaserFrame > 0) {
                         activeLaserFrame--;
-                        ctx.save();
-                        ctx.strokeStyle = "#ff007f";
-                        ctx.lineWidth = 14;
-                        ctx.shadowBlur = 22;
-                        ctx.shadowColor = "#ff007f";
-                        ctx.beginPath();
-                        ctx.moveTo(player.x + player.width, player.y + player.height / 2);
-                        ctx.lineTo(canvas.width, player.y + player.height / 2);
-                        ctx.stroke();
-                        ctx.restore();
+                        ctx.save(); ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 14; ctx.shadowBlur = 22; ctx.shadowColor = "#ff007f";
+                        ctx.beginPath(); ctx.moveTo(player.x + player.width, player.y + player.height / 2);
+                        ctx.lineTo(canvas.width, player.y + player.height / 2); ctx.stroke(); ctx.restore();
                     }
 
                     if (shieldActive || turboActiveTimer > 0) {
@@ -878,8 +870,7 @@
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 32) {
                     if (it.type === 'special_coin') {
-                        saldoPixAcumulado += 500;
-                        safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
+                        saldoPixAcumulado += 500; safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
                         playSoundCoin(); itemsInGame.splice(i, 1); updateHUD();
                         triggerTruePayoutPayoutNotice("💎 Moeda Especial +500 pts Pix!");
                         callMonetagSmartlink(); continue;
@@ -924,11 +915,13 @@
             }
         }
 
+        document.getElementById('history-screen').addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+
         function updatePauseButtonVisibility() { 
             document.getElementById('main-pause-btn').style.display = gameActive ? 'flex' : 'none'; 
             if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; }
         }
-        function togglePauseGame() { trackMenuClicks(); if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').classList.toggle('hidden'); }
+        function togglePauseGame() { trackMenuClicks(); if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').toggle('hidden'); }
         function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = (currentSkinId==='airplane') ? BASE_GROUND_Y - 140 : BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
         function requestPixPayout() {
@@ -1116,17 +1109,23 @@
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
         
+        // INTERCEPTADOR CORRIGIDO E AMPLIADO: FILTRA SE O JOGO NÃO ESTÁ ATIVO PARA DEVOLVER O SCROLL DOS MENUS
         window.addEventListener('touchstart', (e) => {
-            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input');
+            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input') || e.target.closest('.screen');
             if (!gameActive && !initialScreenAdTriggered && !isControl) { initialScreenAdTriggered = true; callMonetagSmartlink(); }
-            if (isControl) return; 
-            playerJump(); e.preventDefault(); 
+            
+            // Se for um controle ou o jogo não estiver rodando (Menus abertos), retorna e NÃO dá preventDefault!
+            if (isControl || !gameActive) return; 
+            
+            playerJump(); 
+            e.preventDefault(); 
         }, { passive: false });
 
         window.addEventListener('click', (e) => {
-            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input');
+            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input') || e.target.closest('.screen');
             if (!gameActive && !initialScreenAdTriggered && !isControl) { initialScreenAdTriggered = true; callMonetagSmartlink(); }
-            if (isControl) return; 
+            if (isControl || !gameActive) return; 
+            
             playerJump();
         });
 
