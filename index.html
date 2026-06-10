@@ -193,7 +193,7 @@
             <div>
                 <span id="hud-lives">❤️❤️❤️</span>
                 <span id="hud-powerups-active" style="margin-left: 4px;"></span>
-                <span id="hud-mana" style="color:#ff007f; margin-left:6px; display:none;">⚡100%</span>
+                <span id="hud-mana" style="color:#ff007f; margin-left:6px; display:none;">⚡ Energia: 100%</span>
             </div>
             <div class="hud-group">
                 <div id="hud-phase-txt" style="color: #00f2fe">🏁 Fase: 1</div>
@@ -215,11 +215,6 @@
                     <option value="2">🟢 3. Código Matrix</option>
                     <option value="3">🌴 4. Retrowave Glide</option>
                     <option value="4">⚡ 5. Corrida Hiper</option>
-                    <option value="5">🛸 6. Drone Espacial</option>
-                    <option value="6">👾 7. Glitch Core</option>
-                    <option value="7">🚂 8. Heavy Steam</option>
-                    <option value="8">🔮 9. Sino Quântico</option>
-                    <option value="9">🪖 10. Marcha Mecha</option>
                 </select>
             </div>
 
@@ -232,14 +227,12 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Especial</div>
 
-        <!-- AD BANNER -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
                 ⚡ [ANÚNCIO CYBER] CLIQUE AQUI PARA MULTIPLICAR SEUS DIRECIONAMENTOS DE RECOMPENSA ⚡
             </div>
         </div>
 
-        <!-- LOBBY -->
         <div id="start-screen" class="screen">
             <div class="ad-warning-banner">
                 🚨 ATENÇÃO: Deixe a nova aba carregar completamente! Não faça downloads das publicidades!
@@ -267,13 +260,11 @@
             </div>
         </div>
 
-        <!-- PAUSA -->
         <div id="pause-screen" class="screen hidden">
             <h2 style="color:#00f2fe; letter-spacing:3px; font-size:24px;">⏸️ CORRIDA PAUSADA</h2>
             <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">▶️ Voltar</button>
         </div>
 
-        <!-- GAME OVER -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 26px;">💀 FIM DE JOGO</h2>
             <p style="color:#fff;">Pontuação: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span>m</p>
@@ -283,7 +274,6 @@
             </div>
         </div>
 
-        <!-- GAME OVER METRÔ -->
         <div id="train-gameover-screen" class="screen hidden">
             <h2 style="color: #ffaa00; font-size: 24px;">💥 COLISÃO FERROVIÁRIA!</h2>
             <p style="color:#fff; font-size: 11px; text-align: center;">Seu personagem bateu de frente contra o trem.</p>
@@ -291,7 +281,6 @@
             <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">🏠 Voltar ao Lobby</button>
         </div>
 
-        <!-- RANKING -->
         <div id="ranking-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="color:#00f2fe; margin-top:0; font-size: 14px;">🏆 RANKING DE RUNNERS</h3>
@@ -300,7 +289,6 @@
             </div>
         </div>
 
-        <!-- CENTRAL SUPORTE -->
         <div id="support-screen" class="screen hidden">
             <div class="panel-box" style="text-align: center;">
                 <h3 style="color: #00f2fe; font-size: 14px;">ℹ️ SUPORTE AO JOGADOR</h3>
@@ -309,7 +297,6 @@
             </div>
         </div>
 
-        <!-- LOJA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -327,7 +314,6 @@
             </div>
         </div>
 
-        <!-- CENTRAL DE RESGATES -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center;">💸 CENTRAL DE PAYOUT PIX 💸</h3>
             <p style="color: #8a8ab0; font-size: 10px; text-align:center;">Taxa: 100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
@@ -336,7 +322,6 @@
                 Pontos Pix: <span id="withdraw-balance">0</span> pts
             </div>
 
-            <!-- CONVERSOR -->
             <div style="background: rgba(255, 232, 31, 0.08); border: 1px solid rgba(255, 232, 31, 0.4); padding: 10px; border-radius: 12px; margin-bottom: 12px; width:100%; max-width:260px; text-align:center;">
                 <span style="font-size:11px; font-weight:bold; display:block;">🔄 Câmbio In-Game</span>
                 <span style="font-size:9px; color:#8a8ab0; display:block; margin-bottom:6px;">Troque 10.000 Moedas por 1.000 pts Pix (R$ 1,00)</span>
@@ -348,7 +333,6 @@
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; margin-top: 6px; width:100%; max-width:240px;">⬅️ Voltar</button>
         </div>
 
-        <!-- EXTRATO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 12px;">📜 RELATÓRIO DE TRANSFERÊNCIAS</h3>
@@ -357,7 +341,6 @@
             </div>
         </div>
 
-        <!-- ADMIN -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>🔒 AUTENTICAÇÃO DEV</h3>
             <input type="text" id="admin-user-field" placeholder="User">
@@ -397,6 +380,9 @@
         let playerMana = 100, activeLaserFrame = 0;
         let isBonusStageMode = false, bonusStageTimer = 0, preBonusPhaseConfig = null, pipeWarningActive = false;
 
+        let audioCtx = null, musicInterval = null, beatCount = 0, selectedMusicTrackIdx = 0;
+        let BASE_GROUND_Y = 300;
+
         let menuClickCounter = 0;
         let initialScreenAdTriggered = false;
         let activeRewardedAdCallback = null;
@@ -405,7 +391,6 @@
 
         let currentPhaseConfig = { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" };
 
-        // CONFIGURAÇÃO MUSICAL COMPACTA, VICIANTE, AGRADÁVEL E RETRO-CYBER DESAFIADORA
         const audioTracksDB = [
             { name: "🌌 Neon Cyber", notes: [146, 165, 196, 220, 293, 329, 392, 440], type: 'triangle', speed: 170 },
             { name: "🌋 Vale Ácido", notes: [75, 85, 95, 65, 75, 85, 110, 90], type: 'sawtooth', speed: 170 },
@@ -476,7 +461,6 @@
         skinsDB['skin_1'] = { name: '⭐ Estrela Guia', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { drawStarGeometry(g, cx, cy, 5, r, r/2, '#ffe81f'); } };
         skinsDB['cone_rua'] = { name: '⬡ Cone de Trânsito', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { g.save(); g.fillStyle = "#111111"; g.fillRect(cx - r, cy + r * 0.5, r * 2, r * 0.4); g.fillStyle = "#ff5500"; g.beginPath(); g.moveTo(cx, cy - r); g.lineTo(cx + r * 0.7, cy + r * 0.5); g.lineTo(cx - r * 0.7, cy + r * 0.5); g.closePath(); g.fill(); g.fillStyle = "#ffffff"; g.fillRect(cx - r * 0.3, cy - r * 0.1, r * 0.6, r * 0.25); g.restore(); } };
         
-        // MARIA FUMAÇA REENGENHARIZADA COM SISTEMA ATIVO DE EXPULSÃO DE PARTÍCULAS DE FUMAÇA
         skinsDB['maria_fumaca'] = { name: '🚂 Maria Fumaça', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { 
             g.save(); 
             g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1); 
@@ -628,7 +612,6 @@
             let index = (phase - 1) % baseBiomes.length;
             let biome = Object.assign({}, baseBiomes[index]);
             
-            // BLINDAGEM DE ACELERAÇÃO E CONSTÂNCIA DE PODERES MULTI-FASE
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
             if (currentSkinId === 'airplane') { obstacleSpeed += 2.8; }
             if (turboActiveTimer > 0) obstacleSpeed = 15;
@@ -659,6 +642,29 @@
             }, 1000);
         }
 
+        // FUNÇÃO LÓGICA DO PODER ESPECIAL ADICIONADA E INTEGRADA COMPLEMENTARMENTE
+        function fireLaserBeamPower() {
+            if (!gameActive || isPaused) return;
+            if (playerMana >= 40) {
+                playerMana -= 40;
+                safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
+                activeLaserFrame = 25; 
+                obstacles = []; 
+                if (audioCtx && !isMuted) {
+                    try {
+                        let osc = audioCtx.createOscillator(); let g = audioCtx.createGain();
+                        osc.connect(g); g.connect(audioCtx.destination);
+                        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(550, audioCtx.currentTime);
+                        osc.frequency.linearRampToValueAtTime(120, audioCtx.currentTime + 0.3);
+                        g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                    } catch(e){}
+                }
+            } else {
+                alert("⚡ Energia Insuficiente! Aguarde o preenchimento automático.");
+            }
+        }
+
         function runGameLoop() {
             try {
                 if (ctx) {
@@ -681,8 +687,6 @@
                             playerMana = Math.min(100, playerMana + 1);
                             safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
                         }
-
-                        // PERSONAGEM ATIRADOR E MÍSSEIS COMPLETAMENTE REMOVIDOS DE TODAS AS FASES DO FLUXO REQUISITADO
 
                         if (!isBonusStageMode) {
                             score++; 
@@ -762,7 +766,6 @@
 
                     platforms.forEach(p => { ctx.save(); ctx.fillStyle = p.isPipe ? "#28a745" : "#111126"; ctx.fillRect(p.x, p.y, p.width, p.height); ctx.restore(); });
                     
-                    // RENDERIZADOR DIVERSIFICADO PARA MOEDAS NORMAIS E A MOEDA PIX ESPECIAL 500
                     itemsInGame.forEach(it => { 
                         ctx.save(); 
                         if(it.type === 'special_coin') {
@@ -779,6 +782,21 @@
 
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
                     
+                    // RENDERIZAÇÃO EM TEMPO REAL DO FEIXE DE LASER NA TELA
+                    if (activeLaserFrame > 0) {
+                        activeLaserFrame--;
+                        ctx.save();
+                        ctx.strokeStyle = "#ff007f";
+                        ctx.lineWidth = 14;
+                        ctx.shadowBlur = 22;
+                        ctx.shadowColor = "#ff007f";
+                        ctx.beginPath();
+                        ctx.moveTo(player.x + player.width, player.y + player.height / 2);
+                        ctx.lineTo(canvas.width, player.y + player.height / 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+
                     if (shieldActive || turboActiveTimer > 0) {
                         ctx.save(); ctx.strokeStyle = turboActiveTimer > 0 ? "#ff007f" : "#00f2fe"; ctx.lineWidth = 3;
                         ctx.beginPath(); ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI*2); ctx.stroke(); ctx.restore();
@@ -789,7 +807,6 @@
         }
 
         function updateSpawningEngine() {
-            // SPAWN PERIÓDICO DO DESAFIO DA ESCADA MECÂNICA DE ESCALADA
             if (frameCount % 450 === 0 && !isBonusStageMode) {
                 let sX = canvas.width + 30;
                 let cY = getGroundYAt(sX); if (cY > canvas.height) cY = BASE_GROUND_Y;
@@ -860,7 +877,6 @@
 
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 32) {
-                    // COLETA EXCLUSIVA DA MOEDA PIX ESPECIAL (+500 PONTOS + AD INJECTOR)
                     if (it.type === 'special_coin') {
                         saldoPixAcumulado += 500;
                         safeSetStorage('saldoPixAcumulado', saldoPixAcumulado);
