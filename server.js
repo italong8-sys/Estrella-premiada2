@@ -11,7 +11,21 @@ app.use(express.json());
 // =========================================================================
 // CONFIGURAÇÃO DE CREDENCIAIS (Substitua com o seu Token de Produção Real)
 // =========================================================================
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN }); || "APP_USR-7218605027356877-060621-5159232083e305465b657a62c03ffe40-163518318;"
+// LINHA 1 CORRIGIDA: Agora puxa corretamente do process.env
+const GATEWAY_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || "APP_USR-7218605027356877-060621-5159232083e305465b657a62c03ffe40-163518318";
+
+// LINHA 2 CORRIGIDA: O fallback "||" agora está no lugar certo, dentro da configuração do token
+const client = new MercadoPagoConfig({ 
+    accessToken: process.env.MP_ACCESS_TOKEN || "APP_USR-7218605027356877-060621-5159232083e305465b657a62c03ffe40-163518318" 
+});
+
+// O restante das suas rotas continua igual...
+app.post('/api/saque-pix', async (req, res) => {
+    try {
+        let tipoChave = "evp";
+        const chaveLimpa = chavePix.trim();
+        // Dentro da rota você pode usar diretamente a constante global 'client' que criamos lá em cima
+
 
 app.post('/api/saque-pix', async (req, res) => {
     try {
