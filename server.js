@@ -34,6 +34,8 @@ app.post('/api/saque-pix', async (req, res) => {
         // 3. Detecção Inteligente do Tipo de Chave Pix para a API do Banco
         let tipoChave = "evp"; // Fallback para chave aleatória
         const chaveLimpa = chavePix.trim();
+        const client = new MercadoPagoConfig({ accessToken: process.env.GATEWAY_ACCESS_TOKEN });
+        
 
         if (chaveLimpa.includes("@")) {
             tipoChave = "email";
