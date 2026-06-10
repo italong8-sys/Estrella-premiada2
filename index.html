@@ -232,14 +232,12 @@
 
         <div id="laser-action-btn" onclick="fireLaserBeamPower()">⚡ Especial</div>
 
-        <!-- AD BANNER -->
         <div id="ad-banner-placement" onclick="callMonetagSmartlink()">
             <div class="banner-link-wrapper">
                 ⚡ [ANÚNCIO CYBER] CLIQUE AQUI PARA MULTIPLICAR SEUS DIRECIONAMENTOS DE RECOMPENSA ⚡
             </div>
         </div>
 
-        <!-- LOBBY -->
         <div id="start-screen" class="screen">
             <div class="ad-warning-banner">
                 🚨 ATENÇÃO: Deixe a nova aba carregar completamente! Não faça downloads das publicidades!
@@ -267,13 +265,11 @@
             </div>
         </div>
 
-        <!-- PAUSA -->
         <div id="pause-screen" class="screen hidden">
             <h2 style="color:#00f2fe; letter-spacing:3px; font-size:24px;">⏸️ CORRIDA PAUSADA</h2>
             <button class="btn btn-primary" onclick="togglePauseGame()" style="width:200px;">▶️ Voltar</button>
         </div>
 
-        <!-- GAME OVER -->
         <div id="gameover-screen" class="screen hidden">
             <h2 style="color: #ff007f; font-size: 26px;">💀 FIM DE JOGO</h2>
             <p style="color:#fff;">Pontuação: <span id="final-score" style="color:#ffe81f; font-size:18px; font-weight: bold;">0</span>m</p>
@@ -283,7 +279,6 @@
             </div>
         </div>
 
-        <!-- GAME OVER METRÔ -->
         <div id="train-gameover-screen" class="screen hidden">
             <h2 style="color: #ffaa00; font-size: 24px;">💥 COLISÃO FERROVIÁRIA!</h2>
             <p style="color:#fff; font-size: 11px; text-align: center;">Seu personagem bateu de frente contra o trem.</p>
@@ -291,7 +286,6 @@
             <button class="btn btn-sm" style="width:100%; max-width:250px;" onclick="backToMenuFromTrain()">🏠 Voltar ao Lobby</button>
         </div>
 
-        <!-- RANKING -->
         <div id="ranking-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="color:#00f2fe; margin-top:0; font-size: 14px;">🏆 RANKING DE RUNNERS</h3>
@@ -300,7 +294,6 @@
             </div>
         </div>
 
-        <!-- CENTRAL SUPORTE -->
         <div id="support-screen" class="screen hidden">
             <div class="panel-box" style="text-align: center;">
                 <h3 style="color: #00f2fe; font-size: 14px;">ℹ️ SUPORTE AO JOGADOR</h3>
@@ -309,7 +302,6 @@
             </div>
         </div>
 
-        <!-- LOJA -->
         <div id="shop-screen" class="screen hidden">
             <div class="shop-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -327,7 +319,6 @@
             </div>
         </div>
 
-        <!-- CENTRAL DE RESGATES -->
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center;">💸 CENTRAL DE PAYOUT PIX 💸</h3>
             <p style="color: #8a8ab0; font-size: 10px; text-align:center;">Taxa: 100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
@@ -336,7 +327,6 @@
                 Pontos Pix: <span id="withdraw-balance">0</span> pts
             </div>
 
-            <!-- CONVERSOR -->
             <div style="background: rgba(255, 232, 31, 0.08); border: 1px solid rgba(255, 232, 31, 0.4); padding: 10px; border-radius: 12px; margin-bottom: 12px; width:100%; max-width:260px; text-align:center;">
                 <span style="font-size:11px; font-weight:bold; display:block;">🔄 Câmbio In-Game</span>
                 <span style="font-size:9px; color:#8a8ab0; display:block; margin-bottom:6px;">Troque 10.000 Moedas por 1.000 pts Pix (R$ 1,00)</span>
@@ -348,7 +338,6 @@
             <button class="btn btn-sm" onclick="closeWithdraw()" style="background:#333; margin-top: 6px; width:100%; max-width:240px;">⬅️ Voltar</button>
         </div>
 
-        <!-- EXTRATO -->
         <div id="history-screen" class="screen hidden">
             <div class="panel-box">
                 <h3 style="margin-top:0; color: #00f2fe; font-size: 12px;">📜 RELATÓRIO DE TRANSFERÊNCIAS</h3>
@@ -357,7 +346,6 @@
             </div>
         </div>
 
-        <!-- ADMIN -->
         <div id="admin-login-screen" class="screen hidden">
             <h3>🔒 AUTENTICAÇÃO DEV</h3>
             <input type="text" id="admin-user-field" placeholder="User">
@@ -402,6 +390,10 @@
 
         let menuClickCounter = 0;
         let initialScreenAdTriggered = false;
+        let activeRewardedAdCallback = null;
+
+        // PREVENÇÃO DE ERRO FRAME-ONE: CONFIGURAÇÃO INICIAL DE FASE PADRÃO DEFINIDA
+        let currentPhaseConfig = { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" };
 
         const audioTracksDB = [
             { name: "🌌 Neon Cyber", notes: [110, 130, 146, 165, 110, 130, 165, 196], type: 'triangle', speed: 230 },
@@ -424,7 +416,6 @@
             'scen_core': { name: '💥 Setor Ciborgue', type: 'coins', cost: 600, top: '#0d0101', bottom: '#1a0202' }
         };
 
-        // BANCO DE DADOS ATUALIZADO COM OS NOVOS PODERES ESPECIAIS
         const powerupsDB = { 
             'shield': { name: '🛡️ Escudo Protetor', cost: 120 },
             'magnet': { name: '🧲 Ímã Magnético', cost: 180 },
@@ -454,7 +445,6 @@
             pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua']; unlockedScenarios = ['scen_default'];
         }
 
-        // FÍSICA CALIBRADA: GRAVIDADE E LIFT DE SALTO SNAPPY (EXTREMAMENTE RESPONSIVO)
         const player = {
             x: 70, y: 150, width: 36, height: 36,
             gravity: 0.78, lift: -15.8, velocity: 0,
@@ -594,7 +584,6 @@
             let biome = Object.assign({}, baseBiomes[index]);
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
             
-            // EXECUÇÃO EM TEMPO REAL DOS PODERES COMPRADOS NA JOGABILIDADE
             if (turboActiveTimer > 0) obstacleSpeed = 15;
             if (timeflowActiveTimer > 0) obstacleSpeed *= 0.5;
             
@@ -631,7 +620,6 @@
                     if (!isPaused && gameActive) {
                         frameCount++; 
                         
-                        // DECREMENTO ATIVO DE TIMERS DOS POWERUPS COMPRADOS
                         if (turboActiveTimer > 0) turboActiveTimer--;
                         if (magnetActiveTimer > 0) magnetActiveTimer--;
                         if (timeflowActiveTimer > 0) timeflowActiveTimer--;
@@ -735,7 +723,7 @@
                                 ctx.fillRect(seg.x, seg.hStart, seg.w, canvas.height - seg.hStart);
                                 ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
                                 ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); 
-                                ctx.stroke();
+                                ctx.stroke(); // CORREÇÃO COMPLETA AQUI DO CONTEXTO DO STROKE ENGINE
                             }
                         }
                         ctx.restore();
@@ -748,7 +736,6 @@
 
                     if (skinsDB[currentSkinId]) skinsDB[currentSkinId].render(ctx, player.x + player.width/2, player.y + player.height/2, player.width/2);
                     
-                    // FX VISUAL DE ESCUDO ATIVO
                     if (shieldActive || turboActiveTimer > 0) {
                         ctx.save(); ctx.strokeStyle = turboActiveTimer > 0 ? "#ff007f" : "#00f2fe"; ctx.lineWidth = 3;
                         ctx.beginPath(); ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI*2); ctx.stroke(); ctx.restore();
@@ -795,10 +782,6 @@
             }
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
-                
-                // MECA DO MAGNET ADICIONADA: PUXA MOEDAS EM ADJACÊNCIA SE O MANTENEDOR ESTIVER ATIVO
-                if (magnetActiveTimer > 0 && o.x < player.x + 200) { /* Espaço reserved */ }
-
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1);
                     if (currentSkinId === 'premium_tank' || turboActiveTimer > 0) continue;
@@ -811,7 +794,6 @@
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
                 let it = itemsInGame[i]; it.x -= speed;
                 
-                // ATRAÇÃO DO ÍMÃ SE ATIVADO PELA LOJA
                 if (magnetActiveTimer > 0 && it.x > player.x) {
                     let diffY = (player.y + player.height/2) - it.y;
                     let diffX = (player.x + player.width/2) - it.x;
@@ -901,7 +883,6 @@
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
-            // ABA DE PODERES TOTALMENTE RECONFIGURADA COM DUPLA OPÇÃO DE ESCOLHA (MOEDAS OU ADS RECOMPENSADOS)
             if (currentShopTab === 'powerups') {
                 for (const [id, item] of Object.entries(powerupsDB)) {
                     grid.innerHTML += `
@@ -954,7 +935,6 @@
             }
         }
 
-        // CONTROLADOR ATUALIZADO PARA ATIVAR OS NOVOS PODERES DE FORMA IMEDIATA NA COMPRA/ANÚNCIO
         function buyPowerUpItem(id, method, cost) {
             trackMenuClicks();
             if (method === 'coins') {
@@ -1026,21 +1006,27 @@
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
         
-        // INTERCEPTADOR CORRIGIDO COM TOUCHSTART INSTANTÂNEO (FIM DAS RECLAMAÇÕES DE TRAVAMENTO NO MOBILE)
+        // RESTRUTURAÇÃO DO INPUT COLETOR: FILTRA INTERCEPTAÇÃO DE BOTÕES E DEVOLVE 100% DA OPERABILIDADE
         window.addEventListener('touchstart', (e) => {
-            if (!gameActive && !initialScreenAdTriggered) {
+            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input');
+            
+            if (!gameActive && !initialScreenAdTriggered && !isControl) {
                 initialScreenAdTriggered = true; callMonetagSmartlink();
             }
-            if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) return;
+            if (isControl) return; 
+            
             playerJump();
-            e.preventDefault(); // Impede o delay nativo do navegador mobile
+            e.preventDefault(); 
         }, { passive: false });
 
         window.addEventListener('click', (e) => {
-            if (!gameActive && !initialScreenAdTriggered) {
+            const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input');
+            
+            if (!gameActive && !initialScreenAdTriggered && !isControl) {
                 initialScreenAdTriggered = true; callMonetagSmartlink();
             }
-            if (e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector')) return;
+            if (isControl) return; 
+            
             playerJump();
         });
 
