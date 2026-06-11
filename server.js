@@ -13,17 +13,8 @@ app.use(express.json());
 // =========================================================================
 const GATEWAY_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || "APP_USR-7218605027356877-060621-5159232083e305465b657a62c03ffe40-163518318";
 
-// Inicialização segura para evitar erros de inicialização caso o SDK 'mercadopago' não esteja instalado
-let client = null;
-try {
-    const { MercadoPagoConfig } = require('mercadopago');
-    client = new MercadoPagoConfig({ accessToken: GATEWAY_ACCESS_TOKEN });
-} catch (e) {
-    console.log("[INFO] SDK oficial não importado. O sistema usará o motor HTTP Axios nativo com sucesso.");
-}
-
 // =========================================================================
-// ROTA DE SAQUE PIX (UNIFICADA E 100% BLINDADA)
+// ROTA DE SAQUE PIX - FORMATO REAL DE TRANSFERÊNCIA (BUSINESS-PAYOUTS)
 // =========================================================================
 app.post('/api/saque-pix', async (req, res) => {
     try {
@@ -39,46 +30,40 @@ app.post('/api/saque-pix', async (req, res) => {
             return res.status(400).json({ success: false, error: "O saque mínimo exigido é de 5.000 pontos." });
         }
 
-        // 2. Cálculo Blindado no Back-end (Evita modificações maliciosas no navegador)
+        // 2. Cálculo Blindado no Back-end (Evita modificações manuais no navegador do cliente)
         // Regra de Conversão: 100 pontos = R$ 0,10 (Ou seja, pontos * 0.001)
         const valorReal = parseFloat((Number(pontos) * 0.001).toFixed(2));
 
-        // 3. Detecção Inteligente do Tipo de Chave Pix para a API do Banco
-        let tipoChave = "evp"; // Fallback para chave aleatória
-        const chaveLimpa = chavePix.trim();
+        // 3. Detecção Inteligente e Higienização do Tipo de Chave Pix
+        let tipoChave = "evp"; // Chave aleatória (EVP) por padrão
+        let chaveDestino = chavePix.trim();
 
-        if (chaveLimpa.includes("@")) {
+        if (chaveDestino.includes("@")) {
             tipoChave = "email";
-        } else if (/^\d{11}$/.test(chaveLimpa.replace(/\D/g, ""))) {
+        } else if (/^\d{11}$/.test(chaveDestino.replace(/\D/g, ""))) {
             tipoChave = "cpf";
-        } else if (/^\d{14}$/.test(chaveLimpa.replace(/\D/g, ""))) {
+            chaveDestino = chaveDestino.replace(/\D/g, ""); // Remove pontos e traços exigidos pelo banco
+        } else if (/^\d{14}$/.test(chaveDestino.replace(/\D/g, ""))) {
             tipoChave = "cnpj";
-        } else if (/^\+?\d{10,13}$/.test(chaveLimpa.replace(/\D/g, ""))) {
-            tipoChave = "phone";
+            chaveDestino = chaveDestino.replace(/\D/g, ""); // Remove formatação de CNPJ
+        } else if (/^\+?\d{10,13}$/.test(chaveDestino.replace(/\D/g, ""))) {
+            tipoChave = "phone"; // Número de telefone
         }
 
-        // 4. Integração Direta com a API de Payments do Mercado Pago via Axios
-        const response = await axios.post('https://api.mercadopago.com/v1/payments', {
-            transaction_amount: valorReal,
-            description: "Resgate de Recompensa Automática - Star Runner Game",
-            payment_method_id: "pix",
-            payer: {
-                email: tipoChave === "email" ? chaveLimpa : "pagamentos_runner@seu-dominio.com",
-                identification: {
-                    type: "CPF",
-                    number: tipoChave === "cpf" ? chaveLimpa.replace(/\D/g, "") : "00000000000"
-                }
+        // 4. Integração Real com o Endpoint de Payout (Envio/Transferência de Saldo)
+        const response = await axios.post('https://api.mercadopago.com/v1/business-payouts', {
+            payout_method_id: "pix",
+            amount: valorReal,
+            payout_info: {
+                type: tipoChave,
+                account_id: chaveDestino
             },
-            metadata: {
-                chave_pix_destino: chaveLimpa,
-                tipo_chave: tipoChave,
-                pontos_convertidos: pontos
-            }
+            description: "Resgate de Recompensa Automática - Star Runner Game"
         }, {
             headers: {
                 'Authorization': `Bearer ${GATEWAY_ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
-                'X-Idempotency-Key': `saque_pix_${Date.now()}_${Math.floor(Math.random() * 1000)}` // Evita saques duplicados se clicar duas vezes rápido
+                'X-Idempotency-Key': `saque_pix_${Date.now()}_${Math.floor(Math.random() * 1000)}` // Chave anti-duplicação de transações
             }
         });
 
@@ -86,22 +71,22 @@ app.post('/api/saque-pix', async (req, res) => {
         if (response.status === 201 || response.status === 200) {
             return res.status(200).json({ 
                 success: true, 
-                message: "Pix enviado e liquidado com sucesso na conta do usuário!" 
+                message: "Pix enviado e transferido com sucesso para a conta do usuário!" 
             });
         } else {
             return res.status(500).json({ 
                 success: false, 
-                error: "O banco parceiro recusou a transação." 
+                error: "O gateway recusou o processamento da transferência." 
             });
         }
 
     } catch (error) {
-        console.error("Erro crítico no processamento do Pix Out:", error.response ? error.response.data : error.message);
+        console.error("Erro crítico no processamento do Payout:", error.response ? error.response.data : error.message);
         
-        // Captura a resposta de erro real enviada pelo gateway de pagamento
+        // Captura a mensagem de rejeição real vinda de dentro do Mercado Pago (ex: saldo insuficiente)
         const mensagemErro = error.response && error.response.data && error.response.data.message 
             ? error.response.data.message 
-            : "Falha interna de comunicação com a API de pagamentos.";
+            : "Falha interna ao tentar processar o envio do Pix.";
 
         return res.status(500).json({ 
             success: false, 
@@ -110,8 +95,8 @@ app.post('/api/saque-pix', async (req, res) => {
     }
 });
 
-// Inicialização do Servidor na porta correta exigida pelo ambiente do Render
+// Inicialização do Servidor na porta padrão do Render
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`[SERVER OK] Motor Pix de Produção rodando perfeitamente na porta ${PORT}`);
+    console.log(`[SERVER OK] Motor Pix de Payout rodando perfeitamente na porta ${PORT}`);
 });
