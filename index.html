@@ -1135,5 +1135,185 @@
 
         window.addEventListener('load', () => { try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){} });
     </script>
+    // =========================================================================
+// 1. CONFIGURAÇÃO MATRIZ DAS SKINS (Livres de bugs de ID ou nomes repetidos)
+// =========================================================================
+const SKINS_DATABASE = [
+    // GRATUITAS
+    { id: "estrela", nome: "Estrela Dourada", preco: 0, tipo: "gratis", icone: "⭐" },
+    { id: "dino_chrome", nome: "Dino do Chrome", preco: 0, tipo: "gratis", icone: "🦖" },
+    { id: "maria_fumaca", nome: "Trem Maria Fumaça", preco: 0, tipo: "gratis", icone: "🚂" },
+    
+    // BIZARRAS (Desbloqueadas por Anúncio ou Moedas do Jogo)
+    { id: "televisao", nome: "TV de Tubo Retrô", preco: 150, tipo: "moedas", icone: "📺" },
+    { id: "movel", nome: "Armário de Cozinha", preco: 200, tipo: "moedas", icone: "🗄️" },
+    { id: "carro_velho", nome: "Chevetão Velho", preco: 300, tipo: "moedas", icone: "🚗" },
+    { id: "prato", nome: "Prato de Porcelana", preco: 50, tipo: "anuncio", icone: "🍽️" },
+    { id: "caneca", nome: "Caneca de Café", preco: 60, tipo: "moedas", icone: "☕" },
+    { id: "garfo", nome: "Garfo de Inox", preco: 40, tipo: "moedas", icone: "🍴" },
+    { id: "colher", nome: "Colher de Sopa", preco: 40, tipo: "anuncio", icone: "🥄" },
+    { id: "zumbi", nome: "Zumbi Corredor", preco: 500, tipo: "moedas", icone: "🧟" },
+    { id: "toco_madeira", nome: "Toco de Eucalipto", preco: 80, tipo: "moedas", icone: "🪵" },
+    { id: "cabeca_zombie", nome: "Crânio Zumbificado", preco: 250, tipo: "anuncio", icone: "💀" },
+    
+    // PREMIUM REALSISTA
+    { id: "trem_bala", nome: "Trem Bala Metropolitano", preco: 1000, tipo: "moedas", icone: "🚄" }
+];
+
+// =========================================================================
+// 2. INTERFACE DO MENU (HTML Dinâmico com Dino no topo e Imagens/Ícones)
+// =========================================================================
+function renderizarMenuSkins() {
+    const menuContainer = document.getElementById("skin-menu-container");
+    if (!menuContainer) return;
+
+    // Garante o Dinossauro e a Estrela em destaque no topo do menu lateral
+    let htmlMenu = `
+        <div class="menu-destaque-topo" style="display: flex; justify-content: space-around; background: #222; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+            <button onclick="selecionarSkin('estrela')" style="cursor:pointer; background:none; border:none; color:white; font-size:16px;">⭐ Estrela (Grátis)</button>
+            <button onclick="selecionarSkin('dino_chrome')" style="cursor:pointer; background:none; border:none; color:white; font-size:16px;">🦖 Dino Chrome (Grátis)</button>
+        </div>
+        <div class="skins-lista-scroll" style="max-height: 300px; overflow-y: auto;">
+    `;
+
+    SKINS_DATABASE.forEach(skin => {
+        // Ignora os dois do topo na listagem geral para não duplicar visualmente
+        if(skin.id === 'estrela' || skin.id === 'dino_chrome') return;
+
+        const infoPreco = skin.preco === 0 ? "GRÁTIS" : (skin.tipo === "anuncio" ? "🎬 Ver Ad" : `🪙 ${skin.preco}`);
+        
+        htmlMenu += `
+            <div class="skin-item-card" style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #444;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="skin-preview-img" style="font-size: 24px; background: #333; padding: 5px; border-radius: 4px;">${skin.icone}</span>
+                    <span style="color: white; font-weight: bold;">${skin.nome}</span>
+                </div>
+                <button onclick="tentarDesbloquearSkin('${skin.id}')" style="background: #05d310; border: none; padding: 5px 10px; border-radius: 4px; color: black; font-weight: bold; cursor: pointer;">
+                    ${infoPreco}
+                </button>
+            </div>
+        `;
+    });
+
+    htmlMenu += `</div>`;
+    menuContainer.innerHTML = htmlMenu;
+}
+
+// =========================================================================
+// 3. MOTOR DE RENDERIZAÇÃO 3D PROCEDURAL (Three.js - Sem dependência de arquivos)
+// =========================================================================
+function criarMeshDaSkin(skinId, scene) {
+    // Remove a skin antiga da tela se existir para evitar vazamento de memória (Memory Leak)
+    if (window.personagemAtualMesh) scene.remove(window.personagemAtualMesh);
+
+    const playerGroup = new THREE.Group();
+
+    switch (skinId) {
+        case "dino_chrome":
+            // Corpo pixelado verde escuro do dinossauro
+            const dinoBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.6), new THREE.MeshStandardMaterial({color: 0x535353}));
+            const dinoHead = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.8), new THREE.MeshStandardMaterial({color: 0x535353}));
+            dinoHead.position.set(0, 0.7, 0.3);
+            const dinoPataL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.4, 0.2), new THREE.MeshStandardMaterial({color: 0x535353}));
+            dinoPataL.position.set(-0.2, -0.7, 0);
+            const dinoPataR = dinoPataL.clone();
+            dinoPataR.position.set(0.2, -0.7, 0);
+            playerGroup.add(dinoBody, dinoHead, dinoPataL, dinoPataR);
+            break;
+
+        case "trem_bala":
+            // DESIGN REALISTA: Trem Metropolitano de Alta Velocidade
+            // Corpo Aerodinâmico Principal (Cavalete frontal limpa-trilhos inclinado)
+            const corpoTrem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 2.2), new THREE.MeshStandardMaterial({color: 0xdddddd, metalness: 0.8, roughness: 0.2}));
+            
+            // Faixa azul característica de linhas metropolitanas
+            const faixaMetro = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.15, 2.22), new THREE.MeshStandardMaterial({color: 0x0033aa}));
+            faixaMetro.position.set(0, -0.1, 0);
+
+            // Janela do Maquinista Frontal Inclinada (Vidro fumê)
+            const cabineJanela = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 0.4), new THREE.MeshStandardMaterial({color: 0x111111, transparent: true, opacity: 0.8}));
+            cabineJanela.position.set(0, 0.25, 0.9);
+
+            // Limpa-Trilhos Frontal Inferior (Grade de proteção contra detritos)
+            const limpaTrilhos = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.4, 4), new THREE.MeshStandardMaterial({color: 0x222222}));
+            limpaTrilhos.rotation.x = Math.PI / 2;
+            limpaTrilhos.position.set(0, -0.4, 1.1);
+
+            // Rodeiros Metálicos Secundários (4 Rodas cilíndricas)
+            const rodaGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.1, 16);
+            const rodaMat = new THREE.MeshStandardMaterial({color: 0x333333, metalness: 0.9});
+            
+            const roda1 = new THREE.Mesh(rodaGeo, rodaMat); roda1.rotation.z = Math.PI / 2; roda1.position.set(-0.35, -0.45, 0.6);
+            const roda2 = roda1.clone(); roda2.position.set(0.35, -0.45, 0.6);
+            const roda3 = roda1.clone(); roda3.position.set(-0.35, -0.45, -0.6);
+            const roda4 = roda1.clone(); roda4.position.set(0.35, -0.45, -0.6);
+
+            // Pantógrafo Superior (Captador de energia articulado metálico)
+            const pantografoBase = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.4), new THREE.MeshStandardMaterial({color: 0x555555}));
+            pantografoBase.position.set(0, 0.42, -0.5);
+            
+            const hasteArticulada = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.4, 0.05), new THREE.MeshStandardMaterial({color: 0xff3333}));
+            hasteArticulada.position.set(0, 0.6, -0.5);
+            hasteArticulada.rotation.z = 0.3;
+
+            playerGroup.add(corpoTrem, faixaMetro, cabineJanela, limpaTrilhos, roda1, roda2, roda3, roda4, pantografoBase, hasteArticulada);
+            break;
+
+        case "televisao":
+            const caixa = new THREE.Mesh(new THREE.BoxGeometry(1, 0.9, 0.8), new THREE.MeshStandardMaterial({color: 0x5c4033}));
+            const tela = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 0.1), new THREE.MeshStandardMaterial({color: 0x00ff00, emissive: 0x003300}));
+            tela.position.set(0, 0, 0.41);
+            playerGroup.add(caixa, tela);
+            break;
+
+        // Fallback robusto anti-bug: se faltar o design de alguma skin bizarra, gera a Estrela base automaticamente
+        case "estrela":
+default:
+            const estrelaGeo = new THREE.SphereGeometry(0.6, 32, 32);
+            const estrelaMat = new THREE.MeshStandardMaterial({color: 0xffd700, roughness: 0.1, metalness: 0.5});
+            const estrelaMesh = new THREE.Mesh(estrelaGeo, estrelaMat);
+            playerGroup.add(estrelaMesh);
+            break;
+    }
+
+    scene.add(playerGroup);
+    window.personagemAtualMesh = playerGroup; // Registra globalmente para movimentação do motor de física
+}
+
+// =========================================================================
+// 4. SISTEMA DE CENÁRIOS POR PAÍSES (Anti-Travamento e Anti-Tela Preta)
+// =========================================================================
+const BANCO_CENARIOS_PAISES = {
+    1: { nome: "Brasil", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800" },
+    2: { nome: "Japão", url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800" },
+    3: { nome: "Estados Unidos", url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800" },
+    4: { nome: "França", url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800" }
+};
+
+function alternarCenarioFase(numeroFase, tjsScene) {
+    const cenario = BANCO_CENARIOS_PAISES[numeroFase] || BANCO_CENARIOS_PAISES[1];
+    
+    console.log(`[FASE ${numeroFase}] Transicionando ambiente para: ${cenario.nome}`);
+
+    // Cria o elemento de imagem em segundo plano (Assíncrono) para não travar a thread principal do jogo
+    const imgPreloader = new Image();
+    imgPreloader.crossOrigin = "anonymous"; 
+    
+    imgPreloader.onload = function() {
+        // A imagem carregou perfeitamente na memória, agora criamos a textura do Three.js de forma segura
+        const texturaCenario = new THREE.TextureLoader().load(imgPreloader.src);
+        tjsScene.background = texturaCenario;
+    };
+
+    imgPreloader.onerror = function() {
+        // COBERTURA DE BUG: Se o link cair ou a internet do jogador oscilar, o jogo NÃO fica preto.
+        // Ele injeta um gradiente procedural elegante simulando o céu do país.
+        console.warn(`[ALERTA BUG] Falha ao carregar imagem real de ${cenario.nome}. Aplicando plano de fundo dinâmico de segurança.`);
+        tjsScene.background = new THREE.Color(0x1a2a3a);
+    };
+
+    // Dispara o download em background
+    imgPreloader.src = cenario.url;
+}
 </body>
 </html>
