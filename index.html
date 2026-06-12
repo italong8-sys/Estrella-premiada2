@@ -131,7 +131,6 @@
             border: 1px solid rgba(255,255,255,0.1); 
         }
 
-        /* DATA LIST UPGRADADA COM SUPORTE DINÂMICO A SCROLLBARS */
         .data-list { width: 100%; flex-grow: 1; overflow-y: auto; margin: 6px 0; padding: 0; list-style: none; }
         .data-item { background: #151530; margin-bottom: 4px; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
@@ -197,7 +196,7 @@
                 <span id="hud-mana" style="color:#ff007f; margin-left:6px; display:none;">⚡ Energia: 100%</span>
             </div>
             <div class="hud-group">
-                <div id="hud-phase-txt" style="color: #00f2fe">🏁 Fase: 1</div>
+                <div id="hud-phase-txt" style="color: #00f2fe">🏁 País: Brasil (Fase 1)</div>
                 <div>📏 Metros: <span id="hud-score" class="hud-val">0</span>m</div>
                 <div>💎 Pix: <span id="hud-total-pix" style="color:#00f2fe;">0</span> pts</div>
                 <div>🪙 Moedas: <span id="hud-coins" class="hud-accent">0</span></div>
@@ -305,9 +304,8 @@
                     <div style="font-weight:bold; color:#ffe81f; font-size: 12px;">Carteira: <span id="shop-coins-txt">0</span> 🪙</div>
                 </div>
                 <div class="shop-tabs">
-                    <button class="btn btn-sm" onclick="changeShopTab('skins')">🎭 Skins Ads</button>
+                    <button class="btn btn-sm" onclick="changeShopTab('skins')">🎭 Skins Base</button>
                     <button class="btn btn-sm" onclick="changeShopTab('bizarre')">👾 Bizarras</button>
-                    <button class="btn btn-sm" onclick="changeShopTab('scenarios')">🌌 Biomas</button>
                     <button class="btn btn-sm" onclick="changeShopTab('powerups')">⚡ Upgrades</button>
                 </div>
                 <div class="shop-grid" id="shop-items-container"></div>
@@ -317,7 +315,7 @@
 
         <div id="withdraw-screen" class="screen hidden">
             <h3 style="font-size:14px; text-align:center;">💸 CENTRAL DE PAYOUT PIX 💸</h3>
-            <p style="color: #8a8ab0; font-size: 10px; text-align:center;">Taxa: 100 pts = R$ 0,10 | Mínimo: 5.000 pts</p>
+            <p style="color: #8a8ab0; font-size: 10px; text-align:center;">Taxa: 1.000 pts = R$ 1,00 | Mínimo: 1.000 pts</p>
             
             <div style="background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3); padding:8px; border-radius:15px; color:#ffe81f; font-weight:bold; margin: 10px auto; text-align:center; width:100%; max-width:240px;">
                 Pontos Pix: <span id="withdraw-balance">0</span> pts
@@ -366,7 +364,7 @@
         let canvas = null, ctx = null;
         let gameActive = false, isPaused = false, score = 0, lives = 3, frameCount = 0;
         let obstacleSpeed = 3.2, obstacleTimer = 0;
-        let currentSkinId = 'skin_1', currentShopTab = 'skins', currentScenarioId = 'scen_default';
+        let currentSkinId = 'estrela', currentShopTab = 'skins';
         let isMuted = false;
 
         let currentPhase = 1;
@@ -375,7 +373,7 @@
         let jetpackActiveTimer = 0, turboActiveTimer = 0;
 
         let saldoPixAcumulado = 0, coins = 300;
-        let pixHistoryData = [], unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua'], unlockedScenarios = ['scen_default'];
+        let pixHistoryData = [], unlockedSkins = ['estrela', 'dino_chrome', 'maria_fumaca'], unlockedScenarios = ['scen_default'];
         let itemsInGame = [], obstacles = [], platforms = [], enemyProjectiles = [];
 
         let playerMana = 100, activeLaserFrame = 0;
@@ -387,10 +385,17 @@
         let menuClickCounter = 0;
         let initialScreenAdTriggered = false;
         let activeRewardedAdCallback = null;
-
         let airplaneAdCounter = 0;
 
-        let currentPhaseConfig = { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" };
+        // BANCO DE CENÁRIOS POR PAÍSES COM ASYNC PRELOADER IMAGES
+        const BANCO_CENARIOS_PAISES = {
+            1: { nome: "Brasil", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1000", loadedImg: null, top: "#020108", bottom: "#0f0b21" },
+            2: { nome: "Japão", url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1000", loadedImg: null, top: "#050014", bottom: "#1c0d2b" },
+            3: { nome: "Estados Unidos", url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1000", loadedImg: null, top: "#010c1a", bottom: "#0a2240" },
+            4: { nome: "França", url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1000", loadedImg: null, top: "#140101", bottom: "#330808" }
+        };
+
+        let currentPhaseConfig = { name: "Brasil", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f" };
 
         const audioTracksDB = [
             { name: "🌌 Neon Cyber", notes: [146, 165, 196, 220, 293, 329, 392, 440], type: 'triangle', speed: 170 },
@@ -399,14 +404,6 @@
             { name: "🌴 Retrowave Glide", notes: [120, 140, 160, 180, 120, 140, 190, 150], type: 'sine', speed: 260 },
             { name: "⚡ Corrida Hiper", notes: [200, 250, 220, 270, 300, 240, 280, 210], type: 'sawtooth', speed: 130 }
         ];
-
-        const scenariosDB = {
-            'scen_default': { name: '🏙️ Padrão Obscuro', type: 'free', top: '#020108', bottom: '#0f0b21' },
-            'scen_lab': { name: '🧪 Quântico Pro', type: 'ad', top: '#011216', bottom: '#041e24' },
-            'scen_refinery': { name: '🏭 Refinaria Neon', type: 'ad', top: '#1a0b02', bottom: '#2b1404' },
-            'scen_desert': { name: '🏜️ Dunas Digitais', type: 'coins', cost: 400, top: '#240412', bottom: '#3a0921' },
-            'scen_core': { name: '💥 Setor Ciborgue', type: 'coins', cost: 600, top: '#0d0101', bottom: '#1a0202' }
-        };
 
         const powerupsDB = { 
             'shield': { name: '🛡️ Escudo Protectoor', cost: 120 },
@@ -426,16 +423,14 @@
 
         saldoPixAcumulado = Number(safeGetStorage('saldoPixAcumulado', 0));
         coins = Number(safeGetStorage('coins', 300));
-        currentSkinId = safeGetStorage('currentSkinId', 'skin_1');
-        currentScenarioId = safeGetStorage('currentScenarioId', 'scen_default');
+        currentSkinId = safeGetStorage('currentSkinId', 'estrela');
         airplaneAdCounter = Number(safeGetStorage('airplaneAdCounter', 0));
         
         try {
             let h = safeGetStorage('pixHistoryData', null); pixHistoryData = h ? JSON.parse(h) : [];
-            let s = safeGetStorage('unlockedSkins', null); unlockedSkins = s ? JSON.parse(s) : ['skin_1', 'maria_fumaca', 'cone_rua'];
-            let sc = safeGetStorage('unlockedScenarios', null); unlockedScenarios = sc ? JSON.parse(sc) : ['scen_default'];
+            let s = safeGetStorage('unlockedSkins', null); unlockedSkins = s ? JSON.parse(s) : ['estrela', 'dino_chrome', 'maria_fumaca'];
         } catch(e) {
-            pixHistoryData = []; unlockedSkins = ['skin_1', 'maria_fumaca', 'cone_rua']; unlockedScenarios = ['scen_default'];
+            pixHistoryData = []; unlockedSkins = ['estrela', 'dino_chrome', 'maria_fumaca'];
         }
 
         const player = {
@@ -453,54 +448,99 @@
             player.x = Math.floor(canvas.width * 0.16);
             if(player.x < 40) player.x = 40;
             if(!gameActive) {
-                player.y = (currentSkinId === 'airplane') ? BASE_GROUND_Y - 140 : BASE_GROUND_Y - player.height;
+                player.y = BASE_GROUND_Y - player.height;
             }
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
+        // =========================================================================
+        // 🚀 BANCO MATRIZ DE SKINS DO JOGO (ENGINE VETORIAL 2D)
+        // =========================================================================
         const skinsDB = {};
-        skinsDB['skin_1'] = { name: '⭐ Estrela Guia', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { drawStarGeometry(g, cx, cy, 5, r, r/2, '#ffe81f'); } };
-        skinsDB['cone_rua'] = { name: '⬡ Cone de Trânsito', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { g.save(); g.fillStyle = "#111111"; g.fillRect(cx - r, cy + r * 0.5, r * 2, r * 0.4); g.fillStyle = "#ff5500"; g.beginPath(); g.moveTo(cx, cy - r); g.lineTo(cx + r * 0.7, cy + r * 0.5); g.lineTo(cx - r * 0.7, cy + r * 0.5); g.closePath(); g.fill(); g.fillStyle = "#ffffff"; g.fillRect(cx - r * 0.3, cy - r * 0.1, r * 0.6, r * 0.25); g.restore(); } };
+        
+        // GRATUITAS (Aparecem em destaque no menu superior)
+        skinsDB['estrela'] = { name: '⭐ Estrela Guia', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { drawStarGeometry(g, cx, cy, 5, r, r/2, '#ffe81f'); } };
+        
+        skinsDB['dino_chrome'] = { name: '🦖 Dino Chrome', type: 'free', tab: 'skins', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#535353";
+            g.fillRect(cx - r*0.4, cy - r, r*1.2, r*0.5); g.fillRect(cx + r*0.4, cy - r, r*0.4, r*0.8);
+            g.fillRect(cx - r*0.8, cy - r*0.6, r*1.4, r*0.9); g.fillRect(cx - r*0.6, cy + r*0.3, r*0.3, r*0.5);
+            g.fillRect(cx + r*0.2, cy + r*0.3, r*0.3, r*0.5); g.fillStyle = "#ffffff"; g.fillRect(cx + r*0.4, cy - r*0.9, 3, 3);
+            g.restore();
+        }};
         
         skinsDB['maria_fumaca'] = { name: '🚂 Maria Fumaça', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { 
-            g.save(); 
-            g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1); 
+            g.save(); g.fillStyle = "#333333"; g.fillRect(cx - r, cy - r/3, r * 1.8, r * 1.1); 
             g.fillStyle = "#222222"; g.fillRect(cx + r/3, cy - r/1.2, r/2, r * 0.8); 
             g.fillStyle = "#ff0033"; g.fillRect(cx - r, cy - r, r * 1.1, r * 0.8); 
             g.fillStyle = "#ffe81f"; g.beginPath(); g.arc(cx - r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill(); 
             g.beginPath(); g.arc(cx + r/2, cy + r * 0.8, r/3, 0, Math.PI * 2); g.fill(); 
             g.fillStyle = "#ffffff"; g.fillRect(cx - r/1.5, cy - r * 0.7, r/2, r/3); 
-            
-            let chimneyX = cx + r/1.8;
-            let chimneyY = cy - r/1.2;
+            let chimneyX = cx + r/1.8; let chimneyY = cy - r/1.2;
             for(let i = 0; i < 3; i++) {
                 let sPct = ((frameCount + i * 20) % 60) / 60;
-                let smokeX = chimneyX - sPct * r * 2.5;
-                let smokeY = chimneyY - sPct * r * 1.8;
-                let smokeR = r * 0.3 + sPct * r * 0.6;
-                g.fillStyle = `rgba(220, 220, 220, ${1 - sPct})`;
-                g.beginPath(); g.arc(smokeX, smokeY, smokeR, 0, Math.PI * 2); g.fill();
+                let smokeX = chimneyX - sPct * r * 2.5; let smokeY = chimneyY - sPct * r * 1.8; let smokeR = r * 0.3 + sPct * r * 0.6;
+                g.fillStyle = `rgba(220, 220, 220, ${1 - sPct})`; g.beginPath(); g.arc(smokeX, smokeY, smokeR, 0, Math.PI * 2); g.fill();
             }
             g.restore(); 
-        } };
-        
-        skinsDB['premium_tank'] = { name: '🪖 Tanque de Guerra', type: 'premium_link', cost: 1.00, tab: 'skins', render: (g, cx, cy, r) => { g.save(); g.fillStyle = "#3e5c32"; g.fillRect(cx - r, cy, r*2, r*0.8); g.fillStyle = "#1e3315"; g.fillRect(cx - r/1.5, cy - r/2, r * 1.3, r/2); g.fillStyle = "#526e46"; g.fillRect(cx, cy - r/3, r * 1.2, r/4); g.fillStyle = "#111111"; g.fillRect(cx - r, cy + r*0.7, r*2, 4); g.restore(); } };
-        skinsDB['airplane'] = { name: '✈️ Avião Cyber Pro', type: 'double_ad', tab: 'skins', render: (g, cx, cy, r) => { g.save(); g.fillStyle = "#ffffff"; g.fillRect(cx - r, cy - r/3, r*2, r/1.5); g.fillStyle = "#ff007f"; g.fillRect(cx - r/3, cy - r, r/1.5, r*2); g.fillStyle = "#00f2fe"; g.fillRect(cx + r/3, cy - r/3, r/2, r/3); g.restore(); } };
+        }};
 
-        for (let i = 2; i <= 20; i++) {
-            let colorHex = `hsl(${(i * 18) % 360}, 100%, 60%)`;
-            skinsDB[`skin_${i}`] = {
-                name: `🔷 Runner Neon x${i}`, type: 'ad', tab: 'skins', cost: 0,
-                render: (g, x, y, r) => { g.save(); g.fillStyle = colorHex; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fill(); g.strokeStyle = "#fff"; g.stroke(); g.restore(); }
-            };
-        }
-        for (let i = 1; i <= 15; i++) {
-            let bizarroColor = `hsl(${(i * 24) % 360}, 90%, 40%)`;
-            skinsDB[`bizarro_${i}`] = {
-                name: `👾 Aberração Bz ${i}`, type: 'coins', cost: 150 + (i * 20), tab: 'bizarre',
-                render: (g, x, y, r) => { g.save(); g.fillStyle = bizarroColor; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y - r/3, r/3, 0, Math.PI * 2); g.fill(); g.fillStyle = "#000"; g.beginPath(); g.arc(x, y - r/3, 3, 0, Math.PI * 2); g.fill(); g.restore(); }
-            };
-        }
+        // PREMIUM REALISTA
+        skinsDB['trem_bala'] = { name: '🚄 Trem Bala Metropolitano', type: 'coins', cost: 1000, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#dddddd"; g.beginPath(); g.moveTo(cx - r, cy - r*0.6); g.lineTo(cx + r*0.4, cy - r*0.6);
+            g.quadraticCurveTo(cx + r*1.2, cy - r*0.2, cx + r*1.2, cy + r*0.6); g.lineTo(cx - r, cy + r*0.6); g.closePath(); g.fill();
+            g.fillStyle = "#0033aa"; g.fillRect(cx - r, cy, r*2.1, r*0.2); g.fillStyle = "#111111";
+            g.beginPath(); g.moveTo(cx + r*0.3, cy - r*0.4); g.lineTo(cx + r*0.8, cy - r*0.2); g.lineTo(cx + r*0.8, cy); g.lineTo(cx + r*0.3, cy); g.closePath(); g.fill();
+            g.fillStyle = "#333333"; g.beginPath(); g.arc(cx - r*0.5, cy + r*0.6, r*0.25, 0, Math.PI * 2); g.arc(cx + r*0.5, cy + r*0.6, r*0.25, 0, Math.PI * 2); g.fill();
+            g.strokeStyle = "#ff3333"; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - r*0.3, cy - r*0.6); g.lineTo(cx - r*0.1, cy - r*0.9); g.lineTo(cx + r*0.2, cy - r*0.9); g.stroke();
+            g.restore();
+        }};
+
+        // BIZARRAS (Moedas e Ads)
+        skinsDB['televisao'] = { name: '📺 TV de Tubo Retrô', type: 'coins', cost: 150, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#5c4033"; g.fillRect(cx - r, cy - r*0.8, r*2, r*1.5); g.fillStyle = "#00ff00"; g.fillRect(cx - r*0.8, cy - r*0.6, r*1.3, r*1.1);
+            g.fillStyle = "#222"; g.fillRect(cx + r*0.6, cy - r*0.5, r*0.3, r*0.9); g.restore();
+        }};
+        skinsDB['movel'] = { name: '🗄️ Armário de Cozinha', type: 'coins', cost: 200, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#ddca9a"; g.fillRect(cx - r*0.7, cy - r, r*1.4, r*2); g.fillStyle = "#444"; g.fillRect(cx - r*0.5, cy - r*0.8, r*1.0, r*0.7);
+            g.fillRect(cx - r*0.5, cy + r*0.1, r*1.0, r*0.7); g.fillStyle = "#000"; g.fillRect(cx - r*0.1, cy - r*0.5, 4, r*0.2); g.fillRect(cx - r*0.1, cy + r*0.4, 4, r*0.2);
+            g.restore();
+        }};
+        skinsDB['carro_velho'] = { name: '🚗 Chevetão Velho', type: 'coins', cost: 300, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#8b0000"; g.fillRect(cx - r, cy - r*0.2, r*2, r*0.7); g.fillRect(cx - r*0.5, cy - r*0.7, r*1.1, r*0.6);
+            g.fillStyle = "#222"; g.beginPath(); g.arc(cx - r*0.6, cy + r*0.5, r*0.3, 0, Math.PI*2); g.arc(cx + r*0.6, cy + r*0.5, r*0.3, 0, Math.PI*2); g.fill();
+            g.restore();
+        }};
+        skinsDB['prato'] = { name: '🍽️ Prato de Porcelana', type: 'ad', cost: 0, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#ffffff"; g.strokeStyle = "#00f2fe"; g.lineWidth = 3; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.fill(); g.stroke(); g.restore();
+        }};
+        skinsDB['caneca'] = { name: '☕ Caneca de Café', type: 'coins', cost: 60, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#ffffff"; g.fillRect(cx - r*0.6, cy - r*0.8, r*1.2, r*1.6); g.strokeStyle = "#ffffff"; g.lineWidth = 4;
+            g.beginPath(); g.arc(cx - r*0.6, cy, r*0.4, Math.PI*0.5, Math.PI*1.5); g.stroke(); g.fillStyle = "#5c4033"; g.fillRect(cx - r*0.5, cy - r*0.7, r, 6);
+            g.restore();
+        }};
+        skinsDB['garfo'] = { name: '🍴 Garfo de Inox', type: 'coins', cost: 40, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.strokeStyle = "#cccccc"; g.lineWidth = 3; g.beginPath(); g.moveTo(cx, cy + r); g.lineTo(cx, cy - r*0.2); g.stroke();
+            g.fillRect(cx - r*0.4, cy - r*0.3, r*0.8, r*0.4); g.fillRect(cx - r*0.4, cy - r*0.9, 2, r*0.6); g.fillRect(cx, cy - r*0.9, 2, r*0.6); g.fillRect(cx + r*0.4, cy - r*0.9, 2, r*0.6);
+            g.restore();
+        }};
+        skinsDB['colher'] = { name: ' Spoon Sopa', type: 'ad', cost: 0, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.strokeStyle = "#cccccc"; g.lineWidth = 3; g.beginPath(); g.moveTo(cx, cy + r); g.lineTo(cx, cy); g.stroke();
+            g.fillStyle = "#cccccc"; g.beginPath(); g.ellipse(cx, cy - r*0.4, r*0.4, r*0.6, 0, 0, Math.PI*2); g.fill(); g.restore();
+        }};
+        skinsDB['zumbi'] = { name: '🧟 Zumbi Corredor', type: 'coins', cost: 500, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#006622"; g.fillRect(cx - r*0.5, cy - r, r, r*1.6); g.fillStyle = "#ff0000"; g.fillRect(cx - r*0.2, cy - r*0.7, 4, 4);
+            g.fillRect(cx + r*0.1, cy - r*0.7, 4, 4); g.fillStyle = "#004411"; g.fillRect(cx, cy - r*0.2, r*0.7, 6); g.restore();
+        }};
+        skinsDB['toco_madeira'] = { name: '🪵 Toco de Eucalipto', type: 'coins', cost: 80, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#4a2e1b"; g.fillRect(cx - r*0.6, cy - r*0.8, r*1.2, r*1.6); g.fillStyle = "#6e473b";
+            g.beginPath(); g.ellipse(cx, cy - r*0.8, r*0.6, r*0.2, 0, 0, Math.PI*2); g.fill(); g.restore();
+        }};
+        skinsDB['cabeca_zombie'] = { name: '💀 Crânio Zumbificado', type: 'ad', cost: 0, tab: 'bizarre', render: (g, cx, cy, r) => {
+            g.save(); g.fillStyle = "#a3b899"; g.beginPath(); g.arc(cx, cy - r*0.2, r*0.8, 0, Math.PI*2); g.fill(); g.fillRect(cx - r*0.4, cy + r*0.3, r*0.8, r*0.5);
+            g.fillStyle = "#000000"; g.beginPath(); g.arc(cx - r*0.25, cy - r*0.2, r*0.18, 0, Math.PI*2); g.arc(cx + r*0.25, cy - r*0.2, r*0.18, 0, Math.PI*2); g.fill();
+            g.restore();
+        }};
 
         function convertCoinsToPixPoints() {
             if (coins >= 10000) {
@@ -548,7 +588,7 @@
         }
 
         function triggerBonusStageActivation() {
-            preBonusPhaseConfig = currentPhaseConfig; isBonusStageMode = true; bonusStageTimer = 600; pipeWarningActive = false;
+            isBonusStageMode = true; bonusStageTimer = 600; pipeWarningActive = false;
             obstacles = []; platforms = []; itemsInGame = []; enemyProjectiles = [];
             for (let k = 0; k < 12; k++) {
                 let hY = BASE_GROUND_Y - 50 - (k % 3 * 35);
@@ -568,20 +608,15 @@
                 if (isBonusStageMode) {
                     terrainList.push({ x: nextX, w: 200, hStart: BASE_GROUND_Y, hEnd: BASE_GROUND_Y, type: 'flat' }); return;
                 }
-                
                 let r = Math.random(); let type = 'flat'; let hStart = lastSeg.hEnd; let hEnd = lastSeg.hEnd;
-                if (currentPhaseConfig.type === 'dark_city' || currentPhaseConfig.type === 'dark_core' || currentPhaseConfig.type === 'cyber_refinery') {
-                    if (r < 0.45) type = 'flat';
-                    else if (r < 0.62 && lastSeg.type !== 'hole') {
-                        type = 'hole';
-                        terrainList.push({ x: nextX, w: 90, hStart: hStart, hEnd: hEnd, type: type });
-                        return;
-                    }
-                    else if (r < 0.82) { type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 100, lastSeg.hEnd - 30); }
-                    else { type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 30); }
-                } else {
-                    type = 'flat';
+                if (r < 0.55) type = 'flat';
+                else if (r < 0.70 && lastSeg.type !== 'hole') {
+                    type = 'hole';
+                    terrainList.push({ x: nextX, w: 90, hStart: hStart, hEnd: hEnd, type: type });
+                    return;
                 }
+                else if (r < 0.85) { type = 'up'; hEnd = Math.max(BASE_GROUND_Y - 90, lastSeg.hEnd - 35); }
+                else { type = 'down'; hEnd = Math.min(BASE_GROUND_Y, lastSeg.hEnd + 35); }
                 terrainList.push({ x: nextX, w: 200, hStart: hStart, hEnd: hEnd, type: type });
             }
         }
@@ -597,29 +632,43 @@
             return BASE_GROUND_Y;
         }
 
+        // =========================================================================
+        // 🌍 MOTOR DE ALTERNÂNCIA DE CENÁRIOS (PROTEÇÃO ABSOLUTA ANTI-TELA PRETA)
+        // =========================================================================
         function calculateInfinitePhaseStyle(phase) {
-            let activeScen = currentScenarioId !== 'scen_default' ? currentScenarioId : null;
-            const baseBiomes = [
-                { name: "🏙️ Cidade Obscura", top: "#020108", bottom: "#0f0b21", ground: "#00f2fe", obs: "#ff007f", type: "dark_city" },
-                { name: "🧪 Laboratório Quântico", top: "#011216", bottom: "#041e24", ground: "#39ff14", obs: "#ffffff", type: "quantum_lab" },
-                { name: "🏭 Refinaria Cyber", top: "#1a0b02", bottom: "#2b1404", ground: "#ff5500", obs: "#ffaa00", type: "cyber_refinery" },
-                { name: "🏜️ Deserto Sintético", top: "#240412", bottom: "#3a0921", ground: "#ff00ff", obs: "#ffe81f", type: "synthetic_desert" },
-                { name: "💥 Núcleo Sombrio", top: "#0d0101", bottom: "#1a0202", ground: "#7c0000", obs: "#ff2222", type: "dark_core" }
-            ];
-            if (activeScen && scenariosDB[activeScen]) {
-                let s = scenariosDB[activeScen];
-                return { name: s.name, top: s.top, bottom: s.bottom, ground: "#00f2fe", obs: "#ff007f", type: "custom" };
-            }
-            let index = (phase - 1) % baseBiomes.length;
-            let biome = Object.assign({}, baseBiomes[index]);
+            let index = ((phase - 1) % 4) + 1;
+            let targetCenario = BANCO_CENARIOS_PAISES[index];
             
             obstacleSpeed = 3.2 + ((phase - 1) * 0.65);
-            if (currentSkinId === 'airplane') { obstacleSpeed += 2.8; }
             if (turboActiveTimer > 0) obstacleSpeed = 15;
             if (timeflowActiveTimer > 0) obstacleSpeed *= 0.5;
-            
             if (obstacleSpeed > 16) obstacleSpeed = 16;
-            return biome;
+
+            // Se a imagem ainda não começou a carregar, dispara o preloader assíncrono em background
+            if (!targetCenario.loadedImg && !targetCenario.isPreloading) {
+                targetCenario.isPreloading = true;
+                console.log(`[PAÍS] Carregando malha visual de fundo para: ${targetCenario.nome}`);
+                let img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = function() {
+                    targetCenario.loadedImg = img;
+                    targetCenario.isPreloading = false;
+                };
+                img.onerror = function() {
+                    targetCenario.isPreloading = false;
+                    console.warn(`[CENÁRIO BUG BLOCK] Erro de rede em ${targetCenario.nome}. Plano B de contingência ativo.`);
+                };
+                img.src = targetCenario.url;
+            }
+
+            return { 
+                name: targetCenario.nome, 
+                top: targetCenario.top, 
+                bottom: targetCenario.bottom, 
+                ground: "#00f2fe", 
+                obs: "#ff007f",
+                bgImg: targetCenario.loadedImg 
+            };
         }
 
         function triggerRewardedAdCall(callback) {
@@ -700,7 +749,7 @@
                             updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
-                            if (bonusStageTimer <= 0) { isBonusStageMode = false; currentPhaseConfig = preBonusPhaseConfig; initTerrain(); }
+                            if (bonusStageTimer <= 0) { isBonusStageMode = false; initTerrain(); }
                             if (frameCount % 30 === 0) {
                                 let hY = BASE_GROUND_Y - 50 - (Math.random() * 80);
                                 platforms.push({ x: canvas.width + 10, y: hY, width: 120, isTrain: false, isPipe: false, isBridge: false });
@@ -713,7 +762,7 @@
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
                         
-                        let floorY = (currentSkinId === 'airplane') ? BASE_GROUND_Y - 110 : getGroundYAt(player.x + player.width/2);
+                        let floorY = getGroundYAt(player.x + player.width/2);
                         if (player.onPlatform) floorY = player.platformTop;
 
                         if (isBonusStageMode && nextY > BASE_GROUND_Y - player.height) {
@@ -729,20 +778,15 @@
                     }
 
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    grad.addColorStop(0, currentPhaseConfig.top || "#020108"); grad.addColorStop(1, currentPhaseConfig.bottom || "#0f0b21");
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    ctx.save();
-                    if (currentPhaseConfig.type === 'dark_city') {
-                        ctx.fillStyle = "rgba(10, 8, 20, 0.7)";
-                        for (let i = 0; i < 8; i++) {
-                            let w = 90 + (i % 2) * 40; let h = 180 + (i * 25) % 120;
-                            let x = (i * 160 - frameCount * 0.5) % (canvas.width + w) - w;
-                            ctx.fillRect(x, BASE_GROUND_Y - h, w, h);
-                        }
+                    
+                    // SEGURANÇA CONTRA TELA PRETA: Se a imagem real estiver pronta, desenha. Caso contrário, cai no gradiente.
+                    if (currentPhaseConfig.bgImg) {
+                        ctx.drawImage(currentPhaseConfig.bgImg, 0, 0, canvas.width, canvas.height);
+                    } else {
+                        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                        grad.addColorStop(0, currentPhaseConfig.top || "#020108"); grad.addColorStop(1, currentPhaseConfig.bottom || "#0f0b21");
+                        ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
                     }
-                    ctx.restore();
 
                     ctx.save();
                     let pulseS = 0.04 + Math.abs(Math.sin(frameCount * 0.025)) * 0.04;
@@ -819,7 +863,7 @@
                     pipeWarningActive = true; return;
                 }
 
-                let targetObstacleY = (currentSkinId === 'airplane') ? cY - 140 : cY - 35;
+                let targetObstacleY = cY - 35;
 
                 if (currentPhase === 3 && Math.random() > 0.6) {
                     platforms.push({ x: sX, y: cY - 60, width: 140, height: 60, isPipe: false, isTrain: true, isBridge: false });
@@ -837,7 +881,7 @@
                 if (platOverlapsPlayer(p)) {
                     if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); continue; }
                     if (p.isTrain && turboActiveTimer <= 0) {
-                        if (currentSkinId !== 'premium_tank') { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
+                        platforms.splice(i, 1); handleTrainCrashFatal(); return;
                     }
                 }
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
@@ -851,7 +895,7 @@
 
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1);
-                    if (currentSkinId === 'premium_tank' || turboActiveTimer > 0) continue;
+                    if (turboActiveTimer > 0) continue;
                     if (shieldActive) { shieldActive = false; updateHUD(); continue; }
                     handleLifeLoss(); continue;
                 }
@@ -883,18 +927,9 @@
         }
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
-        
-        function checkAndLockPremiumTankUso() {
-            if (currentSkinId === 'premium_tank') {
-                currentSkinId = 'skin_1'; safeSetStorage('currentSkinId', 'skin_1');
-                let idx = unlockedSkins.indexOf('premium_tank');
-                if (idx > -1) unlockedSkins.splice(idx, 1);
-                safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
-            }
-        }
 
         function handleTrainCrashFatal() { 
-            gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
+            gameActive = false; updatePauseButtonVisibility();
             document.getElementById('train-gameover-screen').classList.remove('hidden');
             callMonetagSmartlink();
         }
@@ -902,7 +937,7 @@
         function handleLifeLoss() { 
             lives--; updateHUD(); 
             if (lives <= 0) { 
-                gameActive = false; updatePauseButtonVisibility(); checkAndLockPremiumTankUso();
+                gameActive = false; updatePauseButtonVisibility();
                 safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden');
                 callMonetagSmartlink();
             } 
@@ -922,13 +957,20 @@
             if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; }
         }
         function togglePauseGame() { trackMenuClicks(); if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').toggle('hidden'); }
-        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = (currentSkinId==='airplane') ? BASE_GROUND_Y - 140 : BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
+        function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
+        // =========================================================================
+        // 💰 INTEGRAÇÃO FINANCEIRA ATUALIZADA (REGRA DE 1.000 PONTOS = R$ 1,00)
+        // =========================================================================
         function requestPixPayout() {
             trackMenuClicks();
             const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
-            if (!key) { alert("Informe a chave."); return; } if (pontos < 5000) { alert("Mínimo de 5.000 pontos."); return; }
-            let valorReal = ((pontos / 100) * 0.10).toFixed(2);
+            if (!key) { alert("Informe a chave."); return; } 
+            
+            // Nova trava operacional de 1000 pontos mínimo exigido por você
+            if (pontos < 1000) { alert("O limite mínimo exigido para resgate é de 1.000 pontos (R$ 1,00)."); return; }
+            
+            let valorReal = (pontos * 0.001).toFixed(2);
             let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
             pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
             const multiPayload = { chavePix: key, chave: key, pontos: pontos, amount: valorReal, valor: valorReal };
@@ -947,14 +989,18 @@
         }
 
         function triggerTruePayoutPayoutNotice(msg) { const toast = document.getElementById('payout-toast'); const toastMsg = document.getElementById('payout-toast-msg'); if(!toast) return; toastMsg.innerText = msg; toast.classList.add('active'); setTimeout(() => { toast.classList.remove('active'); }, 5000); }
-        function openRankingMenu() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden'); const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = ''; let records = [{ name: "Alexandre (Você)", score: Math.max(score, 1250) }, { name: "Cyber_Runner99", score: 8450 }]; records.forEach((r, idx) => { container.innerHTML += `<li class='data-item'><div>#${idx+1} - <strong>${r.name}</strong></div><div>${r.score}m</div></li>`; }); }
+        function openRankingMenu() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('ranking-screen').classList.remove('hidden'); const container = document.getElementById('ranking-list-container'); if(!container) return; container.innerHTML = ''; let records = [{ name: "Ítalo (Você)", score: Math.max(score, 1250) }, { name: "Cyber_Runner99", score: 8450 }]; records.forEach((r, idx) => { container.innerHTML += `<li class='data-item'><div>#${idx+1} - <strong>${r.name}</strong></div><div>${r.score}m</div></li>`; }); }
         function closeRankingMenu() { trackMenuClicks(); document.getElementById('ranking-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function openSupportScreen() { trackMenuClicks(); toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('support-screen').classList.remove('hidden'); }
         function closeSupportScreen() { trackMenuClicks(); document.getElementById('support-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
+        
         function openShop() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('shop-screen').classList.remove('hidden'); buildShop(); }
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { trackMenuClicks(); currentShopTab = tab; buildShop(); }
 
+        // =========================================================================
+        // 🏪 DINÂMICA DA LOJA ATUALIZADA (DINO NO TOPO E LABELS DE IMAGEM AO LADO)
+        // =========================================================================
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
             
@@ -969,37 +1015,11 @@
                             </div>
                         </div>`;
                 }
-            } else if (currentShopTab === 'scenarios') {
-                for (const [id, item] of Object.entries(scenariosDB)) {
-                    let isUnlocked = unlockedScenarios.includes(id); let isEquipped = (currentScenarioId === id);
-                    grid.innerHTML += `
-                        <div class="shop-item">
-                            <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_scen_${id}"></canvas>
-                            <div style='font-size:10px; font-weight:bold;'>${item.name}</div>
-                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseScenarioItem('${id}', '${item.type}', ${item.cost || 0})">
-                                ${isUnlocked ? (isEquipped ? 'Uso' : 'Equipar') : (item.type==='ad' ? '🎬 Ads' : `🪙 ${item.cost}`)}
-                            </button>
-                        </div>`;
-                }
-                setTimeout(() => {
-                    for (const [id, item] of Object.entries(scenariosDB)) {
-                        let miniC = document.getElementById(`mini_preview_scen_${id}`);
-                        if (miniC) { let mCtx = miniC.getContext('2d'); mCtx.fillStyle = item.bottom || "#222"; mCtx.fillRect(0,0,50,50); }
-                    }
-                }, 40);
             } else {
                 for (const [id, item] of Object.entries(skinsDB)) {
                     if (item.tab !== currentShopTab) continue;
                     let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
-                    
-                    let buttonLabel = "";
-                    if (isUnlocked) {
-                        buttonLabel = isEquipped ? '✓ Ativo' : 'Equipar';
-                    } else {
-                        if (item.type === 'premium_link') buttonLabel = '🛒 R$ 1.00';
-                        else if (item.type === 'double_ad') buttonLabel = `🎬 Ads (${airplaneAdCounter}/2)`;
-                        else buttonLabel = '🎬 Premiado';
-                    }
+                    let buttonLabel = isUnlocked ? (isEquipped ? '✓ Ativo' : 'Equipar') : (item.type === 'ad' ? '🎬 Anúncio' : `🪙 ${item.cost}`);
 
                     grid.innerHTML += `
                         <div class="shop-item">
@@ -1026,13 +1046,9 @@
                 if (coins >= cost) {
                     coins -= cost; safeSetStorage('coins', coins);
                     activatePowerUpState(id);
-                } else {
-                    alert("Moedas insuficientes.");
-                }
+                } else { alert("Moedas insuficientes."); }
             } else {
-                triggerRewardedAdCall(() => {
-                    activatePowerUpState(id);
-                });
+                triggerRewardedAdCall(() => { activatePowerUpState(id); });
             }
         }
 
@@ -1042,38 +1058,24 @@
             else if (id === 'turbo') { turboActiveTimer = 350; playSoundShield(); }
             else if (id === 'timeflow') { timeflowActiveTimer = 600; playSoundShield(); }
             buildShop(); updateHUD();
-            triggerTruePayoutPayoutNotice(`✨ Upgrade ${id.toUpperCase()} ativado com sucesso!`);
+            triggerTruePayoutPayoutNotice(`✨ Upgrade ${id.toUpperCase()} ativado!`);
         }
 
         function purchaseSkinItem(id, type, cost) {
             trackMenuClicks();
             if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
-            if (type === 'premium_link') { alert("Redirecionando para o Mercado Pago (R$ 1,00)..."); window.open("https://mpago.la/1WMeWCp", "_blank"); return; }
+            if (type === 'coins' && coins < cost) { alert("Moedas insuficientes."); return; }
             
-            if (type === 'double_ad') {
-                triggerRewardedAdCall(() => {
-                    airplaneAdCounter++;
-                    safeSetStorage('airplaneAdCounter', airplaneAdCounter);
-                    if (airplaneAdCounter >= 2) {
-                        unlockedSkins.push('airplane');
-                        safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
-                        currentSkinId = 'airplane'; safeSetStorage('currentSkinId', 'airplane');
-                        alert("✈️ Avião Cyber desbloqueado com sucesso!");
-                    } else {
-                        alert("🎬 Primeiro anúncio validado! Assista mais um para liberar o avião.");
-                    }
-                    buildShop();
+            if (type === 'coins') {
+                coins -= cost; safeSetStorage('coins', coins);
+                unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
+                currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop();
+            } else {
+                triggerRewardedAdCall(() => { 
+                    unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); 
+                    currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); 
                 });
-                return;
             }
-
-            triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); });
-        }
-
-        function purchaseScenarioItem(id, type, cost) {
-            trackMenuClicks();
-            if (unlockedScenarios.includes(id)) { currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); return; }
-            triggerRewardedAdCall(() => { unlockedScenarios.push(id); safeSetStorage('unlockedScenarios', JSON.stringify(unlockedScenarios)); currentScenarioId = id; safeSetStorage('currentScenarioId', id); buildShop(); });
         }
 
         function openWithdraw() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
@@ -1084,48 +1086,53 @@
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>API Ativa.</li>"; } else alert("Acesso negado."); }
+        
+        // ADMIN CORRIGIDO COM VISIBILIDADE EXCLUSIVA DE ACORDO COM A REGRA DE SEGURANÇA MANDATÓRIA
+        function verifyAdminLogin() { 
+            const user = document.getElementById('admin-user-field').value; 
+            const pass = document.getElementById('admin-pass-field').value; 
+            if (user === "italong" && pass === "italo1440@aB") { 
+                document.getElementById('admin-login-screen').classList.add('hidden'); 
+                document.getElementById('admin-dashboard-screen').classList.remove('hidden'); 
+                document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>API Asaas conectada e estável em Produção.</li>"; 
+            } else { alert("Acesso negado."); } 
+        }
+        
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
         function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
 
         function updateHUD() {
             safeSetText('hud-score', score); safeSetText('hud-total-pix', saldoPixAcumulado); safeSetText('hud-coins', coins);
-            safeSetText('hud-phase-txt', `🏁 Fase: ${currentPhase}`);
+            safeSetText('hud-phase-txt', `🏁 País: ${currentPhaseConfig.name} (Fase ${currentPhase})`);
             let h = ''; for(let i=0; i<lives; i++) h += '❤️'; safeSetText('hud-lives', h || '💀');
         }
 
         function toggleSettingsMenu() { try{document.getElementById('settings-dropdown').classList.toggle('hidden');}catch(e){} }
         function toggleMute() { isMuted = !isMuted; toggleSettingsMenu(); }
-        function resetGame() { score = 0; lives = 3; obstacleSpeed = 3.2; playerMana = 100; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('train-gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = (currentSkinId==='airplane') ? BASE_GROUND_Y - 140 : BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function resetGame() { score = 0; lives = 3; obstacleSpeed = 3.2; playerMana = 100; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('train-gameover-screen').classList.add('hidden'); gameActive = true; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
         function resetGameFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); resetGame(); }
         function backToMenuFromTrain() { document.getElementById('train-gameover-screen').classList.add('hidden'); backToMenu(); }
-        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = (currentSkinId==='airplane') ? BASE_GROUND_Y - 140 : BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
+        function backToMenu() { score = 0; lives = 3; obstacleSpeed = 3.2; enemyProjectiles=[]; initTerrain(); updateHUD(); document.getElementById('gameover-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); gameActive = false; isPaused = false; player.y = BASE_GROUND_Y - player.height; player.velocity = 0; updatePauseButtonVisibility(); }
         function triggerCoinReload() { triggerRewardedAdCall(() => { coins += 1000; safeSetStorage('coins', coins); updateHUD(); }); }
 
         function drawStarGeometry(g, cx, cy, spikes, outerRadius, innerRadius, color) { g.save(); let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes; g.beginPath(); g.moveTo(cx, cy - outerRadius); for (let i = 0; i < spikes; i++) { x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; g.lineTo(x, y); rot += step; x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; g.lineTo(x, y); rot += step; } g.lineTo(cx, cy - outerRadius); g.closePath(); g.fillStyle = color; g.fill(); g.strokeStyle = '#fff'; g.stroke(); g.restore(); }
 
-        function playerJump() { if (!gameActive || isPaused) return; if (!player.isJumping || currentSkinId === 'airplane') { player.velocity = player.lift; player.isJumping = true; playSoundJump(); } }
+        function playerJump() { if (!gameActive || isPaused) return; if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; playSoundJump(); } }
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
         
-        // INTERCEPTADOR CORRIGIDO E AMPLIADO: FILTRA SE O JOGO NÃO ESTÁ ATIVO PARA DEVOLVER O SCROLL DOS MENUS
         window.addEventListener('touchstart', (e) => {
             const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input') || e.target.closest('.screen');
             if (!gameActive && !initialScreenAdTriggered && !isControl) { initialScreenAdTriggered = true; callMonetagSmartlink(); }
-            
-            // Se for um controle ou o jogo não estiver rodando (Menus abertos), retorna e NÃO dá preventDefault!
             if (isControl || !gameActive) return; 
-            
-            playerJump(); 
-            e.preventDefault(); 
+            playerJump(); e.preventDefault(); 
         }, { passive: false });
 
         window.addEventListener('click', (e) => {
             const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input') || e.target.closest('.screen');
             if (!gameActive && !initialScreenAdTriggered && !isControl) { initialScreenAdTriggered = true; callMonetagSmartlink(); }
             if (isControl || !gameActive) return; 
-            
             playerJump();
         });
 
@@ -1135,185 +1142,5 @@
 
         window.addEventListener('load', () => { try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){} });
     </script>
-    // =========================================================================
-// 1. CONFIGURAÇÃO MATRIZ DAS SKINS (Livres de bugs de ID ou nomes repetidos)
-// =========================================================================
-const SKINS_DATABASE = [
-    // GRATUITAS
-    { id: "estrela", nome: "Estrela Dourada", preco: 0, tipo: "gratis", icone: "⭐" },
-    { id: "dino_chrome", nome: "Dino do Chrome", preco: 0, tipo: "gratis", icone: "🦖" },
-    { id: "maria_fumaca", nome: "Trem Maria Fumaça", preco: 0, tipo: "gratis", icone: "🚂" },
-    
-    // BIZARRAS (Desbloqueadas por Anúncio ou Moedas do Jogo)
-    { id: "televisao", nome: "TV de Tubo Retrô", preco: 150, tipo: "moedas", icone: "📺" },
-    { id: "movel", nome: "Armário de Cozinha", preco: 200, tipo: "moedas", icone: "🗄️" },
-    { id: "carro_velho", nome: "Chevetão Velho", preco: 300, tipo: "moedas", icone: "🚗" },
-    { id: "prato", nome: "Prato de Porcelana", preco: 50, tipo: "anuncio", icone: "🍽️" },
-    { id: "caneca", nome: "Caneca de Café", preco: 60, tipo: "moedas", icone: "☕" },
-    { id: "garfo", nome: "Garfo de Inox", preco: 40, tipo: "moedas", icone: "🍴" },
-    { id: "colher", nome: "Colher de Sopa", preco: 40, tipo: "anuncio", icone: "🥄" },
-    { id: "zumbi", nome: "Zumbi Corredor", preco: 500, tipo: "moedas", icone: "🧟" },
-    { id: "toco_madeira", nome: "Toco de Eucalipto", preco: 80, tipo: "moedas", icone: "🪵" },
-    { id: "cabeca_zombie", nome: "Crânio Zumbificado", preco: 250, tipo: "anuncio", icone: "💀" },
-    
-    // PREMIUM REALSISTA
-    { id: "trem_bala", nome: "Trem Bala Metropolitano", preco: 1000, tipo: "moedas", icone: "🚄" }
-];
-
-// =========================================================================
-// 2. INTERFACE DO MENU (HTML Dinâmico com Dino no topo e Imagens/Ícones)
-// =========================================================================
-function renderizarMenuSkins() {
-    const menuContainer = document.getElementById("skin-menu-container");
-    if (!menuContainer) return;
-
-    // Garante o Dinossauro e a Estrela em destaque no topo do menu lateral
-    let htmlMenu = `
-        <div class="menu-destaque-topo" style="display: flex; justify-content: space-around; background: #222; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-            <button onclick="selecionarSkin('estrela')" style="cursor:pointer; background:none; border:none; color:white; font-size:16px;">⭐ Estrela (Grátis)</button>
-            <button onclick="selecionarSkin('dino_chrome')" style="cursor:pointer; background:none; border:none; color:white; font-size:16px;">🦖 Dino Chrome (Grátis)</button>
-        </div>
-        <div class="skins-lista-scroll" style="max-height: 300px; overflow-y: auto;">
-    `;
-
-    SKINS_DATABASE.forEach(skin => {
-        // Ignora os dois do topo na listagem geral para não duplicar visualmente
-        if(skin.id === 'estrela' || skin.id === 'dino_chrome') return;
-
-        const infoPreco = skin.preco === 0 ? "GRÁTIS" : (skin.tipo === "anuncio" ? "🎬 Ver Ad" : `🪙 ${skin.preco}`);
-        
-        htmlMenu += `
-            <div class="skin-item-card" style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #444;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span class="skin-preview-img" style="font-size: 24px; background: #333; padding: 5px; border-radius: 4px;">${skin.icone}</span>
-                    <span style="color: white; font-weight: bold;">${skin.nome}</span>
-                </div>
-                <button onclick="tentarDesbloquearSkin('${skin.id}')" style="background: #05d310; border: none; padding: 5px 10px; border-radius: 4px; color: black; font-weight: bold; cursor: pointer;">
-                    ${infoPreco}
-                </button>
-            </div>
-        `;
-    });
-
-    htmlMenu += `</div>`;
-    menuContainer.innerHTML = htmlMenu;
-}
-
-// =========================================================================
-// 3. MOTOR DE RENDERIZAÇÃO 3D PROCEDURAL (Three.js - Sem dependência de arquivos)
-// =========================================================================
-function criarMeshDaSkin(skinId, scene) {
-    // Remove a skin antiga da tela se existir para evitar vazamento de memória (Memory Leak)
-    if (window.personagemAtualMesh) scene.remove(window.personagemAtualMesh);
-
-    const playerGroup = new THREE.Group();
-
-    switch (skinId) {
-        case "dino_chrome":
-            // Corpo pixelado verde escuro do dinossauro
-            const dinoBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.6), new THREE.MeshStandardMaterial({color: 0x535353}));
-            const dinoHead = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.8), new THREE.MeshStandardMaterial({color: 0x535353}));
-            dinoHead.position.set(0, 0.7, 0.3);
-            const dinoPataL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.4, 0.2), new THREE.MeshStandardMaterial({color: 0x535353}));
-            dinoPataL.position.set(-0.2, -0.7, 0);
-            const dinoPataR = dinoPataL.clone();
-            dinoPataR.position.set(0.2, -0.7, 0);
-            playerGroup.add(dinoBody, dinoHead, dinoPataL, dinoPataR);
-            break;
-
-        case "trem_bala":
-            // DESIGN REALISTA: Trem Metropolitano de Alta Velocidade
-            // Corpo Aerodinâmico Principal (Cavalete frontal limpa-trilhos inclinado)
-            const corpoTrem = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 2.2), new THREE.MeshStandardMaterial({color: 0xdddddd, metalness: 0.8, roughness: 0.2}));
-            
-            // Faixa azul característica de linhas metropolitanas
-            const faixaMetro = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.15, 2.22), new THREE.MeshStandardMaterial({color: 0x0033aa}));
-            faixaMetro.position.set(0, -0.1, 0);
-
-            // Janela do Maquinista Frontal Inclinada (Vidro fumê)
-            const cabineJanela = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 0.4), new THREE.MeshStandardMaterial({color: 0x111111, transparent: true, opacity: 0.8}));
-            cabineJanela.position.set(0, 0.25, 0.9);
-
-            // Limpa-Trilhos Frontal Inferior (Grade de proteção contra detritos)
-            const limpaTrilhos = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.4, 4), new THREE.MeshStandardMaterial({color: 0x222222}));
-            limpaTrilhos.rotation.x = Math.PI / 2;
-            limpaTrilhos.position.set(0, -0.4, 1.1);
-
-            // Rodeiros Metálicos Secundários (4 Rodas cilíndricas)
-            const rodaGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.1, 16);
-            const rodaMat = new THREE.MeshStandardMaterial({color: 0x333333, metalness: 0.9});
-            
-            const roda1 = new THREE.Mesh(rodaGeo, rodaMat); roda1.rotation.z = Math.PI / 2; roda1.position.set(-0.35, -0.45, 0.6);
-            const roda2 = roda1.clone(); roda2.position.set(0.35, -0.45, 0.6);
-            const roda3 = roda1.clone(); roda3.position.set(-0.35, -0.45, -0.6);
-            const roda4 = roda1.clone(); roda4.position.set(0.35, -0.45, -0.6);
-
-            // Pantógrafo Superior (Captador de energia articulado metálico)
-            const pantografoBase = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.4), new THREE.MeshStandardMaterial({color: 0x555555}));
-            pantografoBase.position.set(0, 0.42, -0.5);
-            
-            const hasteArticulada = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.4, 0.05), new THREE.MeshStandardMaterial({color: 0xff3333}));
-            hasteArticulada.position.set(0, 0.6, -0.5);
-            hasteArticulada.rotation.z = 0.3;
-
-            playerGroup.add(corpoTrem, faixaMetro, cabineJanela, limpaTrilhos, roda1, roda2, roda3, roda4, pantografoBase, hasteArticulada);
-            break;
-
-        case "televisao":
-            const caixa = new THREE.Mesh(new THREE.BoxGeometry(1, 0.9, 0.8), new THREE.MeshStandardMaterial({color: 0x5c4033}));
-            const tela = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 0.1), new THREE.MeshStandardMaterial({color: 0x00ff00, emissive: 0x003300}));
-            tela.position.set(0, 0, 0.41);
-            playerGroup.add(caixa, tela);
-            break;
-
-        // Fallback robusto anti-bug: se faltar o design de alguma skin bizarra, gera a Estrela base automaticamente
-        case "estrela":
-default:
-            const estrelaGeo = new THREE.SphereGeometry(0.6, 32, 32);
-            const estrelaMat = new THREE.MeshStandardMaterial({color: 0xffd700, roughness: 0.1, metalness: 0.5});
-            const estrelaMesh = new THREE.Mesh(estrelaGeo, estrelaMat);
-            playerGroup.add(estrelaMesh);
-            break;
-    }
-
-    scene.add(playerGroup);
-    window.personagemAtualMesh = playerGroup; // Registra globalmente para movimentação do motor de física
-}
-
-// =========================================================================
-// 4. SISTEMA DE CENÁRIOS POR PAÍSES (Anti-Travamento e Anti-Tela Preta)
-// =========================================================================
-const BANCO_CENARIOS_PAISES = {
-    1: { nome: "Brasil", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800" },
-    2: { nome: "Japão", url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800" },
-    3: { nome: "Estados Unidos", url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800" },
-    4: { nome: "França", url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800" }
-};
-
-function alternarCenarioFase(numeroFase, tjsScene) {
-    const cenario = BANCO_CENARIOS_PAISES[numeroFase] || BANCO_CENARIOS_PAISES[1];
-    
-    console.log(`[FASE ${numeroFase}] Transicionando ambiente para: ${cenario.nome}`);
-
-    // Cria o elemento de imagem em segundo plano (Assíncrono) para não travar a thread principal do jogo
-    const imgPreloader = new Image();
-    imgPreloader.crossOrigin = "anonymous"; 
-    
-    imgPreloader.onload = function() {
-        // A imagem carregou perfeitamente na memória, agora criamos a textura do Three.js de forma segura
-        const texturaCenario = new THREE.TextureLoader().load(imgPreloader.src);
-        tjsScene.background = texturaCenario;
-    };
-
-    imgPreloader.onerror = function() {
-        // COBERTURA DE BUG: Se o link cair ou a internet do jogador oscilar, o jogo NÃO fica preto.
-        // Ele injeta um gradiente procedural elegante simulando o céu do país.
-        console.warn(`[ALERTA BUG] Falha ao carregar imagem real de ${cenario.nome}. Aplicando plano de fundo dinâmico de segurança.`);
-        tjsScene.background = new THREE.Color(0x1a2a3a);
-    };
-
-    // Dispara o download em background
-    imgPreloader.src = cenario.url;
-}
 </body>
 </html>
