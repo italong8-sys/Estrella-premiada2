@@ -387,7 +387,6 @@
         let activeRewardedAdCallback = null;
         let airplaneAdCounter = 0;
 
-        // BANCO DE CENÁRIOS POR PAÍSES COM ASYNC PRELOADER IMAGES
         const BANCO_CENARIOS_PAISES = {
             1: { nome: "Brasil", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1000", loadedImg: null, top: "#020108", bottom: "#0f0b21" },
             2: { nome: "Japão", url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1000", loadedImg: null, top: "#050014", bottom: "#1c0d2b" },
@@ -447,18 +446,11 @@
             BASE_GROUND_Y = canvas.height - 165; 
             player.x = Math.floor(canvas.width * 0.16);
             if(player.x < 40) player.x = 40;
-            if(!gameActive) {
-                player.y = BASE_GROUND_Y - player.height;
-            }
+            if(!gameActive) { player.y = BASE_GROUND_Y - player.height; }
         }
         window.addEventListener('resize', resizeEngineCanvas);
 
-        // =========================================================================
-        // 🚀 BANCO MATRIZ DE SKINS DO JOGO (ENGINE VETORIAL 2D)
-        // =========================================================================
         const skinsDB = {};
-        
-        // GRATUITAS (Aparecem em destaque no menu superior)
         skinsDB['estrela'] = { name: '⭐ Estrela Guia', type: 'free', tab: 'skins', render: (g, cx, cy, r) => { drawStarGeometry(g, cx, cy, 5, r, r/2, '#ffe81f'); } };
         
         skinsDB['dino_chrome'] = { name: '🦖 Dino Chrome', type: 'free', tab: 'skins', render: (g, cx, cy, r) => {
@@ -485,7 +477,6 @@
             g.restore(); 
         }};
 
-        // PREMIUM REALISTA
         skinsDB['trem_bala'] = { name: '🚄 Trem Bala Metropolitano', type: 'coins', cost: 1000, tab: 'bizarre', render: (g, cx, cy, r) => {
             g.save(); g.fillStyle = "#dddddd"; g.beginPath(); g.moveTo(cx - r, cy - r*0.6); g.lineTo(cx + r*0.4, cy - r*0.6);
             g.quadraticCurveTo(cx + r*1.2, cy - r*0.2, cx + r*1.2, cy + r*0.6); g.lineTo(cx - r, cy + r*0.6); g.closePath(); g.fill();
@@ -496,7 +487,6 @@
             g.restore();
         }};
 
-        // BIZARRAS (Moedas e Ads)
         skinsDB['televisao'] = { name: '📺 TV de Tubo Retrô', type: 'coins', cost: 150, tab: 'bizarre', render: (g, cx, cy, r) => {
             g.save(); g.fillStyle = "#5c4033"; g.fillRect(cx - r, cy - r*0.8, r*2, r*1.5); g.fillStyle = "#00ff00"; g.fillRect(cx - r*0.8, cy - r*0.6, r*1.3, r*1.1);
             g.fillStyle = "#222"; g.fillRect(cx + r*0.6, cy - r*0.5, r*0.3, r*0.9); g.restore();
@@ -524,7 +514,7 @@
             g.fillRect(cx - r*0.4, cy - r*0.3, r*0.8, r*0.4); g.fillRect(cx - r*0.4, cy - r*0.9, 2, r*0.6); g.fillRect(cx, cy - r*0.9, 2, r*0.6); g.fillRect(cx + r*0.4, cy - r*0.9, 2, r*0.6);
             g.restore();
         }};
-        skinsDB['colher'] = { name: ' Spoon Sopa', type: 'ad', cost: 0, tab: 'bizarre', render: (g, cx, cy, r) => {
+        skinsDB['colher'] = { name: '🥄 Colher de Sopa', type: 'ad', cost: 0, tab: 'bizarre', render: (g, cx, cy, r) => {
             g.save(); g.strokeStyle = "#cccccc"; g.lineWidth = 3; g.beginPath(); g.moveTo(cx, cy + r); g.lineTo(cx, cy); g.stroke();
             g.fillStyle = "#cccccc"; g.beginPath(); g.ellipse(cx, cy - r*0.4, r*0.4, r*0.6, 0, 0, Math.PI*2); g.fill(); g.restore();
         }};
@@ -549,9 +539,7 @@
                 updateHUD(); safeSetText('withdraw-balance', saldoPixAcumulado);
                 triggerTruePayoutPayoutNotice("🔄 Câmbio Executado: R$ 1,00 integrado!");
                 setTimeout(() => { trackMenuClicks(); }, 400);
-            } else {
-                alert("❌ Saldo Insuficiente! Requer 10.000 Moedas Amarelas.");
-            }
+            } else { alert("❌ Saldo Insuficiente! Requer 10.000 Moedas Amarelas."); }
         }
 
         function initAudioEngine() { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startProceduralMusic(); } catch(e){} }
@@ -632,9 +620,6 @@
             return BASE_GROUND_Y;
         }
 
-        // =========================================================================
-        // 🌍 MOTOR DE ALTERNÂNCIA DE CENÁRIOS (PROTEÇÃO ABSOLUTA ANTI-TELA PRETA)
-        // =========================================================================
         function calculateInfinitePhaseStyle(phase) {
             let index = ((phase - 1) % 4) + 1;
             let targetCenario = BANCO_CENARIOS_PAISES[index];
@@ -644,31 +629,16 @@
             if (timeflowActiveTimer > 0) obstacleSpeed *= 0.5;
             if (obstacleSpeed > 16) obstacleSpeed = 16;
 
-            // Se a imagem ainda não começou a carregar, dispara o preloader assíncrono em background
             if (!targetCenario.loadedImg && !targetCenario.isPreloading) {
                 targetCenario.isPreloading = true;
-                console.log(`[PAÍS] Carregando malha visual de fundo para: ${targetCenario.nome}`);
                 let img = new Image();
                 img.crossOrigin = "anonymous";
-                img.onload = function() {
-                    targetCenario.loadedImg = img;
-                    targetCenario.isPreloading = false;
-                };
-                img.onerror = function() {
-                    targetCenario.isPreloading = false;
-                    console.warn(`[CENÁRIO BUG BLOCK] Erro de rede em ${targetCenario.nome}. Plano B de contingência ativo.`);
-                };
+                img.onload = function() { targetCenario.loadedImg = img; targetCenario.isPreloading = false; };
+                img.onerror = function() { targetCenario.isPreloading = false; };
                 img.src = targetCenario.url;
             }
 
-            return { 
-                name: targetCenario.nome, 
-                top: targetCenario.top, 
-                bottom: targetCenario.bottom, 
-                ground: "#00f2fe", 
-                obs: "#ff007f",
-                bgImg: targetCenario.loadedImg 
-            };
+            return { name: targetCenario.nome, top: targetCenario.top, bottom: targetCenario.bottom, ground: "#00f2fe", obs: "#ff007f", bgImg: targetCenario.loadedImg };
         }
 
         function triggerRewardedAdCall(callback) {
@@ -684,10 +654,7 @@
                 if (count <= 0) {
                     clearInterval(interval);
                     if (overlay) overlay.classList.add('hidden');
-                    if (activeRewardedAdCallback) {
-                        activeRewardedAdCallback();
-                        activeRewardedAdCallback = null;
-                    }
+                    if (activeRewardedAdCallback) { activeRewardedAdCallback(); activeRewardedAdCallback = null; }
                 }
             }, 1000);
         }
@@ -697,8 +664,7 @@
             if (playerMana >= 40) {
                 playerMana -= 40;
                 safeSetText('hud-mana', `⚡ Energia: ${playerMana}%`);
-                activeLaserFrame = 25; 
-                obstacles = []; 
+                activeLaserFrame = 25; obstacles = []; 
                 if (audioCtx && !isMuted) {
                     try {
                         let osc = audioCtx.createOscillator(); let g = audioCtx.createGain();
@@ -709,9 +675,7 @@
                         osc.start(); osc.stop(audioCtx.currentTime + 0.3);
                     } catch(e){}
                 }
-            } else {
-                alert("⚡ Energia Insuficiente! Aguarde o preenchimento automático.");
-            }
+            } else { alert("⚡ Energia Insuficiente! Aguarde o preenchimento automático."); }
         }
 
         function runGameLoop() {
@@ -721,7 +685,6 @@
 
                     if (!isPaused && gameActive) {
                         frameCount++; 
-                        
                         if (turboActiveTimer > 0) turboActiveTimer--;
                         if (magnetActiveTimer > 0) magnetActiveTimer--;
                         if (timeflowActiveTimer > 0) timeflowActiveTimer--;
@@ -741,12 +704,9 @@
                             score++; 
                             currentPhase = Math.floor(score / 500) + 1;
                             currentPhaseConfig = calculateInfinitePhaseStyle(currentPhase);
-                            
                             document.getElementById('laser-action-btn').style.display = (currentPhase >= 4) ? 'flex' : 'none';
                             document.getElementById('hud-mana').style.display = (currentPhase >= 4) ? 'inline' : 'none';
-
-                            updateAndGenerateTerrain(currentFrameSpeed); 
-                            updateSpawningEngine();
+                            updateAndGenerateTerrain(currentFrameSpeed); updateSpawningEngine();
                         } else {
                             bonusStageTimer--;
                             if (bonusStageTimer <= 0) { isBonusStageMode = false; initTerrain(); }
@@ -761,7 +721,6 @@
                         updateEntitiesAndCollisions(currentFrameSpeed);
                         player.velocity += player.gravity;
                         let nextY = player.y + player.velocity;
-                        
                         let floorY = getGroundYAt(player.x + player.width/2);
                         if (player.onPlatform) floorY = player.platformTop;
 
@@ -778,8 +737,6 @@
                     }
 
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    // SEGURANÇA CONTRA TELA PRETA: Se a imagem real estiver pronta, desenha. Caso contrário, cai no gradiente.
                     if (currentPhaseConfig.bgImg) {
                         ctx.drawImage(currentPhaseConfig.bgImg, 0, 0, canvas.width, canvas.height);
                     } else {
@@ -801,8 +758,7 @@
                                 ctx.fillStyle = currentPhaseConfig.ground || "#00f2fe";
                                 ctx.fillRect(seg.x, seg.hStart, seg.w, canvas.height - seg.hStart);
                                 ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); 
-                                ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(seg.x, seg.hStart); ctx.lineTo(seg.x + seg.w, seg.hEnd); ctx.stroke();
                             }
                         }
                         ctx.restore();
@@ -816,8 +772,7 @@
                             ctx.fillStyle = "#00ffcc"; ctx.beginPath(); ctx.arc(it.x, it.y, 11, 0, Math.PI * 2); ctx.fill();
                             ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
                         } else {
-                            ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe"; 
-                            ctx.beginPath(); ctx.arc(it.x, it.y, 7, 0, Math.PI * 2); ctx.fill(); 
+                            ctx.fillStyle = (it.type==='coin') ? "#ffe81f" : "#00f2fe"; ctx.beginPath(); ctx.arc(it.x, it.y, 7, 0, Math.PI * 2); ctx.fill(); 
                         }
                         ctx.restore(); 
                     });
@@ -880,9 +835,7 @@
                 let p = platforms[i]; p.x -= speed;
                 if (platOverlapsPlayer(p)) {
                     if (p.isPipe) { platforms.splice(i, 1); triggerBonusStageActivation(); continue; }
-                    if (p.isTrain && turboActiveTimer <= 0) {
-                        platforms.splice(i, 1); handleTrainCrashFatal(); return;
-                    }
+                    if (p.isTrain && turboActiveTimer <= 0) { platforms.splice(i, 1); handleTrainCrashFatal(); return; }
                 }
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     let fY = player.y + player.height;
@@ -892,7 +845,6 @@
             }
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i]; o.x -= speed;
-
                 if (!isBonusStageMode && player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) {
                     obstacles.splice(i, 1);
                     if (turboActiveTimer > 0) continue;
@@ -904,13 +856,10 @@
             }
             for (let i = itemsInGame.length - 1; i >= 0; i--) {
                 let it = itemsInGame[i]; it.x -= speed;
-                
                 if (magnetActiveTimer > 0 && it.x > player.x) {
-                    let diffY = (player.y + player.height/2) - it.y;
-                    let diffX = (player.x + player.width/2) - it.x;
+                    let diffY = (player.y + player.height/2) - it.y; let diffX = (player.x + player.width/2) - it.x;
                     it.x += diffX * 0.15; it.y += diffY * 0.15;
                 }
-
                 let d = Math.hypot((player.x + player.width/2) - it.x, (player.y + player.height/2) - it.y);
                 if (d < 32) {
                     if (it.type === 'special_coin') {
@@ -928,64 +877,71 @@
 
         function platOverlapsPlayer(p) { return (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y); }
 
-        function handleTrainCrashFatal() { 
-            gameActive = false; updatePauseButtonVisibility();
-            document.getElementById('train-gameover-screen').classList.remove('hidden');
-            callMonetagSmartlink();
-        }
-
-        function handleLifeLoss() { 
-            lives--; updateHUD(); 
-            if (lives <= 0) { 
-                gameActive = false; updatePauseButtonVisibility();
-                safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden');
-                callMonetagSmartlink();
-            } 
-        }
-
-        function trackMenuClicks() {
-            menuClickCounter++;
-            if (menuClickCounter >= 5) {
-                menuClickCounter = 0; callMonetagSmartlink();
-            }
-        }
+        function handleTrainCrashFatal() { gameActive = false; updatePauseButtonVisibility(); document.getElementById('train-gameover-screen').classList.remove('hidden'); callMonetagSmartlink(); }
+        function handleLifeLoss() { lives--; updateHUD(); if (lives <= 0) { gameActive = false; updatePauseButtonVisibility(); safeSetText('final-score', score); document.getElementById('gameover-screen').classList.remove('hidden'); callMonetagSmartlink(); } }
+        function trackMenuClicks() { menuClickCounter++; if (menuClickCounter >= 5) { menuClickCounter = 0; callMonetagSmartlink(); } }
 
         document.getElementById('history-screen').addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-
-        function updatePauseButtonVisibility() { 
-            document.getElementById('main-pause-btn').style.display = gameActive ? 'flex' : 'none'; 
-            if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; }
-        }
+        function updatePauseButtonVisibility() { document.getElementById('main-pause-btn').style.display = gameActive ? 'flex' : 'none'; if(!gameActive) { document.getElementById('laser-action-btn').style.display = 'none'; } }
         function togglePauseGame() { trackMenuClicks(); if(!gameActive) return; isPaused = !isPaused; document.getElementById('pause-screen').toggle('hidden'); }
         function startGame() { initAudioEngine(); document.getElementById('start-screen').classList.add('hidden'); initTerrain(); gameActive = true; isPaused = false; lives = 3; score = 0; player.y = BASE_GROUND_Y - 100; player.velocity = 0; playerMana = 100; updateHUD(); updatePauseButtonVisibility(); }
 
         // =========================================================================
-        // 💰 INTEGRAÇÃO FINANCEIRA ATUALIZADA (REGRA DE 1.000 PONTOS = R$ 1,00)
+        // 💰 INTERCEPTADOR DE REDE MASTER COM TELEMETRIA INTEGRADA (CORRIGIDO)
         // =========================================================================
         function requestPixPayout() {
             trackMenuClicks();
-            const key = document.getElementById('pix-key').value; const pontos = saldoPixAcumulado;
-            if (!key) { alert("Informe a chave."); return; } 
+            const key = document.getElementById('pix-key').value; 
+            const pontos = saldoPixAcumulado;
             
-            // Nova trava operacional de 1000 pontos mínimo exigido por você
-            if (pontos < 1000) { alert("O limite mínimo exigido para resgate é de 1.000 pontos (R$ 1,00)."); return; }
-            
+            if (!key) { 
+                alert("❌ Por favor, insira uma Chave Pix válida antes de submeter."); 
+                return; 
+            } 
+            if (pontos < 1000) { 
+                alert("❌ Saldo insuficiente. A régua mínima parametrizada para resgate é de 1.000 pontos (R$ 1,00)."); 
+                return; 
+            }
+
             let valorReal = (pontos * 0.001).toFixed(2);
-            let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Processando...' };
-            pixHistoryData.push(newRequest); safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-            const multiPayload = { chavePix: key, chave: key, pontos: pontos, amount: valorReal, valor: valorReal };
-            
-            fetch(URL_BACKEND_PIX, { method: "POST", mode: "cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(multiPayload) })
-            .then(res => res.json())
-            .then(data => {
-                newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-                triggerTruePayoutPayoutNotice(`Pix de R$ ${valorReal} enviado com sucesso!`);
+            triggerTruePayoutPayoutNotice("⏳ Sincronizando transação com o barramento bancário...");
+
+            fetch(URL_BACKEND_PIX, { 
+                method: "POST", 
+                mode: "cors", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ chavePix: key, pontos: pontos }) 
             })
-            .catch(() => {
-                newRequest.status = 'Pago'; safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
-                triggerTruePayoutPayoutNotice(`Pix de R$ ${valorReal} processado com sucesso!`);
+            .then(async res => {
+                const data = await res.json();
+                // Bloqueia e desvia o fluxo caso a flag success venha falsa do Render
+                if (!res.ok || data.success === false) {
+                    throw new Error(data.error || "Rejeição assíncrona no gateway da instituição de pagamento.");
+                }
+                return data;
+            })
+            .then(data => {
+                // SEÇÃO EXECUTADA EXCLUSIVAMENTE SOB RETORNO HTTP 200 (SUCESSO CONFIRMADO)
+                let newRequest = { id: 'pix_' + Date.now(), chave: key, valor: valorReal, status: 'Pago' };
+                pixHistoryData.push(newRequest); 
+                safeSetStorage('pixHistoryData', JSON.stringify(pixHistoryData));
+                
+                // Liquidação interna: Desconta a pontuação virtual somente após confirmação do Asaas
+                saldoPixAcumulado = 0; 
+                safeSetStorage('saldoPixAcumulado', 0); 
+                updateHUD(); 
+                
+                triggerTruePayoutPayoutNotice(`💸 Liquidação Concluída! R$ ${valorReal} injetado na conta.`);
+                chessToggle('withdraw-screen', 'start-screen');
+            })
+            .catch(err => {
+                // CAPTURA DA TELEMETRIA DETALHADA E TRATADA PELO BACK-END
+                console.error("[PIPELINE ABERTO - ERRO CAPTURADO]:", err.message);
+                
+                // Exibe o motivo bruto do banco (Ex: transfer_statement_insufficient_funds) sem sumir com os pontos
+                alert(`⚠️ FALHA NO GATEWAY BANCÁRIO\n\nRetorno Técnico: ${err.message}\n\nAvaliação: Sua pontuação in-game foi completamente preservada.`);
+                updateHUD();
             });
-            saldoPixAcumulado = 0; safeSetStorage('saldoPixAcumulado', 0); updateHUD(); chessToggle('withdraw-screen', 'start-screen');
         }
 
         function triggerTruePayoutPayoutNotice(msg) { const toast = document.getElementById('payout-toast'); const toastMsg = document.getElementById('payout-toast-msg'); if(!toast) return; toastMsg.innerText = msg; toast.classList.add('active'); setTimeout(() => { toast.classList.remove('active'); }, 5000); }
@@ -998,12 +954,8 @@
         function closeShop() { document.getElementById('shop-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function changeShopTab(tab) { trackMenuClicks(); currentShopTab = tab; buildShop(); }
 
-        // =========================================================================
-        // 🏪 DINÂMICA DA LOJA ATUALIZADA (DINO NO TOPO E LABELS DE IMAGEM AO LADO)
-        // =========================================================================
         function buildShop() {
             const grid = document.getElementById('shop-items-container'); if(!grid) return; grid.innerHTML = ''; safeSetText('shop-coins-txt', coins);
-            
             if (currentShopTab === 'powerups') {
                 for (const [id, item] of Object.entries(powerupsDB)) {
                     grid.innerHTML += `
@@ -1020,14 +972,11 @@
                     if (item.tab !== currentShopTab) continue;
                     let isUnlocked = unlockedSkins.includes(id); let isEquipped = (currentSkinId === id);
                     let buttonLabel = isUnlocked ? (isEquipped ? '✓ Ativo' : 'Equipar') : (item.type === 'ad' ? '🎬 Anúncio' : `🪙 ${item.cost}`);
-
                     grid.innerHTML += `
                         <div class="shop-item">
                             <canvas class="preview-canvas-mini" width="50" height="50" id="mini_preview_skin_${id}"></canvas>
                             <div style='font-size:10px; font-weight:bold;'>${item.name}</div>
-                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">
-                                ${buttonLabel}
-                            </button>
+                            <button class='btn btn-sm' ${isEquipped?'disabled':''} onclick="purchaseSkinItem('${id}', '${item.type}', ${item.cost || 0})">${buttonLabel}</button>
                         </div>`;
                 }
                 setTimeout(() => {
@@ -1043,13 +992,8 @@
         function buyPowerUpItem(id, method, cost) {
             trackMenuClicks();
             if (method === 'coins') {
-                if (coins >= cost) {
-                    coins -= cost; safeSetStorage('coins', coins);
-                    activatePowerUpState(id);
-                } else { alert("Moedas insuficientes."); }
-            } else {
-                triggerRewardedAdCall(() => { activatePowerUpState(id); });
-            }
+                if (coins >= cost) { coins -= cost; safeSetStorage('coins', coins); activatePowerUpState(id); } else { alert("Moedas insuficientes."); }
+            } else { triggerRewardedAdCall(() => { activatePowerUpState(id); }); }
         }
 
         function activatePowerUpState(id) {
@@ -1057,25 +1001,18 @@
             else if (id === 'magnet') { magnetActiveTimer = 550; playSoundShield(); }
             else if (id === 'turbo') { turboActiveTimer = 350; playSoundShield(); }
             else if (id === 'timeflow') { timeflowActiveTimer = 600; playSoundShield(); }
-            buildShop(); updateHUD();
-            triggerTruePayoutPayoutNotice(`✨ Upgrade ${id.toUpperCase()} ativado!`);
+            buildShop(); updateHUD(); triggerTruePayoutPayoutNotice(`✨ Upgrade ${id.toUpperCase()} ativado!`);
         }
 
         function purchaseSkinItem(id, type, cost) {
             trackMenuClicks();
             if (unlockedSkins.includes(id)) { currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); return; }
             if (type === 'coins' && coins < cost) { alert("Moedas insuficientes."); return; }
-            
             if (type === 'coins') {
                 coins -= cost; safeSetStorage('coins', coins);
                 unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins));
                 currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop();
-            } else {
-                triggerRewardedAdCall(() => { 
-                    unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); 
-                    currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); 
-                });
-            }
+            } else { triggerRewardedAdCall(() => { unlockedSkins.push(id); safeSetStorage('unlockedSkins', JSON.stringify(unlockedSkins)); currentSkinId = id; safeSetStorage('currentSkinId', id); buildShop(); }); }
         }
 
         function openWithdraw() { trackMenuClicks(); document.getElementById('start-screen').classList.add('hidden'); safeSetText('withdraw-balance', saldoPixAcumulado); document.getElementById('withdraw-screen').classList.remove('hidden'); }
@@ -1086,18 +1023,7 @@
 
         function openAdminLogin() { toggleSettingsMenu(); document.getElementById('start-screen').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
-        
-        // ADMIN CORRIGIDO COM VISIBILIDADE EXCLUSIVA DE ACORDO COM A REGRA DE SEGURANÇA MANDATÓRIA
-        function verifyAdminLogin() { 
-            const user = document.getElementById('admin-user-field').value; 
-            const pass = document.getElementById('admin-pass-field').value; 
-            if (user === "italong" && pass === "italo1440@aB") { 
-                document.getElementById('admin-login-screen').classList.add('hidden'); 
-                document.getElementById('admin-dashboard-screen').classList.remove('hidden'); 
-                document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>API Asaas conectada e estável em Produção.</li>"; 
-            } else { alert("Acesso negado."); } 
-        }
-        
+        function verifyAdminLogin() { const user = document.getElementById('admin-user-field').value; const pass = document.getElementById('admin-pass-field').value; if (user === "italong" && pass === "italo1440@aB") { document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-dashboard-screen').classList.remove('hidden'); document.getElementById('admin-pending-list').innerHTML = "<li class='data-item'>API Asaas conectada e estável em Produção.</li>"; } else { alert("Acesso negado."); } }
         function closeAdminDashboard() { document.getElementById('admin-dashboard-screen').classList.add('hidden'); document.getElementById('start-screen').classList.remove('hidden'); }
         function chessToggle(h, s) { document.getElementById(h).classList.add('hidden'); document.getElementById(s).classList.remove('hidden'); }
         function callMonetagSmartlink() { window.open(MONETAG_SMARTLINK, '_blank'); }
@@ -1121,7 +1047,6 @@
         function playerJump() { if (!gameActive || isPaused) return; if (!player.isJumping) { player.velocity = player.lift; player.isJumping = true; playSoundJump(); } }
 
         window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { playerJump(); e.preventDefault(); } });
-        
         window.addEventListener('touchstart', (e) => {
             const isControl = e.target.closest('button') || e.target.closest('.pause-btn') || e.target.closest('.settings-gear') || e.target.closest('#laser-action-btn') || e.target.closest('#ad-banner-placement') || e.target.closest('#jukebox-selector') || e.target.closest('input') || e.target.closest('.screen');
             if (!gameActive && !initialScreenAdTriggered && !isControl) { initialScreenAdTriggered = true; callMonetagSmartlink(); }
@@ -1136,10 +1061,8 @@
             playerJump();
         });
 
-        resizeEngineCanvas();
-        ctx = document.getElementById('gameCanvas').getContext('2d');
+        resizeEngineCanvas(); ctx = document.getElementById('gameCanvas').getContext('2d');
         initTerrain(); updateHUD(); requestAnimationFrame(runGameLoop);
-
         window.addEventListener('load', () => { try { window.open(MONETAG_SMARTLINK, '_blank'); } catch(e){} });
     </script>
 </body>
