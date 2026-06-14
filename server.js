@@ -1,72 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
 // =========================================================================
-// CONFIGURAÇÃO DE CREDENCIAIS MATRIZ
-// =========================================================================
-const ASAAS_API_KEY = process.env.ASAAS_API_KEY || "$asaasApiKey_substitua_aqui_se_nao_usar_env";
-const ASAAS_URL = "https://www.asaas.com/api/v3/transfers"; 
-const ASAAS_URL_ACCOUNT = "https://www.asaas.com/api/v3/myAccount";
-
-// =========================================================================
-// ENGINE DE DIAGNÓSTICO INTROSPECTIVO (Health Check de Boot)
-// =========================================================================
-async function executarHealthCheckAsaas() {
-    console.log("[HEALTH CHECK] Iniciando varredura cadastral no nó do Asaas...");
-    try {
-        const response = await axios.get(ASAAS_URL_ACCOUNT, {
-            headers: {
-                'access_token': ASAAS_API_KEY,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const payload = response.data;
-        console.log("[DEBUG] Chaves validadas no barramento:", Object.keys(payload));
-
-        const contaId = payload.id || "Não exposto no nível raiz";
-        const titular = payload.name || "Não localizado";
-        const tipoPessoa = payload.personType || "Não localizado";
-        
-        const statusComercial = payload.status || payload.commercialApproval || "UNDEFINED";
-
-        console.log("\n====================================================");
-        console.log("📊 MATRIZ DE CONFIGURAÇÃO DE CONTA - ASAAS");
-        console.log("====================================================");
-        console.log(`ID da Conta:      ${contaId}`);
-        console.log(`Titular:          ${titular}`);
-        console.log(`Tipo de Pessoa:   ${tipoPessoa}`);
-        console.log("----------------------------------------------------");
-        
-        switch (statusComercial.toString().toUpperCase()) {
-            case "APPROVED":
-            case "ACTIVE":
-            case "ATIVO":
-                console.log("🟢 STATUS: APPROVED/ACTIVE (Conta 100% Homologada)");
-                console.log("[🎯 LIBERADO] O pipeline de Payout/SPI está destravado. Requisições Pix via API serão liquidadas em tempo real.");
-                break;
-            case "PENDING":
-                console.log("🟡 STATUS: PENDING (Em Análise Comercial de Risco)");
-                console.log("[🚧 TRAVADO] O envio de Pix via API falhará até a liberação da feature flag de Payout.");
-                break;
-            default:
-                console.log(`❓ STATUS DETECTADO: ${statusComercial}`);
-        }
-        console.log("====================================================\n");
-
-    } catch (error) {
-        console.error("[CRITICAL ERROR] Falha ao consultar o endpoint de metadados:", error.message);
-    }
-}
-
-// =========================================================================
-// ROTA DE SAQUE PIX COM VALIDAÇÃO ALINHADA A R$ 0,50 (CORRIGIDO)
+// ROTA DE SAQUE PIX COM VERIFICAÇÃO DE LIQUIDAÇÃO EM TEMPO REAL (SPI POLLING)
 // =========================================================================
 app.post('/api/saque-pix', async (req, res) => {
     try {
@@ -76,15 +9,12 @@ app.post('/api/saque-pix', async (req, res) => {
             return res.status(400).json({ success: false, error: "Chave Pix ou pontuação ausentes no payload." });
         }
 
-        // CORREÇÃO: Alinhado estritamente com os novos parâmetros do front-end
         const pontosMinimos = 500;
         if (Number(pontos) < pontosMinimos) {
             return res.status(400).json({ success: false, error: "O saque mínimo exigido é de 500 pontos (R$ 0,50)." });
         }
 
-        // Conversão matemática exata: 500 pontos = R$ 0,50
         const valorReal = parseFloat((Number(pontos) * 0.001).toFixed(2));
-
         let tipoChave = "EVP"; 
         let chaveDestino = chavePix.trim();
 
@@ -101,9 +31,10 @@ app.post('/api/saque-pix', async (req, res) => {
             chaveDestino = chaveDestino.replace(/\D/g, ""); 
         }
 
-        console.log(`[PAYOUT] Processando requisição de R$ ${valorReal} para chave [${tipoChave}]`);
+        console.log(`[PAYOUT INITIATED] Solicitando R$ ${valorReal} no Asaas...`);
 
-        const response = await axios.post(ASAAS_URL, {
+        // 1. Cria a intenção de transferência no Asaas
+        const responsePre = await axios.post(ASAAS_URL, {
             value: valorReal,
             pixAddressKey: chaveDestino,
             pixAddressKeyType: tipoChave
@@ -114,42 +45,59 @@ app.post('/api/saque-pix', async (req, res) => {
             }
         });
 
-        if (response.status === 200 || response.status === 201) {
-            return res.status(200).json({ 
-                success: true, 
-                message: "Pix enviado e liquidado com sucesso via Asaas!" 
+        const transferId = responsePre.data.id;
+        console.log(`[PAYOUT PENDING] Transferência registrada com ID: ${transferId}. Aguardando análise do SPI...`);
+
+        // =========================================================================
+        // ENGINE DE INTERCEPTAÇÃO ASSÍNCRONA (Aguardar 2.5 segundos para o clearing bancário)
+        // =========================================================================
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
+        // 2. Consulta o nó do Asaas para capturar o veredito real do Banco Central
+        const responseCheck = await axios.get(`${ASAAS_URL}/${transferId}`, {
+            headers: {
+                'access_token': ASAAS_API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const statusReal = responseCheck.data.status;
+        const motivoFalha = responseCheck.data.failReason || "Autorização externa recusada pelo banco receptor.";
+
+        console.log(`[SPI TELEMETRY] Status atualizado no banco: ${statusReal}`);
+
+        // Se o banco externo recusar dentro dos 2.5s, força o disparo do Catch e salva os pontos
+        if (statusReal === "FAILED" || statusReal === "REFUSED") {
+            return res.status(400).json({
+                success: false,
+                error: `Recusa Externa: ${motivoFalha}`
             });
-        } else {
-            return res.status(500).json({ success: false, error: "O gateway recusou o processamento do lote Pix." });
         }
 
+        // Se passar ou continuar pendente em análise de lote, assume liquidação segura
+        return res.status(200).json({ 
+            success: true, 
+            statusPix: statusReal,
+            message: "Pix processado pelo barramento com sucesso!" 
+        });
+
     } catch (error) {
-        console.error("[CRITICAL CAPTURE] Captura de exceção no barramento de Payout.");
+        console.error("[CRITICAL CAPTURE] Falha na esteira de liquidação.");
         
         if (error.response && error.response.data) {
             const asaasErrors = error.response.data.errors;
-            
             if (asaasErrors && asaasErrors.length > 0) {
-                const erroPrincipal = asaasErrors[0];
-                console.error(`-> Código Asaas: ${erroPrincipal.code} | Descrição: ${erroPrincipal.description}`);
-                
                 return res.status(error.response.status).json({
                     success: false,
-                    error: `Erro no Asaas (${erroPrincipal.code}): ${erroPrincipal.description}`
+                    error: `Erro no Asaas: ${asaasErrors[0].description}`
                 });
             }
-            return res.status(error.response.status).json({ success: false, error: JSON.stringify(error.response.data) });
         }
-
-        return res.status(500).json({ success: false, error: `Falha de conexão com a API: ${error.message}` });
+        
+        // Repassa o erro de recusa externa customizado para o Front-end interceptar
+        return res.status(400).json({
+            success: false,
+            error: error.message.includes("Recusa Externa") ? error.message : "Transação recusada pela instituição financeira parceira."
+        });
     }
-});
-
-// =========================================================================
-// INICIALIZAÇÃO DO ECOSSISTEMA
-// =========================================================================
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, async () => {
-    console.log(`[SERVER OK] Motor Pix Asaas rodando na porta ${PORT}`);
-    await executarHealthCheckAsaas();
 });
