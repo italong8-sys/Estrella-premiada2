@@ -34,7 +34,6 @@ async function executarHealthCheckAsaas() {
         const titular = payload.name || "Não localizado";
         const tipoPessoa = payload.personType || "Não localizado";
         
-        // Mapeamento dinâmico baseado no log real da sua conta homologada
         const statusComercial = payload.status || payload.commercialApproval || "UNDEFINED";
 
         console.log("\n====================================================");
@@ -67,7 +66,7 @@ async function executarHealthCheckAsaas() {
 }
 
 // =========================================================================
-// ROTA DE SAQUE PIX COM TELEMETRIA DE ERROS AVANÇADA (Ajuste Centavo a Centavo)
+// ROTA DE SAQUE PIX COM VALIDAÇÃO ALINHADA A R$ 0,50 (CORRIGIDO)
 // =========================================================================
 app.post('/api/saque-pix', async (req, res) => {
     try {
@@ -77,12 +76,13 @@ app.post('/api/saque-pix', async (req, res) => {
             return res.status(400).json({ success: false, error: "Chave Pix ou pontuação ausentes no payload." });
         }
 
-        const pontosMinimos = 1000;
+        // CORREÇÃO: Alinhado estritamente com os novos parâmetros do front-end
+        const pontosMinimos = 500;
         if (Number(pontos) < pontosMinimos) {
-            return res.status(400).json({ success: false, error: "O saque mínimo exigido é de 1.000 pontos (R$ 1,00)." });
+            return res.status(400).json({ success: false, error: "O saque mínimo exigido é de 500 pontos (R$ 0,50)." });
         }
 
-        // Conversão matemática estrita: 1.000 pontos = R$ 1,00
+        // Conversão matemática exata: 500 pontos = R$ 0,50
         const valorReal = parseFloat((Number(pontos) * 0.001).toFixed(2));
 
         let tipoChave = "EVP"; 
@@ -133,7 +133,6 @@ app.post('/api/saque-pix', async (req, res) => {
                 const erroPrincipal = asaasErrors[0];
                 console.error(`-> Código Asaas: ${erroPrincipal.code} | Descrição: ${erroPrincipal.description}`);
                 
-                // Retorna o erro real do Asaas direto para o modal de alerta do seu jogo
                 return res.status(error.response.status).json({
                     success: false,
                     error: `Erro no Asaas (${erroPrincipal.code}): ${erroPrincipal.description}`
@@ -147,7 +146,7 @@ app.post('/api/saque-pix', async (req, res) => {
 });
 
 // =========================================================================
-// INICIALIZAÇÃO E VINCULAÇÃO DE PORTA REQUERIDA PELO RENDER
+// INICIALIZAÇÃO DO ECOSSISTEMA
 // =========================================================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, async () => {
