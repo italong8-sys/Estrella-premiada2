@@ -37,7 +37,7 @@ async function executarHealthCheckAsaas() {
 }
 
 // =========================================================================
-// ROTA DE SAQUE PIX COM VERIFICAÇÃO DE ESTADO EM TEMPO REAL (SPI POLLING)
+// ROTA DE SAQUE PIX COM VARREDURA EM LOOP INTEGRADA (ANTI-PERDA DE PONTOS)
 // =========================================================================
 app.post('/api/saque-pix', async (req, res) => {
     try {
@@ -71,7 +71,7 @@ app.post('/api/saque-pix', async (req, res) => {
 
         console.log(`[PAYOUT INITIATED] Solicitando R$ ${valorReal} para chave [${tipoChave}] no Asaas...`);
 
-        // 1. Envia a intenção de transferência para o lote do Asaas
+        // 1. Cria o registro do Pix no Asaas
         const responsePre = await axios.post(ASAAS_URL, {
             value: valorReal,
             pixAddressKey: chaveDestino,
@@ -84,42 +84,65 @@ app.post('/api/saque-pix', async (req, res) => {
         });
 
         const transferId = responsePre.data.id;
-        console.log(`[PAYOUT PENDING] Registrado ID: ${transferId}. Aguardando retorno da rede liquidante...`);
+        console.log(`[PAYOUT PENDING] Registrado ID: ${transferId}. Iniciando varredura dinâmica no SPI...`);
 
         // =========================================================================
-        // BUFFER DE RETENÇÃO (Aguardando 2.5 segundos pelo veredito do Banco Central)
+        // ENGINE DE VARREDURA EM LOOP (Mapeia o status real do Banco Central)
         // =========================================================================
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        let statusReal = "PENDING";
+        let motivoFalha = "";
+        let tentativas = 0;
+        const maxTentativas = 5; // 5 checagens de 1.5s = ~7.5 segundos de tolerância máxima
 
-        // 2. Consulta o status definitivo do item gerado
-        const responseCheck = await axios.get(`${ASAAS_URL}/${transferId}`, {
-            headers: {
-                'access_token': ASAAS_API_KEY,
-                'Content-Type': 'application/json'
+        while ((statusReal === "PENDING" || statusReal === "BANK_PROCESSING") && tentativas < maxTentativas) {
+            // Aguarda 1.5 segundos entre as consultas
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            try {
+                const responseCheck = await axios.get(`${ASAAS_URL}/${transferId}`, {
+                    headers: {
+                        'access_token': ASAAS_API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                statusReal = responseCheck.data.status;
+                motivoFalha = responseCheck.data.failReason || "Autorização recusada pela instituição financeira receptora.";
+                tentativas++;
+                console.log(`[SPI POLLING - TENTATIVA ${tentativas}] Status atual: ${statusReal}`);
+            } catch (checkError) {
+                console.error("[POLLING ERROR] Falha ao consultar nó de status:", checkError.message);
+                break;
             }
-        });
+        }
 
-        const statusReal = responseCheck.data.status;
-        const motivoFalha = responseCheck.data.failReason || "Autorização externa recusada pela instituição financeira.";
+        console.log(`[SPI FINAL VERDICT] Veredito após varredura: ${statusReal}`);
 
-        console.log(`[SPI TELEMETRY] Resposta do barramento central: ${statusReal}`);
-
-        // Se falhar dentro da janela de retenção, aborta devolvendo erro e salvando os pontos
-        if (statusReal === "FAILED" || statusReal === "REFUSED") {
+        // SE FALHAR OU FOR RECUSADO: Intercepta e avisa o front para preservar os pontos
+        if (statusReal === "FAILED" || statusReal === "REFUSED" || statusReal === "CANCELED") {
             return res.status(400).json({
                 success: false,
                 error: `Recusa Externa: ${motivoFalha}`
             });
         }
 
+        // SE CONTINUAR PRESO COMO PENDENTE (Comum em manutenção da madrugada do Bacen):
+        // Bloqueia o sucesso para evitar que os pontos sumam sem garantia do dinheiro.
+        if (statusReal === "PENDING" || statusReal === "BANK_PROCESSING") {
+            return res.status(400).json({
+                success: false,
+                error: "O Banco Central está demorando para responder. Para sua segurança, a transação foi retida e seus pontos foram salvos. Tente novamente em instantes."
+            });
+        }
+
+        // SÓ CHEGA AQUI SE O STATUS FOR COMPROVADAMENTE "DONE", "CONFIRMED" OU SIMILAR
         return res.status(200).json({ 
             success: true, 
             statusPix: statusReal,
-            message: "Pix processado pela esteira com sucesso!" 
+            message: "Pix liquidado com sucesso!" 
         });
 
     } catch (error) {
-        console.error("[CRITICAL CAPTURE] Exceção na esteira de processamento.");
+        console.error("[CRITICAL CAPTURE] Exceção tratada no barramento.");
         
         if (error.response && error.response.data) {
             const asaasErrors = error.response.data.errors;
@@ -129,13 +152,12 @@ app.post('/api/saque-pix', async (req, res) => {
                     error: `Erro no Asaas: ${asaasErrors[0].description}`
                 });
             }
-            return res.status(error.response.status).json({ success: false, error: JSON.stringify(error.response.data) });
         }
         
         const mensagemErro = error.message || "";
         return res.status(400).json({
             success: false,
-            error: mensagemErro.includes("Recusa Externa") ? mensagemErro : "Transação recusada pelo banco receptor ou timeout de conexão."
+            error: mensagemErro.includes("Recusa Externa") ? mensagemErro : "Transação recusada ou instabilidade temporária no processamento."
         });
     }
 });
