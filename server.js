@@ -15,7 +15,7 @@ const ASAAS_URL = "https://www.asaas.com/api/v3/transfers";
 const ASAAS_URL_ACCOUNT = "https://www.asaas.com/api/v3/myAccount";
 
 // =========================================================================
-// ENGINE DE DIAGNÓSTICO (Executado no Boot do Servidor)
+// ENGINE DE DIAGNÓSTICO INTROSPECTIVO (Anti-Undefined)
 // =========================================================================
 async function executarHealthCheckAsaas() {
     console.log("[HEALTH CHECK] Iniciando varredura cadastral no nó do Asaas...");
@@ -27,35 +27,53 @@ async function executarHealthCheckAsaas() {
             }
         });
 
-        const { id, name, commercialApproval, personType } = response.data;
+        const payload = response.data;
+
+        // DEBUG INTROSPECTIVO: Mapeia as chaves reais devolvidas pela API no log do Render
+        console.log("[DEBUG] Estrutura de chaves recebida do Asaas:", Object.keys(payload));
+
+        // MAPEAMENTO DEFENSIVO: Busca por chaves primárias ou mapeamentos alternativos no JSON
+        const contaId = payload.id || payload.apiKeyId || "Não exposto no nível raiz";
+        const titular = payload.name || "Não localizado";
+        const tipoPessoa = payload.personType || "Não localizado";
+        
+        // RESOLUÇÃO DE STATUS COMERCIAL (Varredura de propriedades redundantes do ecossistema Asaas)
+        const statusComercial = payload.commercialApproval || payload.status || payload.accountStatus || "UNDEFINED";
 
         console.log("\n====================================================");
         console.log("📊 MATRIZ DE CONFIGURAÇÃO DE CONTA - ASAAS");
         console.log("====================================================");
-        console.log(`ID da Conta:      ${id}`);
-        console.log(`Titular:          ${name}`);
-        console.log(`Tipo de Pessoa:   ${personType}`);
+        console.log(`ID da Conta:      ${contaId}`);
+        console.log(`Titular:          ${titular}`);
+        console.log(`Tipo de Pessoa:   ${tipoPessoa}`);
         console.log("----------------------------------------------------");
         
-        switch (commercialApproval) {
+        // ENGINE DE DECISÃO DE RISK COMPLIANCE
+        switch (statusComercial.toString().toUpperCase()) {
             case "APPROVED":
-                console.log("🟢 STATUS: APPROVED (Conta 100% Homologada)");
+            case "ACTIVE":
+            case "ATIVO":
+                console.log("🟢 STATUS: APPROVED/ACTIVE (Conta 100% Homologada)");
                 console.log("[🎯 LIBERADO] O pipeline de Payout/SPI está destravado. Requisições Pix via API serão liquidadas em tempo real.");
                 break;
             case "PENDING":
+            case "EM_ANALISE":
                 console.log("🟡 STATUS: PENDING (Em Análise Comercial de Risco)");
-                console.log("[🚧 TRAVADO] Seus documentos foram recebidos, mas o comitê de compliance do Asaas ainda não virou a chave da API. O Pix de saída falhará na rede externa externa (Banco Central).");
+                console.log("[🚧 TRAVADO] Seus documentos foram recebidos, mas o comitê de compliance do Asaas ainda não virou a chave da API. O Pix de saída falhará na rede externa (Banco Central).");
                 break;
             case "REJECTED":
+            case "RECUSADO":
                 console.log("🔴 STATUS: REJECTED (Cadastro Recusado)");
-                console.log("[❌ BLOQUEIO TOTAL] A conformidade bancária rejeitou a documentação ou detectou inconsistência cadastral. Verifique os logs no painel administrativo.");
+                console.log("[❌ BLOQUEIO TOTAL] A conformidade bancária rejeitou a documentação ou detectou inconsistência cadastral.");
                 break;
             case "AWAITING_APPROVAL":
-                console.log("🔵 STATUS: AWAITING_APPROVAL (Aguardando Disparo de Validação)");
-                console.log("[⚠️ AÇÃO REQUERIDA] A conta necessita que você finalize o fluxo de onboarding (como a biometria facial/selfie no app móvel) para entrar na fila de análise.");
+            case "AGUARDANDO_APROVACAO":
+                console.log("🔵 STATUS: AWAITING_APPROVAL (Aguardando Fluxo de Onboarding)");
+                console.log("[⚠️ AÇÃO REQUERIDA] Finalize as etapas pendentes (Biometria/Selfie) no app móvel do Asaas.");
                 break;
             default:
-                console.log(`❓ STATUS DESCONHECIDO: ${commercialApproval}`);
+                console.log(`❓ STATUS DETCONHECIDO OU AGUARDANDO CONFIGURAÇÃO: ${statusComercial}`);
+                console.log("[ℹ️ INFORMAÇÃO] O Asaas opera esta conta sob regime restrito de Sandbox/Onboarding manual.");
         }
         console.log("====================================================\n");
 
@@ -139,7 +157,7 @@ app.post('/api/saque-pix', async (req, res) => {
 
         return res.status(500).json({ 
             success: false, 
-            error: mensagemErro 
+            error: mensajeErro 
         });
     }
 });
@@ -150,7 +168,5 @@ app.post('/api/saque-pix', async (req, res) => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, async () => {
     console.log(`[SERVER OK] Motor Pix Asaas rodando na porta ${PORT}`);
-    
-    // Dispara a varredura automática no console assim que o servidor subir
     await executarHealthCheckAsaas();
 });
